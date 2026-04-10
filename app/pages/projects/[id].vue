@@ -46,6 +46,35 @@ const isNotFound = computed(() => {
   const e = error.value as { statusCode?: number; statusMessage?: string } | null
   return e?.statusCode === 404 || e?.statusMessage === 'NOT_FOUND'
 })
+
+const ogDescription = computed(() => {
+  const d = project.value?.description ?? ''
+  if (!d) return 'Portfolio Project KRA'
+  return d.length > 160 ? `${d.slice(0, 157)}…` : d
+})
+
+useSeoMeta({
+  title: computed(() => {
+    if (pending.value) return 'Project KRA'
+    if (error.value) return 'Project KRA · Proyecto'
+    return project.value?.title ?? 'Project KRA'
+  }),
+  ogTitle: computed(() => {
+    if (pending.value) return 'Project KRA'
+    if (error.value) return 'Project KRA'
+    return project.value?.title ?? 'Project KRA'
+  }),
+  description: computed(() => {
+    if (pending.value) return 'Cargando proyecto…'
+    if (error.value) return isNotFound.value ? 'Proyecto no encontrado.' : 'No se pudo cargar el proyecto.'
+    return project.value?.description ?? 'Portfolio Project KRA'
+  }),
+  ogDescription: computed(() => {
+    if (pending.value) return 'Cargando proyecto…'
+    if (error.value) return isNotFound.value ? 'Proyecto no encontrado.' : 'Error al cargar el proyecto.'
+    return ogDescription.value
+  })
+})
 </script>
 
 <template>
