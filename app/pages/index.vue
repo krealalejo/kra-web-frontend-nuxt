@@ -14,6 +14,13 @@ const { data: projects, pending, error } = await useAsyncData(
     return await $fetch<ProjectDto[]>(`${apiBase}/projects?limit=50`)
   }
 )
+
+const isMissingApiBase = computed(() => {
+  const msg = error.value && typeof error.value === 'object' && 'message' in error.value
+    ? String((error.value as Error).message)
+    : error.value ? String(error.value) : ''
+  return msg.includes('MISSING_API_BASE')
+})
 </script>
 
 <template>
@@ -29,7 +36,29 @@ const { data: projects, pending, error } = await useAsyncData(
 
     <section class="pb-12">
       <div class="mx-auto max-w-5xl px-4">
-        <p v-if="pending" class="text-sm text-slate-600">Cargando proyectos…</p>
+        <div
+          v-if="error"
+          class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800"
+          role="alert"
+        >
+          <p class="font-medium">
+            No se pudieron cargar los proyectos
+          </p>
+          <p
+            v-if="isMissingApiBase"
+            class="mt-2 text-sm"
+          >
+            Falta configurar la URL del API. Define <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code> (ver <code class="rounded bg-red-100 px-1">.env.example</code>) y reinicia el servidor de desarrollo.
+          </p>
+          <p
+            v-else
+            class="mt-2 text-sm"
+          >
+            El servidor no respondió o rechazó la petición. Comprueba que el API Spring Boot está en marcha y que la URL base es correcta.
+          </p>
+        </div>
+
+        <p v-else-if="pending" class="text-sm text-slate-600">Cargando proyectos…</p>
 
         <ul
           v-else-if="projects && projects.length > 0"
