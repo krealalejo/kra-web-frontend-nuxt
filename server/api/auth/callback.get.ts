@@ -16,8 +16,8 @@ export default defineEventHandler(async (event) => {
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
-    redirect_uri: config.cognitoRedirectUri,
-    client_id: config.cognitoClientId,
+    redirect_uri: config.public.cognitoRedirectUri,
+    client_id: config.public.cognitoClientId,
     client_secret: config.cognitoClientSecret,
   })
 
