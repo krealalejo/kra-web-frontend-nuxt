@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { ProjectDto } from '~/types/project'
+import type { PortfolioRepoDto } from '~/types/portfolio'
 
 const config = useRuntimeConfig()
 
 const { data: projects, pending, error } = await useAsyncData(
-  'home-projects',
+  'home-portfolio-repos',
   async () => {
     const raw = config.public.apiBase
     const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
     if (!apiBase) {
       throw new Error('MISSING_API_BASE')
     }
-    return await $fetch<ProjectDto[]>(`${apiBase}/projects?limit=50`)
+    return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
   }
 )
 
@@ -29,7 +29,7 @@ const isMissingApiBase = computed(() => {
       <div class="mx-auto max-w-5xl">
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Project KRA</h1>
         <p class="mt-3 max-w-2xl text-slate-600">
-          Portfolio and engineering workspace — projects below are loaded from the Spring Boot API (SSR).
+          Portfolio — repositories below are loaded from <strong>GitHub</strong> via the KRA API (SSR).
         </p>
       </div>
     </section>
@@ -42,45 +42,56 @@ const isMissingApiBase = computed(() => {
           role="alert"
         >
           <p class="font-medium">
-            No se pudieron cargar los proyectos
+            Could not load repositories
           </p>
           <p
             v-if="isMissingApiBase"
             class="mt-2 text-sm"
           >
-            Falta configurar la URL del API. Define <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code> (ver <code class="rounded bg-red-100 px-1">.env.example</code>) y reinicia el servidor de desarrollo.
+            Set <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code> (see <code class="rounded bg-red-100 px-1">.env.example</code>) and restart the dev server.
           </p>
           <p
             v-else
             class="mt-2 text-sm"
           >
-            El servidor no respondió o rechazó la petición. Comprueba que el API Spring Boot está en marcha y que la URL base es correcta.
+            The API did not respond or rejected the request. Ensure Spring Boot is running and that the backend has <code class="rounded bg-red-100 px-1">github.portfolio-user</code> / token configured if needed.
           </p>
         </div>
 
-        <p v-else-if="pending" class="text-sm text-slate-600">Cargando proyectos…</p>
+        <p v-else-if="pending" class="text-sm text-slate-600">Loading repositories…</p>
 
         <ul
           v-else-if="projects && projects.length > 0"
           class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <li
-            v-for="project in projects"
-            :key="project.id"
+            v-for="repo in projects"
+            :key="repo.fullName"
           >
             <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
               <h2 class="font-semibold text-slate-900">
-                {{ project.title }}
+                {{ repo.name }}
               </h2>
               <p class="mt-2 line-clamp-3 text-sm text-slate-600">
-                {{ project.description }}
+                {{ repo.description || '—' }}
+              </p>
+              <p
+                v-if="repo.topics?.length"
+                class="mt-2 flex flex-wrap gap-1"
+              >
+                <span
+                  v-for="t in repo.topics"
+                  :key="t"
+                  class="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
+                >{{ t }}</span>
               </p>
               <p class="mt-4">
                 <NuxtLink
-                  :to="`/projects/${project.id}`"
+                  :to="`/projects/${repo.owner}/${repo.name}`"
+                  :prefetch="false"
                   class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700"
                 >
-                  Ver proyecto
+                  View repository
                 </NuxtLink>
               </p>
             </article>
