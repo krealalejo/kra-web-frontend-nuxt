@@ -12,8 +12,8 @@ export default defineEventHandler(async (event) => {
   // Step 2: Redirect to Cognito federated logout
   // logout_uri must be registered in the App Client allowed logout URLs
   // After Cognito invalidates the session, it redirects the browser to logout_uri
-  const logoutUri = encodeURIComponent(`${config.cognitoRedirectUri.replace('/api/auth/callback', '')}`)
-  const cognitoLogoutUrl = `${config.public.cognitoDomain}/logout?client_id=${config.cognitoClientId}&logout_uri=${logoutUri}`
+  const logoutUri = encodeURIComponent(config.public.cognitoRedirectUri.replace('/api/auth/callback', ''))
+  const cognitoLogoutUrl = `${config.public.cognitoDomain}/logout?client_id=${config.public.cognitoClientId}&logout_uri=${logoutUri}`
 
   return sendRedirect(event, cognitoLogoutUrl, 302)
 })
