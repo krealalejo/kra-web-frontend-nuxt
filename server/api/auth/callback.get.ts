@@ -29,6 +29,11 @@ export default defineEventHandler(async (event) => {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: body.toString(),
     })
+
+    if (!response.ok && response.headers.get('content-type')?.includes('application/json') === false) {
+      return sendRedirect(event, `/admin/login?error=${encodeURIComponent('token_fetch_failed')}`, 302)
+    }
+
     tokenData = await response.json()
   } catch {
     return sendRedirect(event, `/admin/login?error=${encodeURIComponent('token_fetch_failed')}`, 302)
