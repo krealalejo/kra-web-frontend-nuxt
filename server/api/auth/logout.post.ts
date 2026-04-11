@@ -9,6 +9,14 @@ export default defineEventHandler(async (event) => {
     path: '/',
   })
 
+  // Clear the non-httpOnly email cookie (options must match setCookie in callback.get.ts)
+  deleteCookie(event, 'kra_user', {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+  })
+
   // Step 2: Redirect to Cognito federated logout
   // logout_uri must be registered in the App Client allowed logout URLs
   // After Cognito invalidates the session, it redirects the browser to logout_uri
