@@ -54,5 +54,24 @@ export default defineEventHandler(async (event) => {
     path: '/',
   })
 
+  // Decode JWT payload server-side and store email in a non-httpOnly cookie
+  // so the admin layout can read it via useCookie() in the browser (SPA mode)
+  let emailValue = 'admin'
+  try {
+    const payloadB64 = tokenData.id_token.split('.')[1]
+    const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'))
+    emailValue = decoded.email || decoded['cognito:username'] || 'admin'
+  } catch {
+    // malformed JWT — fall back to 'admin', do not crash the callback
+  }
+
+  setCookie(event, 'kra_user', emailValue, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 3600,
+    path: '/',
+  })
+
   return sendRedirect(event, '/admin', 302)
 })
