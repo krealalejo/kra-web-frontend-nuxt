@@ -6,12 +6,12 @@ export default defineNuxtConfig({
     '/admin/**': { ssr: false }
   },
   runtimeConfig: {
-    cognitoClientId: process.env.NUXT_COGNITO_CLIENT_ID || '',
     cognitoClientSecret: process.env.NUXT_COGNITO_CLIENT_SECRET || '',
-    cognitoRedirectUri: process.env.NUXT_COGNITO_REDIRECT_URI || '',
     public: {
       apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || '',
-      cognitoDomain: process.env.NUXT_PUBLIC_COGNITO_DOMAIN || ''
+      cognitoDomain: process.env.NUXT_PUBLIC_COGNITO_DOMAIN || '',
+      cognitoClientId: process.env.NUXT_COGNITO_CLIENT_ID || '',
+      cognitoRedirectUri: process.env.NUXT_COGNITO_REDIRECT_URI || '',
     }
   }
 })
