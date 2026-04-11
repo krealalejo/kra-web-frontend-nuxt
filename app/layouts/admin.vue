@@ -1,21 +1,13 @@
 <script setup lang="ts">
-// Decode id_token JWT payload to get user info (client-side only — no library needed)
-const session = useCookie('kra_session')
+// kra_user is a non-httpOnly cookie set server-side during /api/auth/callback.
+// It contains just the email string — no JWT decode needed client-side.
+const userCookie = useCookie('kra_user')
 
-const userEmail = computed(() => {
-  if (!session.value) return ''
-  try {
-    const payload = session.value.split('.')[1]
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
-    return decoded.email || decoded['cognito:username'] || 'Admin'
-  } catch {
-    return 'Admin'
-  }
-})
+const userEmail = computed(() => userCookie.value || 'Admin')
 
 async function logout() {
   await $fetch('/api/auth/logout', { method: 'POST' })
-    .catch(() => {}) // proceed with navigation even if server errors
+    .catch(() => {})
   await navigateTo('/')
 }
 </script>
