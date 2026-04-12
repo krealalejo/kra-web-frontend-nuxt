@@ -18,11 +18,7 @@ export const useBlogStore = defineStore('blog', () => {
     loading.value = true
     error.value = null
     try {
-      const config = useRuntimeConfig()
-      const response = await $fetch<BlogPost[]>('/posts', {
-        baseURL: config.public.apiBase,
-        credentials: 'include',
-      })
+      const response = await $fetch<BlogPost[]>('/api/admin/posts')
       posts.value = response
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to load posts'
@@ -35,12 +31,9 @@ export const useBlogStore = defineStore('blog', () => {
     loading.value = true
     error.value = null
     try {
-      const config = useRuntimeConfig()
-      const created = await $fetch<BlogPost>('/posts', {
+      const created = await $fetch<BlogPost>('/api/admin/posts', {
         method: 'POST',
-        baseURL: config.public.apiBase,
         body: data,
-        credentials: 'include',
       })
       posts.value.unshift(created)
       return created
@@ -56,12 +49,9 @@ export const useBlogStore = defineStore('blog', () => {
     loading.value = true
     error.value = null
     try {
-      const config = useRuntimeConfig()
-      const updated = await $fetch<BlogPost>(`/posts/${slug}`, {
+      const updated = await $fetch<BlogPost>(`/api/admin/posts/${slug}`, {
         method: 'PUT',
-        baseURL: config.public.apiBase,
         body: data,
-        credentials: 'include',
       })
       const index = posts.value.findIndex(p => p.slug === slug)
       if (index >= 0) posts.value[index] = updated
@@ -78,11 +68,8 @@ export const useBlogStore = defineStore('blog', () => {
     loading.value = true
     error.value = null
     try {
-      const config = useRuntimeConfig()
-      await $fetch(`/posts/${slug}`, {
+      await $fetch(`/api/admin/posts/${slug}`, {
         method: 'DELETE',
-        baseURL: config.public.apiBase,
-        credentials: 'include',
       })
       posts.value = posts.value.filter(p => p.slug !== slug)
     } catch (e: unknown) {
