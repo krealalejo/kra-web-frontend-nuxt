@@ -16,6 +16,12 @@
             Home
           </NuxtLink>
           <NuxtLink
+            to="/blog"
+            class="hover:text-slate-900"
+          >
+            Blog
+          </NuxtLink>
+          <NuxtLink
             to="/contact"
             class="hover:text-slate-900"
           >
