@@ -85,7 +85,7 @@ useSeoMeta({
     <p class="mb-6 text-sm">
       <NuxtLink
         to="/blog"
-        class="font-medium text-slate-700 underline decoration-slate-400 underline-offset-4 hover:text-slate-900"
+        class="font-medium text-slate-700 underline decoration-slate-400 underline-offset-4 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
       >
         ← All posts
       </NuxtLink>
@@ -93,7 +93,7 @@ useSeoMeta({
 
     <div
       v-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800"
+      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
       role="alert"
     >
       <p class="font-medium">
@@ -104,29 +104,29 @@ useSeoMeta({
         v-if="isMissingApiBase"
         class="mt-2 text-sm"
       >
-        Set <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code> and restart the dev server.
+        Set <code class="rounded bg-red-100 px-1 dark:bg-red-900">NUXT_PUBLIC_API_BASE_URL</code> and restart the dev server.
       </p>
     </div>
 
-    <p v-else-if="pending" class="text-sm text-slate-600">
+    <p v-else-if="pending" class="text-sm text-slate-600 dark:text-slate-400">
       Loading…
     </p>
 
     <article
       v-else-if="post"
-      class="prose prose-slate max-w-none"
+      class="prose prose-slate max-w-none dark:prose-invert"
     >
-      <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
         {{ post.title }}
       </h1>
-      <p class="mt-2 text-sm text-slate-500">
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
         {{ formatDate(post.createdAt) }}
         <span v-if="post.updatedAt !== post.createdAt">
           · updated {{ formatDate(post.updatedAt) }}
         </span>
       </p>
       <div
-        class="mt-8 whitespace-pre-wrap text-base leading-relaxed text-slate-800"
+        class="mt-8 whitespace-pre-wrap text-base leading-relaxed text-slate-800 dark:text-slate-200"
       >
         {{ post.content }}
       </div>

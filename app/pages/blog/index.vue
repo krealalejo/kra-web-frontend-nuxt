@@ -44,17 +44,17 @@ useSeoMeta({
 <template>
   <div>
     <header class="mb-10">
-      <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
         Blog
       </h1>
-      <p class="mt-3 max-w-2xl text-slate-600">
+      <p class="mt-3 max-w-2xl text-slate-600 dark:text-slate-400">
         Posts are loaded from the KRA API (DynamoDB), newest first.
       </p>
     </header>
 
     <div
       v-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800"
+      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
       role="alert"
     >
       <p class="font-medium">
@@ -64,7 +64,7 @@ useSeoMeta({
         v-if="isMissingApiBase"
         class="mt-2 text-sm"
       >
-        Set <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code> (see <code class="rounded bg-red-100 px-1">.env.example</code>) and restart the dev server.
+        Set <code class="rounded bg-red-100 px-1 dark:bg-red-900">NUXT_PUBLIC_API_BASE_URL</code> (see <code class="rounded bg-red-100 px-1 dark:bg-red-900">.env.example</code>) and restart the dev server.
       </p>
       <p
         v-else
@@ -74,7 +74,7 @@ useSeoMeta({
       </p>
     </div>
 
-    <p v-else-if="pending" class="text-sm text-slate-600">
+    <p v-else-if="pending" class="text-sm text-slate-600 dark:text-slate-400">
       Loading posts…
     </p>
 
@@ -86,25 +86,25 @@ useSeoMeta({
         v-for="post in posts"
         :key="post.slug"
       >
-        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
-          <h2 class="text-lg font-semibold text-slate-900">
+        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
             <NuxtLink
               :to="`/blog/${post.slug}`"
-              class="hover:text-slate-700"
+              class="hover:text-slate-700 dark:hover:text-slate-300"
             >
               {{ post.title }}
             </NuxtLink>
           </h2>
-          <p class="mt-1 text-xs text-slate-500">
+          <p class="mt-1 text-xs text-slate-500 dark:text-slate-500">
             {{ formatDate(post.createdAt) }}
           </p>
-          <p class="mt-3 line-clamp-2 text-sm text-slate-600">
+          <p class="mt-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
             {{ post.content }}
           </p>
           <p class="mt-4">
             <NuxtLink
               :to="`/blog/${post.slug}`"
-              class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700"
+              class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
             >
               Read full post
             </NuxtLink>
@@ -115,7 +115,7 @@ useSeoMeta({
 
     <p
       v-else
-      class="rounded-lg border border-slate-200 bg-white p-6 text-center text-slate-600"
+      class="rounded-lg border border-slate-200 bg-white p-6 text-center text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400"
     >
       No posts yet. Create one from the admin dashboard when it is available.
     </p>

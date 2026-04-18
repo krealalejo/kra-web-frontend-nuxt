@@ -86,12 +86,12 @@ useSeoMeta({
   <div class="mx-auto max-w-5xl px-4 py-8">
     <div
       v-if="pending"
-      class="flex flex-col items-center justify-center gap-3 py-16 text-slate-600"
+      class="flex flex-col items-center justify-center gap-3 py-16 text-slate-600 dark:text-slate-400"
       role="status"
       aria-live="polite"
     >
       <span
-        class="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700"
+        class="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700 dark:border-slate-600 dark:border-t-slate-300"
         aria-hidden="true"
       />
       <p>Loading repository…</p>
@@ -99,7 +99,7 @@ useSeoMeta({
 
     <div
       v-else-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800"
+      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
       role="alert"
     >
       <p class="font-medium">
@@ -109,7 +109,7 @@ useSeoMeta({
         v-if="isMissingApiBase"
         class="mt-2 text-sm"
       >
-        Missing <code class="rounded bg-red-100 px-1">NUXT_PUBLIC_API_BASE_URL</code>. See <code class="rounded bg-red-100 px-1">.env.example</code>.
+        Missing <code class="rounded bg-red-100 px-1 dark:bg-red-900">NUXT_PUBLIC_API_BASE_URL</code>. See <code class="rounded bg-red-100 px-1 dark:bg-red-900">.env.example</code>.
       </p>
       <p
         v-else-if="isNotFound"
@@ -126,7 +126,7 @@ useSeoMeta({
       <p class="mt-4">
         <NuxtLink
           to="/"
-          class="text-sm font-medium text-red-900 underline"
+          class="text-sm font-medium text-red-900 underline dark:text-red-300"
         >
           Back to home
         </NuxtLink>
@@ -134,10 +134,10 @@ useSeoMeta({
     </div>
 
     <article v-else-if="detail">
-      <h1 class="text-3xl font-semibold tracking-tight text-slate-900">
+      <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
         {{ detail.fullName }}
       </h1>
-      <p class="mt-4 text-slate-600">
+      <p class="mt-4 text-slate-600 dark:text-slate-400">
         {{ detail.description || '—' }}
       </p>
       <p
@@ -147,21 +147,21 @@ useSeoMeta({
         <span
           v-for="t in detail.topics"
           :key="t"
-          class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700"
+          class="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
         >{{ t }}</span>
       </p>
-      <p class="mt-2 text-sm text-slate-500">
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
         ⭐ {{ detail.stargazersCount }} · updated {{ detail.updatedAt }}
-        <span v-if="detail.defaultBranch"> · branch <code class="rounded bg-slate-100 px-1 text-xs">{{ detail.defaultBranch }}</code></span>
+        <span v-if="detail.defaultBranch"> · branch <code class="rounded bg-slate-100 px-1 text-xs dark:bg-slate-800 dark:text-slate-300">{{ detail.defaultBranch }}</code></span>
       </p>
       <section
         v-if="detail.readmeExcerpt"
         class="mt-8"
       >
-        <h2 class="text-lg font-semibold text-slate-900">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
           README (excerpt)
         </h2>
-        <pre class="mt-2 whitespace-pre-wrap rounded border border-slate-200 bg-white p-4 text-sm text-slate-700">{{ detail.readmeExcerpt }}</pre>
+        <pre class="mt-2 whitespace-pre-wrap rounded border border-slate-200 bg-white p-4 font-mono text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">{{ detail.readmeExcerpt }}</pre>
       </section>
       <p
         v-if="detail.htmlUrl"
@@ -169,7 +169,7 @@ useSeoMeta({
       >
         <a
           :href="detail.htmlUrl"
-          class="text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700"
+          class="text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
           target="_blank"
           rel="noopener noreferrer"
         >Open on GitHub</a>
