@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
+import { useGsapHeroAnimation } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
 
@@ -14,6 +15,8 @@ const { data: projects, pending, error } = await useAsyncData(
     return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
   }
 )
+
+useGsapHeroAnimation()
 
 const isMissingApiBase = computed(() => {
   const msg = error.value && typeof error.value === 'object' && 'message' in error.value
