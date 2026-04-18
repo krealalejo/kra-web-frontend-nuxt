@@ -47,7 +47,7 @@ function closeDeleteModal() {
   <div>
     <!-- Page header -->
     <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-slate-900">Blog Posts</h1>
+      <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Blog Posts</h1>
       <button
         type="button"
         class="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -59,7 +59,7 @@ function closeDeleteModal() {
 
     <!-- Code quality badges (D-07) -->
     <div class="mb-4 flex items-center gap-3">
-      <span class="text-xs font-medium uppercase tracking-wide text-slate-500">Code Quality</span>
+      <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Code Quality</span>
       <a href="https://sonarcloud.io/summary/new_code?id=krealalejo_kra-api" target="_blank" rel="noopener">
         <img
           src="https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-api&metric=alert_status"
@@ -84,12 +84,12 @@ function closeDeleteModal() {
     </div>
 
     <!-- Loading state -->
-    <p v-if="store.loading" class="text-sm text-slate-600">Loading posts…</p>
+    <p v-if="store.loading" class="text-sm text-slate-600 dark:text-slate-400">Loading posts…</p>
 
     <!-- Error state -->
     <div
       v-else-if="store.error && !store.loading"
-      class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800"
+      class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
     >
       {{ store.error }}
     </div>
@@ -97,10 +97,10 @@ function closeDeleteModal() {
     <!-- Empty state -->
     <div
       v-else-if="!store.loading && store.posts.length === 0"
-      class="rounded border border-slate-200 bg-white px-6 py-12 text-center"
+      class="rounded border border-slate-200 bg-white px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900"
     >
-      <p class="mb-1 text-base font-semibold text-slate-900">No blog posts yet</p>
-      <p class="mb-4 text-sm text-slate-700">
+      <p class="mb-1 text-base font-semibold text-slate-900 dark:text-slate-100">No blog posts yet</p>
+      <p class="mb-4 text-sm text-slate-700 dark:text-slate-300">
         Create your first post to get started. Click the 'Create Post' button to begin.
       </p>
       <button

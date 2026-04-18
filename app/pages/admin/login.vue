@@ -30,14 +30,14 @@ function signIn() {
 
 <template>
   <div class="flex min-h-[60vh] items-center justify-center">
-    <div class="w-full max-w-sm rounded-xl bg-white p-8 shadow-sm border border-slate-200">
-      <h1 class="mb-1 text-xl font-semibold text-slate-900">Admin Panel</h1>
-      <p class="mb-6 text-sm text-slate-700">Sign in with your credentials</p>
+    <div class="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <h1 class="mb-1 text-xl font-semibold text-slate-900 dark:text-slate-100">Admin Panel</h1>
+      <p class="mb-6 text-sm text-slate-700 dark:text-slate-300">Sign in with your credentials</p>
 
       <div
         v-if="errorMsg"
         role="alert"
-        class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+        class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
       >
         {{ errorMsg }}
       </div>
