@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { BlogPostDto } from '~/types/blog'
+import { useGsapCardStagger } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
 
@@ -14,6 +15,8 @@ const { data: posts, pending, error } = await useAsyncData(
     return await $fetch<BlogPostDto[]>(`${apiBase}/posts`)
   }
 )
+
+useGsapCardStagger('li')
 
 const isMissingApiBase = computed(() => {
   const msg = error.value && typeof error.value === 'object' && 'message' in error.value
