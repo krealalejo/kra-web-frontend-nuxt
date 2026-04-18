@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import { useGsapNavAnimation } from '~/composables/useGsapAnimations'
+
+useGsapNavAnimation()
+</script>
+
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-slate-900">
     <header class="border-b border-slate-200 bg-white px-4 py-4">
