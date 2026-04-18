@@ -3,7 +3,6 @@ export default defineEventHandler(async (event) => {
   const code = query.code as string | undefined
   const errorParam = query.error as string | undefined
 
-  // If Cognito returned an error (e.g., access_denied), redirect to login with error
   if (errorParam || !code) {
     const msg = errorParam || 'missing_code'
     return sendRedirect(event, `/admin/login?error=${encodeURIComponent(msg)}`, 302)
@@ -12,7 +11,6 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const tokenUrl = `${config.public.cognitoDomain}/oauth2/token`
 
-  // Build the request body as x-www-form-urlencoded
   const body = new URLSearchParams({
     grant_type: 'authorization_code',
     code,
@@ -44,8 +42,6 @@ export default defineEventHandler(async (event) => {
     return sendRedirect(event, `/admin/login?error=${encodeURIComponent(msg)}`, 302)
   }
 
-  // Store id_token in httpOnly cookie — not accessible from JavaScript
-  // Expiry: 3600 seconds (1 hour) — matches Cognito's default access token expiry
   setCookie(event, 'kra_session', tokenData.id_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -54,8 +50,6 @@ export default defineEventHandler(async (event) => {
     path: '/',
   })
 
-  // Decode JWT payload server-side and store email in a non-httpOnly cookie
-  // so the admin layout can read it via useCookie() in the browser (SPA mode)
   let emailValue = 'admin'
   try {
     const payloadB64 = tokenData.id_token.split('.')[1]

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// kra_user is a non-httpOnly cookie set server-side during /api/auth/callback.
-// It contains just the email string — no JWT decode needed client-side.
 const userCookie = useCookie('kra_user')
 
 const userEmail = computed(() => userCookie.value || 'Admin')

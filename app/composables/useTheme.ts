@@ -31,7 +31,6 @@ export function useTheme() {
     theme.value = initial
     applyTheme(initial)
 
-    // Keep in sync with OS preference changes when using system mode
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (theme.value === 'system') applyTheme('system')
     })

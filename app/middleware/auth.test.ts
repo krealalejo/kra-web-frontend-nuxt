@@ -31,7 +31,6 @@ describe('middleware/auth', () => {
   it('executes session check branch for protected /admin route without throwing', async () => {
     const mod = await import('./auth')
     const middleware = mod.default as Function
-    // Nuxt's real useFetch and navigateTo run here — we just ensure no crash
     await middleware({ path: '/admin' }).catch(() => {})
     expect(true).toBe(true)
   })

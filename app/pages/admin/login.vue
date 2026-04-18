@@ -4,7 +4,6 @@ definePageMeta({ layout: 'admin' })
 const config = useRuntimeConfig()
 const route = useRoute()
 
-// Error message from callback failure (e.g., ?error=access_denied)
 const errorMsg = computed(() => {
   const err = route.query.error as string | undefined
   if (!err) return null
