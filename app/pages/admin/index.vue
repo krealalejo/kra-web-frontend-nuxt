@@ -59,6 +59,32 @@ function closeDeleteModal() {
       </button>
     </div>
 
+    <!-- Code quality badges (D-07) -->
+    <div class="mb-4 flex items-center gap-3">
+      <span class="text-xs font-medium uppercase tracking-wide text-slate-500">Code Quality</span>
+      <a href="https://sonarcloud.io/summary/new_code?id=krealalejo_kra-api" target="_blank" rel="noopener">
+        <img
+          src="https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-api&metric=alert_status"
+          alt="kra-api quality gate"
+          class="h-5"
+        />
+      </a>
+      <a href="https://sonarcloud.io/summary/new_code?id=krealalejo_kra-web-frontend-nuxt" target="_blank" rel="noopener">
+        <img
+          src="https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-web-frontend-nuxt&metric=alert_status"
+          alt="kra-web-frontend-nuxt quality gate"
+          class="h-5"
+        />
+      </a>
+      <a href="https://sonarcloud.io/summary/new_code?id=krealalejo_kra-lambdas" target="_blank" rel="noopener">
+        <img
+          src="https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-lambdas&metric=alert_status"
+          alt="kra-lambdas quality gate"
+          class="h-5"
+        />
+      </a>
+    </div>
+
     <!-- Loading state -->
     <p v-if="store.loading" class="text-sm text-slate-600">Loading posts…</p>
 
