@@ -1,3 +1,20 @@
+<script setup lang="ts">
+const { init } = useTheme()
+
+useHead({
+  script: [
+    {
+      innerHTML: `(function(){var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t!=='light'&&d)){document.documentElement.classList.add('dark')}})()`,
+      tagPosition: 'head',
+    }
+  ]
+})
+
+onMounted(() => {
+  init()
+})
+</script>
+
 <template>
   <div>
     <NuxtRouteAnnouncer />
