@@ -27,8 +27,8 @@ const isMissingApiBase = computed(() => {
   <div>
     <section class="py-10">
       <div class="mx-auto max-w-5xl">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Project KRA</h1>
-        <p class="mt-3 max-w-2xl text-slate-600">
+        <h1 class="opacity-0 text-3xl font-semibold tracking-tight text-slate-900">Project KRA</h1>
+        <p class="opacity-0 mt-3 max-w-2xl text-slate-600">
           Portfolio — repositories below are loaded from <strong>GitHub</strong> via the KRA API (SSR).
         </p>
       </div>
