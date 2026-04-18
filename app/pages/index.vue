@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
+import gsap from 'gsap'
 import { useGsapHeroAnimation, useGsapCardStagger } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
@@ -18,6 +19,24 @@ const { data: projects, pending, error } = await useAsyncData(
 
 useGsapHeroAnimation()
 useGsapCardStagger('li')
+
+function handleCardHover(e: MouseEvent) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  gsap.to(e.currentTarget, {
+    y: -4,
+    duration: 0.3,
+    ease: 'power1.out'
+  })
+}
+
+function handleCardHoverOut(e: MouseEvent) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  gsap.to(e.currentTarget, {
+    y: 0,
+    duration: 0.3,
+    ease: 'power1.out'
+  })
+}
 
 const isMissingApiBase = computed(() => {
   const msg = error.value && typeof error.value === 'object' && 'message' in error.value
@@ -72,7 +91,11 @@ const isMissingApiBase = computed(() => {
             v-for="repo in projects"
             :key="repo.fullName"
           >
-            <article class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+            <article
+              class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+              @mouseenter="handleCardHover"
+              @mouseleave="handleCardHoverOut"
+            >
               <h2 class="font-semibold text-slate-900">
                 {{ repo.name }}
               </h2>
