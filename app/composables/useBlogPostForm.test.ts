@@ -1,5 +1,24 @@
-import { describe, it, expect } from 'vitest'
-import { blogPostSchema } from './useBlogPostForm'
+import { describe, it, expect, vi } from 'vitest'
+import { ref } from 'vue'
+import { blogPostSchema, useBlogPostForm } from './useBlogPostForm'
+
+vi.mock('vee-validate', () => ({
+  useForm: vi.fn(() => ({
+    isSubmitting: ref(false),
+    handleSubmit: vi.fn(),
+    resetForm: vi.fn(),
+    setValues: vi.fn(),
+  })),
+  useField: vi.fn((name: string) => ({
+    value: ref(''),
+    errorMessage: ref(undefined),
+    _name: name,
+  })),
+}))
+
+vi.mock('@vee-validate/zod', () => ({
+  toTypedSchema: vi.fn((schema: unknown) => schema),
+}))
 
 describe('blogPostSchema', () => {
   describe('slug validation', () => {
@@ -114,5 +133,36 @@ describe('blogPostSchema', () => {
       })
       expect(result.success).toBe(false)
     })
+  })
+})
+
+describe('useBlogPostForm', () => {
+  it('returns field bindings with default empty values', () => {
+    const form = useBlogPostForm()
+    expect(form.slug).toBeDefined()
+    expect(form.title).toBeDefined()
+    expect(form.content).toBeDefined()
+    expect(form.slugError).toBeDefined()
+    expect(form.titleError).toBeDefined()
+    expect(form.contentError).toBeDefined()
+  })
+
+  it('exposes handleSubmit, resetForm, setValues, and isSubmitting', () => {
+    const form = useBlogPostForm()
+    expect(typeof form.handleSubmit).toBe('function')
+    expect(typeof form.resetForm).toBe('function')
+    expect(typeof form.setValues).toBe('function')
+    expect(form.isSubmitting).toBeDefined()
+  })
+
+  it('accepts partial initial values without error', () => {
+    const form = useBlogPostForm({ initialValues: { slug: 'my-post', title: 'My Title' } })
+    expect(form.slug).toBeDefined()
+    expect(form.title).toBeDefined()
+  })
+
+  it('works with no options argument', () => {
+    const form = useBlogPostForm()
+    expect(form).toBeDefined()
   })
 })
