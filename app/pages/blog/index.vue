@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { BlogPostDto } from '~/types/blog'
 import { useGsapCardStagger } from '~/composables/useGsapAnimations'
+import { useMarkdown } from '~/composables/useMarkdown'
+
+const { stripMarkdown } = useMarkdown()
 
 const config = useRuntimeConfig()
 
@@ -99,7 +102,7 @@ useSeoMeta({
             {{ formatDate(post.createdAt) }}
           </p>
           <p class="mt-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
-            {{ post.content }}
+            {{ stripMarkdown(post.content) }}
           </p>
           <p class="mt-4">
             <NuxtLink
