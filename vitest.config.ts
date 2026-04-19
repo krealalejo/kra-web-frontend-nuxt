@@ -9,17 +9,17 @@ export default defineVitestConfig({
       },
     },
     include: ['**/*.test.ts', '**/*.spec.ts'],
-    coverage: {
+      coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
-      include: ['app/**/*.ts', 'app/**/*.vue', 'server/**/*.ts'],
-      exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**'],
+      include: ['app/**/*.ts', 'server/**/*.ts'],
+      exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**', 'app/types/**'],
       thresholds: {
-        lines: 23,
-        statements: 22,
-        functions: 16,   // Vue components may have untested functions
-        branches: 3,     // Branch coverage harder in Vue/Nuxt
+        lines: 80,
+        statements: 80,
+        functions: 80,
+        branches: 80,
       },
     },
   },
