@@ -88,7 +88,6 @@ function getDayColorClass(count: number) {
     <div v-else ref="contributionContainer" class="mt-6">
       <svg
         width="100%"
-        height="auto"
         :viewBox="`0 0 ${weeks.length * 13 - 3} 91`"
         class="overflow-visible"
         preserveAspectRatio="xMinYMin meet"
