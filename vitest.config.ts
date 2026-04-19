@@ -6,6 +6,16 @@ export default defineVitestConfig({
     environmentOptions: {
       nuxt: {
         domEnvironment: 'happy-dom',
+        overrides: {
+          runtimeConfig: {
+            public: {
+              apiBase: 'http://localhost:8080/api',
+              cognitoClientId: 'test-client-id',
+              cognitoDomain: 'https://test.auth.example.com',
+              cognitoRedirectUri: 'http://localhost:3000/api/auth/callback',
+            },
+          },
+        },
       },
     },
     include: ['**/*.test.ts', '**/*.spec.ts'],
@@ -13,7 +23,7 @@ export default defineVitestConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
-      include: ['app/**/*.ts', 'server/**/*.ts'],
+      include: ['app/**/*.ts', 'app/pages/**/*.vue', 'server/**/*.ts'],
       exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**', 'app/types/**'],
       thresholds: {
         lines: 80,
