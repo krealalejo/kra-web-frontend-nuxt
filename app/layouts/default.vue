@@ -48,8 +48,8 @@ useGsapNavAnimation()
     <main class="mx-auto max-w-5xl px-4 py-8">
       <slot />
     </main>
-    <footer class="border-t border-slate-200 bg-white px-4 py-6 text-center text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
-      Project KRA — Phase 12
+    <footer class="border-t border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900">
+      <AppFooterSocials />
     </footer>
   </div>
 </template>
