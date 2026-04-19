@@ -18,14 +18,12 @@ const { slug, title, content, slugError, titleError, contentError, isSubmitting,
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
-// Pre-fill form when editing an existing post
 watch(() => props.post, (newPost) => {
   if (newPost) {
     setValues({ slug: newPost.slug, title: newPost.title, content: newPost.content })
   }
 }, { immediate: true })
 
-// Reset form when modal closes
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
     resetForm()

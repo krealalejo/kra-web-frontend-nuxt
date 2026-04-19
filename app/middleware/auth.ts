@@ -1,5 +1,4 @@
 export default defineNuxtRouteMiddleware(async (to) => {
-  // Only protect /admin routes; login and callback pages are exempt
   if (to.path === '/admin/login' || to.path === '/admin/callback') {
     return
   }

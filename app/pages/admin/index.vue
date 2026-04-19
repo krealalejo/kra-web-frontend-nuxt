@@ -8,12 +8,10 @@ definePageMeta({
 
 const store = useBlogStore()
 
-// Fetch posts on mount (SPA: no server-side fetch needed)
 onMounted(() => {
   store.fetchPosts()
 })
 
-// Modal state
 const showFormModal = ref(false)
 const showDeleteModal = ref(false)
 const editingPost = ref<BlogPost | null>(null)
