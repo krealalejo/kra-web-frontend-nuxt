@@ -69,7 +69,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapNavAnimation } = await import('./useGsapAnimations')
       useGsapNavAnimation()
-      expect(gsap.from).toHaveBeenCalledWith('nav a', expect.objectContaining({ opacity: 0 }))
+      expect(gsap.from).toHaveBeenCalledWith('header nav a', expect.objectContaining({ opacity: 0 }))
     })
 
     it('does not call gsap.from when reduced motion is preferred', async () => {

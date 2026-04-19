@@ -22,7 +22,7 @@ export function useGsapNavAnimation() {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    gsap.from('nav a', { opacity: 0, duration: 0.4, ease: 'power1.out', stagger: 0.05 })
+    gsap.from('header nav a', { opacity: 0, duration: 0.4, ease: 'power1.out', stagger: 0.05 })
   })
 }
 

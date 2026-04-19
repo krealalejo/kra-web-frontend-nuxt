@@ -18,7 +18,7 @@ const { data: projects, pending, error } = await useAsyncData(
 )
 
 useGsapHeroAnimation()
-useGsapCardStagger('li')
+useGsapCardStagger('.home-repo-list > li')
 
 function handleCardHover(e: MouseEvent) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -85,7 +85,7 @@ const isMissingApiBase = computed(() => {
 
         <ul
           v-else-if="projects && projects.length > 0"
-          class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+          class="home-repo-list grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           <li
             v-for="repo in projects"

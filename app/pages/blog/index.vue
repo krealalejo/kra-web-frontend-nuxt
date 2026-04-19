@@ -16,7 +16,7 @@ const { data: posts, pending, error } = await useAsyncData(
   }
 )
 
-useGsapCardStagger('li')
+useGsapCardStagger('.blog-post-list > li')
 
 const isMissingApiBase = computed(() => {
   const msg = error.value && typeof error.value === 'object' && 'message' in error.value
@@ -80,7 +80,7 @@ useSeoMeta({
 
     <ul
       v-else-if="posts && posts.length > 0"
-      class="space-y-4"
+      class="blog-post-list space-y-4"
     >
       <li
         v-for="post in posts"
