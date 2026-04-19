@@ -12,7 +12,9 @@ async function logout() {
 
 <template>
   <div class="min-h-screen bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-    <header class="border-b border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-900">
+    <header
+      class="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-900"
+    >
       <div class="mx-auto flex max-w-5xl items-center justify-between">
         <span class="text-base font-semibold text-slate-900 dark:text-slate-100">KRA Admin</span>
         <div class="flex items-center gap-4">
