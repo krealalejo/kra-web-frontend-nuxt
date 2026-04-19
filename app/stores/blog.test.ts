@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useBlogStore } from './blog'
 
-// Mock $fetch globally
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
@@ -68,6 +67,13 @@ describe('useBlogStore', () => {
       await store.fetchPosts()
       expect(store.loading).toBe(false)
     })
+
+    it('sets fallback error string when thrown value is not an Error', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue('string-error')
+      await store.fetchPosts()
+      expect(store.error).toBe('Failed to load posts')
+    })
   })
 
   describe('createPost', () => {
@@ -96,6 +102,13 @@ describe('useBlogStore', () => {
       await expect(store.createPost({ slug: 'x', title: 'X', content: '' })).rejects.toThrow()
       expect(store.error).toBe('Create failed')
     })
+
+    it('sets fallback error string when thrown value is not an Error', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue(42)
+      await expect(store.createPost({ slug: 'x', title: 'X', content: '' })).rejects.toBeDefined()
+      expect(store.error).toBe('Failed to create post')
+    })
   })
 
   describe('updatePost', () => {
@@ -116,6 +129,28 @@ describe('useBlogStore', () => {
       mockFetch.mockResolvedValue({ slug: 'post', title: 'New', content: 'new', createdAt: '', updatedAt: '' })
       await store.updatePost('post', { title: 'New', content: 'new' })
       expect(store.posts[0].title).toBe('New')
+    })
+
+    it('does not crash when updated post slug is not in the local array', async () => {
+      const store = useBlogStore()
+      store.posts = []
+      mockFetch.mockResolvedValue({ slug: 'ghost', title: 'Ghost', content: '', createdAt: '', updatedAt: '' })
+      const result = await store.updatePost('ghost', { title: 'Ghost', content: '' })
+      expect(result.slug).toBe('ghost')
+    })
+
+    it('throws and sets error message on Error failure', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue(new Error('Update failed'))
+      await expect(store.updatePost('x', { title: 'X', content: '' })).rejects.toThrow()
+      expect(store.error).toBe('Update failed')
+    })
+
+    it('sets fallback error string when thrown value is not an Error', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue('string-error')
+      await expect(store.updatePost('x', { title: 'X', content: '' })).rejects.toBeDefined()
+      expect(store.error).toBe('Failed to update post')
     })
   })
 
@@ -140,6 +175,20 @@ describe('useBlogStore', () => {
       await store.deletePost('delete')
       expect(store.posts).toHaveLength(1)
       expect(store.posts[0].slug).toBe('keep')
+    })
+
+    it('throws and sets error message on Error failure', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue(new Error('Delete failed'))
+      await expect(store.deletePost('x')).rejects.toThrow()
+      expect(store.error).toBe('Delete failed')
+    })
+
+    it('sets fallback error string when thrown value is not an Error', async () => {
+      const store = useBlogStore()
+      mockFetch.mockRejectedValue({ code: 500 })
+      await expect(store.deletePost('x')).rejects.toBeDefined()
+      expect(store.error).toBe('Failed to delete post')
     })
   })
 })
