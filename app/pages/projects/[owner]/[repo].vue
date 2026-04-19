@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
+import gsap from 'gsap'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -79,6 +80,26 @@ useSeoMeta({
     if (error.value) return isNotFound.value ? 'Repository not found.' : 'Error loading the repository.'
     return ogDescription.value
   })
+})
+
+function animateContent() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  
+  nextTick(() => {
+    gsap.from('article', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' })
+  })
+}
+
+watch(pending, (isPending) => {
+  if (!isPending && detail.value && !error.value) {
+    animateContent()
+  }
+})
+
+onMounted(() => {
+  if (!pending.value && detail.value && !error.value) {
+    animateContent()
+  }
 })
 </script>
 

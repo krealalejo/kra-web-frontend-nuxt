@@ -115,7 +115,6 @@ const isMissingApiBase = computed(() => {
               <p class="mt-4">
                 <NuxtLink
                   :to="`/projects/${repo.owner}/${repo.name}`"
-                  :prefetch="false"
                   class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
                 >
                   View repository

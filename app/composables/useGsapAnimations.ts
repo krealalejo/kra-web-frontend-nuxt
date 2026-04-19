@@ -25,3 +25,11 @@ export function useGsapNavAnimation() {
     gsap.from('nav a', { opacity: 0, duration: 0.4, ease: 'power1.out', stagger: 0.05 })
   })
 }
+
+export function useGsapContentAnimation() {
+  onMounted(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    gsap.from('article', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' })
+  })
+}

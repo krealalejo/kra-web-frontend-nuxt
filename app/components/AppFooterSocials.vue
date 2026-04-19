@@ -4,7 +4,6 @@ import IconBrandGithub from './icons/IconBrandGithub.vue'
 import IconBrandLinkedin from './icons/IconBrandLinkedin.vue'
 import IconBrandWow from './icons/IconBrandWow.vue'
 
-// Keep footer icons inline with the theme by letting them inherit currentColor.
 const links = [
   {
     label: 'LinkedIn',
@@ -30,7 +29,7 @@ const links = [
     class="flex flex-col items-center gap-3"
   >
     <p class="text-xs font-medium uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-      Around the web
+      Kevin Real Alejo
     </p>
     <ul class="flex items-center justify-center gap-4">
       <li

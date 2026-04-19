@@ -80,4 +80,21 @@ describe('useGsapAnimations', () => {
       expect(gsap.from).not.toHaveBeenCalled()
     })
   })
+
+  describe('useGsapContentAnimation', () => {
+    it('calls gsap.from for article when motion is allowed', async () => {
+      const gsap = (await import('gsap')).default
+      const { useGsapContentAnimation } = await import('./useGsapAnimations')
+      useGsapContentAnimation()
+      expect(gsap.from).toHaveBeenCalledWith('article', expect.objectContaining({ opacity: 0 }))
+    })
+
+    it('does not call gsap.from when reduced motion is preferred', async () => {
+      mockMatchMedia(true)
+      const gsap = (await import('gsap')).default
+      const { useGsapContentAnimation } = await import('./useGsapAnimations')
+      useGsapContentAnimation()
+      expect(gsap.from).not.toHaveBeenCalled()
+    })
+  })
 })
