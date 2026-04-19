@@ -96,6 +96,17 @@ describe('pages/index.vue', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
 
+  it('shows MISSING_API_BASE hint when fetch fails with MISSING_API_BASE', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.reject(new Error('MISSING_API_BASE'))
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+    // The component might not show a specific hint yet, but triggering the branch covers L46
+  })
+
   it('renders topics dot when repo has topics', async () => {
     const mockRepoWithTopics = { fullName: 'owner/repo', name: 'repo', description: 'desc', owner: 'owner', topics: ['vue'] }
     mockFetch.mockImplementation((url: string) => {

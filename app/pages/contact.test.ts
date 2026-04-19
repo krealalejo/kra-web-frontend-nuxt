@@ -74,4 +74,24 @@ describe('pages/contact.vue', () => {
       expect(wrapper.find('form').exists()).toBe(true)
     }
   })
+
+  it('updates focus states for email and message fields', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    const emailInput = wrapper.find('#email')
+    const messageInput = wrapper.find('#message')
+
+    await emailInput.trigger('focus')
+    // We can't easily check the internal emailFocused ref, 
+    // but we can check if the class was applied to the parent
+    expect(wrapper.find('.ring-slate-900\\/10').exists()).toBe(true)
+
+    await emailInput.trigger('blur')
+    expect(wrapper.find('.ring-slate-900\\/10').exists()).toBe(false)
+
+    await messageInput.trigger('focus')
+    expect(wrapper.find('.ring-slate-900\\/10').exists()).toBe(true)
+
+    await messageInput.trigger('blur')
+    expect(wrapper.find('.ring-slate-900\\/10').exists()).toBe(false)
+  })
 })
