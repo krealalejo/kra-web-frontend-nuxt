@@ -18,7 +18,7 @@ export const blogPostSchema = z.object({
   references: z.array(z.object({
     label: z.string().min(1, 'Label required'),
     url: z.string().url('Must be a valid URL'),
-  })).optional().default([]),
+  })).optional(),
 })
 
 export type CreateBlogPostFormData = z.infer<typeof blogPostSchema>
@@ -34,6 +34,7 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
       slug: options.initialValues?.slug ?? '',
       title: options.initialValues?.title ?? '',
       content: options.initialValues?.content ?? '',
+      references: options.initialValues?.references ?? [],
     },
   })
 

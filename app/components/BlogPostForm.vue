@@ -24,7 +24,8 @@ const isEditMode = computed(() => !!props.post)
 const references = ref<Reference[]>([])
 
 const previewHtml = computed<string>(() => {
-  const html = marked.parse(content.value ?? '') as string
+  if (import.meta.server || !content.value) return ''
+  const html = marked.parse(content.value) as string
   return DOMPurify.sanitize(html)
 })
 
@@ -38,7 +39,12 @@ function removeReference(index: number) {
 
 watch(() => props.post, (newPost) => {
   if (newPost) {
-    setValues({ slug: newPost.slug, title: newPost.title, content: newPost.content })
+    setValues({
+      slug: newPost.slug,
+      title: newPost.title,
+      content: newPost.content,
+      references: newPost.references ? [...newPost.references] : []
+    })
     references.value = newPost.references ? [...newPost.references] : []
   }
 }, { immediate: true })

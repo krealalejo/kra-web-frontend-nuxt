@@ -121,19 +121,23 @@ function closeDeleteModal() {
     />
 
     <!-- Create/Edit form modal -->
-    <BlogPostForm
-      :open="showFormModal"
-      :post="editingPost"
-      @close="closeFormModal"
-      @saved="closeFormModal"
-    />
+    <ClientOnly>
+      <BlogPostForm
+        :open="showFormModal"
+        :post="editingPost"
+        @close="closeFormModal"
+        @saved="closeFormModal"
+      />
+    </ClientOnly>
 
     <!-- Delete confirmation modal -->
-    <BlogPostDeleteModal
-      :open="showDeleteModal"
-      :post="deletingPost"
-      @close="closeDeleteModal"
-      @deleted="closeDeleteModal"
-    />
+    <ClientOnly>
+      <BlogPostDeleteModal
+        :open="showDeleteModal"
+        :post="deletingPost"
+        @close="closeDeleteModal"
+        @deleted="closeDeleteModal"
+      />
+    </ClientOnly>
   </div>
 </template>
