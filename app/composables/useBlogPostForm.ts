@@ -15,6 +15,10 @@ export const blogPostSchema = z.object({
   content: z
     .string()
     .max(200_000, 'Content required (max 200,000 characters)'),
+  references: z.array(z.object({
+    label: z.string().min(1, 'Label required'),
+    url: z.string().url('Must be a valid URL'),
+  })).optional().default([]),
 })
 
 export type CreateBlogPostFormData = z.infer<typeof blogPostSchema>
