@@ -74,66 +74,70 @@ describe('pages/admin/index.vue', () => {
     const createBtn = wrapper.findAll('button').find(b => b.text().includes('Create Post'))
     if (createBtn) {
       await createBtn.trigger('click')
-      expect((wrapper.vm as { showFormModal: boolean }).showFormModal).toBe(true)
-      expect((wrapper.vm as { editingPost: null }).editingPost).toBeNull()
+      const form = wrapper.findComponent({ name: 'BlogPostForm' })
+      expect(form.props('open')).toBe(true)
+      expect(form.props('post')).toBeNull()
     }
   })
 
-  it('sets editingPost when openEditModal is called', async () => {
+  it('sets editingPost when edit is emitted from table', async () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(AdminIndexPage)
-    const vm = wrapper.vm as {
-      openEditModal: (post: typeof mockPost) => void
-      editingPost: typeof mockPost | null
-      showFormModal: boolean
-    }
-    vm.openEditModal(mockPost)
-    expect(vm.editingPost).toEqual(mockPost)
-    expect(vm.showFormModal).toBe(true)
+    await new Promise(r => setTimeout(r, 50))
+    await wrapper.vm.$nextTick()
+
+    const table = wrapper.findComponent({ name: 'BlogPostTable' })
+    await table.vm.$emit('edit', mockPost)
+
+    const form = wrapper.findComponent({ name: 'BlogPostForm' })
+    expect(form.props('open')).toBe(true)
+    expect(form.props('post')).toEqual(mockPost)
   })
 
-  it('sets deletingPost when openDeleteModal is called', async () => {
+  it('sets deletingPost when delete is emitted from table', async () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(AdminIndexPage)
-    const vm = wrapper.vm as {
-      openDeleteModal: (post: typeof mockPost) => void
-      deletingPost: typeof mockPost | null
-      showDeleteModal: boolean
-    }
-    vm.openDeleteModal(mockPost)
-    expect(vm.deletingPost).toEqual(mockPost)
-    expect(vm.showDeleteModal).toBe(true)
+    await new Promise(r => setTimeout(r, 50))
+    await wrapper.vm.$nextTick()
+
+    const table = wrapper.findComponent({ name: 'BlogPostTable' })
+    await table.vm.$emit('delete', mockPost)
+
+    const deleteModal = wrapper.findComponent({ name: 'BlogPostDeleteModal' })
+    expect(deleteModal.props('open')).toBe(true)
+    expect(deleteModal.props('post')).toEqual(mockPost)
   })
 
-  it('closeFormModal resets showFormModal and editingPost', async () => {
+  it('closeFormModal resets form state', async () => {
     mockFetch.mockResolvedValue([])
     const wrapper = await mountSuspended(AdminIndexPage)
-    const vm = wrapper.vm as {
-      openCreateModal: () => void
-      closeFormModal: () => void
-      showFormModal: boolean
-      editingPost: null
-    }
-    vm.openCreateModal()
-    expect(vm.showFormModal).toBe(true)
-    vm.closeFormModal()
-    expect(vm.showFormModal).toBe(false)
-    expect(vm.editingPost).toBeNull()
+
+    const form = wrapper.findComponent({ name: 'BlogPostForm' })
+    // Simulate opening
+    const createBtn = wrapper.findAll('button').find(b => b.text().includes('Create Post'))
+    if (createBtn) await createBtn.trigger('click')
+    expect(form.props('open')).toBe(true)
+
+    // Simulate closing via emit
+    await form.vm.$emit('close')
+    expect(form.props('open')).toBe(false)
+    expect(form.props('post')).toBeNull()
   })
 
-  it('closeDeleteModal resets showDeleteModal and deletingPost', async () => {
+  it('closeDeleteModal resets delete state', async () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(AdminIndexPage)
-    const vm = wrapper.vm as {
-      openDeleteModal: (post: typeof mockPost) => void
-      closeDeleteModal: () => void
-      showDeleteModal: boolean
-      deletingPost: null
-    }
-    vm.openDeleteModal(mockPost)
-    expect(vm.showDeleteModal).toBe(true)
-    vm.closeDeleteModal()
-    expect(vm.showDeleteModal).toBe(false)
-    expect(vm.deletingPost).toBeNull()
+    await new Promise(r => setTimeout(r, 50))
+    await wrapper.vm.$nextTick()
+
+    const table = wrapper.findComponent({ name: 'BlogPostTable' })
+    await table.vm.$emit('delete', mockPost)
+
+    const deleteModal = wrapper.findComponent({ name: 'BlogPostDeleteModal' })
+    expect(deleteModal.props('open')).toBe(true)
+
+    await deleteModal.vm.$emit('close')
+    expect(deleteModal.props('open')).toBe(false)
+    expect(deleteModal.props('post')).toBeNull()
   })
 })
