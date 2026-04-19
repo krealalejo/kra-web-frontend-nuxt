@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
+import { useMarkdown } from '~/composables/useMarkdown'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -53,6 +54,15 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === 'NOT_FOUND'
 })
 
+const { sanitizeMarkdown } = useMarkdown()
+const { renderDiagrams } = useMermaid()
+const readmeRef = ref<HTMLElement | null>(null)
+
+const sanitizedReadme = computed<string>(() => {
+  const raw = detail.value?.readmeExcerpt ?? ''
+  return sanitizeMarkdown(raw)
+})
+
 const ogDescription = computed(() => {
   const d = detail.value?.description ?? ''
   if (!d) return 'Portfolio Project KRA'
@@ -90,15 +100,19 @@ function animateContent() {
   })
 }
 
-watch(pending, (isPending) => {
+watch(pending, async (isPending) => {
   if (!isPending && detail.value && !error.value) {
     animateContent()
+    await nextTick()
+    if (readmeRef.value) renderDiagrams(readmeRef.value)
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   if (!pending.value && detail.value && !error.value) {
     animateContent()
+    await nextTick()
+    if (readmeRef.value) renderDiagrams(readmeRef.value)
   }
 })
 </script>
@@ -180,9 +194,13 @@ onMounted(() => {
         class="mt-8"
       >
         <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-          README (excerpt)
+          README
         </h2>
-        <pre class="mt-2 whitespace-pre-wrap rounded border border-slate-200 bg-white p-4 font-mono text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">{{ detail.readmeExcerpt }}</pre>
+        <div
+          ref="readmeRef"
+          class="prose prose-slate max-w-none dark:prose-invert mt-4"
+          v-html="sanitizedReadme"
+        />
       </section>
       <p
         v-if="detail.htmlUrl"

@@ -68,7 +68,7 @@ useSeoMeta({
                 Get in touch
               </h1>
               <p class="mt-3 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                Have a question, idea, or just want to say hi? Your message is stored securely and I'll get back to you soon.
+                Have a question, idea, or just want to say hi? Your message is stored securely and I'll get back to you soon!
               </p>
 
               <!-- Divider -->
@@ -279,7 +279,7 @@ useSeoMeta({
               </button>
 
               <p class="text-center text-xs text-slate-400 dark:text-slate-500">
-                No spam. Your message goes straight to the team.
+                No spam pls. Your message goes straight to me
               </p>
             </form>
 

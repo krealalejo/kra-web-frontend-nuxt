@@ -82,7 +82,7 @@ const isMissingApiBase = computed(() => {
 
           <div class="lg:col-span-3">
             <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              Selected Projects
+              MY PROJECTS
             </h2>
 
             <div
