@@ -37,4 +37,10 @@ onMounted(() => {
 .page-leave-to {
   opacity: 0;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
 </style>

@@ -15,11 +15,44 @@ function mockMatchMedia(prefersDark: boolean, captureListener?: (fn: () => void)
   )
 }
 
+function withViewTransitionMock() {
+  const startViewTransition = vi.fn((update: () => void) => {
+    update()
+    return { ready: Promise.resolve() }
+  })
+  Object.defineProperty(document, 'startViewTransition', {
+    configurable: true,
+    writable: true,
+    value: startViewTransition,
+  })
+  return startViewTransition
+}
+
+function removeViewTransitionMock() {
+  Reflect.deleteProperty(document, 'startViewTransition')
+}
+
+function stubElementAnimate() {
+  const animate = vi.fn().mockReturnValue({ cancel: vi.fn() } as unknown as Animation)
+  Object.defineProperty(document.documentElement, 'animate', {
+    configurable: true,
+    writable: true,
+    value: animate,
+  })
+  return animate
+}
+
+function removeElementAnimateStub() {
+  Reflect.deleteProperty(document.documentElement, 'animate')
+}
+
 describe('useTheme', () => {
   beforeEach(() => {
     localStorage.clear()
     document.documentElement.classList.remove('dark')
     mockMatchMedia(false)
+    removeViewTransitionMock()
+    removeElementAnimateStub()
   })
 
   describe('setTheme', () => {
@@ -82,7 +115,7 @@ describe('useTheme', () => {
       const { useTheme } = await import('./useTheme')
       const { theme, toggle } = useTheme()
       theme.value = 'dark'
-      toggle()
+      await toggle()
       expect(theme.value).toBe('light')
     })
 
@@ -90,8 +123,51 @@ describe('useTheme', () => {
       const { useTheme } = await import('./useTheme')
       const { theme, toggle } = useTheme()
       theme.value = 'light'
-      toggle()
+      await toggle()
       expect(theme.value).toBe('dark')
+    })
+
+    it('runs clip-path animation from click when view transitions are available', async () => {
+      withViewTransitionMock()
+      const animateSpy = stubElementAnimate()
+
+      const { useTheme } = await import('./useTheme')
+      const { theme, toggle } = useTheme()
+      theme.value = 'light'
+      await toggle({ clientX: 80, clientY: 120 } as MouseEvent)
+
+      expect(theme.value).toBe('dark')
+      expect(animateSpy).toHaveBeenCalled()
+      const [keyframes, options] = animateSpy.mock.calls[0] as [
+        { clipPath: string[] },
+        KeyframeAnimationOptions,
+      ]
+      expect(keyframes.clipPath[0]).toBe('circle(0px at 80px 120px)')
+      expect(keyframes.clipPath[1]).toMatch(/^circle\([\d.]+px at 80px 120px\)$/)
+      expect(options.duration).toBe(450)
+      expect(options.easing).toBe('ease-in-out')
+      expect(options.pseudoElement).toBe('::view-transition-new(root)')
+
+      removeElementAnimateStub()
+      removeViewTransitionMock()
+    })
+
+    it('uses viewport center for animation when toggle has no event', async () => {
+      withViewTransitionMock()
+      const animateSpy = stubElementAnimate()
+
+      const { useTheme } = await import('./useTheme')
+      const { theme, toggle } = useTheme()
+      theme.value = 'dark'
+      await toggle()
+
+      const cx = window.innerWidth / 2
+      const cy = window.innerHeight / 2
+      const [keyframes] = animateSpy.mock.calls[0] as [{ clipPath: string[] }]
+      expect(keyframes.clipPath[0]).toBe(`circle(0px at ${cx}px ${cy}px)`)
+
+      removeElementAnimateStub()
+      removeViewTransitionMock()
     })
   })
 
