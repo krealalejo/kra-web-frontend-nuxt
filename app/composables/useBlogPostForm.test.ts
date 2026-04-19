@@ -136,6 +136,47 @@ describe('blogPostSchema', () => {
   })
 })
 
+describe('blogPostSchema references', () => {
+  it('accepts valid references array', () => {
+    const result = blogPostSchema.safeParse({
+      slug: 'my-post',
+      title: 'My Title',
+      content: 'Hello',
+      references: [{ label: 'MDN', url: 'https://developer.mozilla.org' }],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('accepts empty references', () => {
+    const result = blogPostSchema.safeParse({
+      slug: 'my-post',
+      title: 'My Title',
+      content: 'Hello',
+      references: [],
+    })
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects references with invalid url', () => {
+    const result = blogPostSchema.safeParse({
+      slug: 'my-post',
+      title: 'My Title',
+      content: 'Hello',
+      references: [{ label: 'Bad', url: 'not-a-url' }],
+    })
+    expect(result.success).toBe(false)
+  })
+
+  it('accepts absent references (defaults to empty array)', () => {
+    const result = blogPostSchema.safeParse({
+      slug: 'my-post',
+      title: 'My Title',
+      content: 'Hello',
+    })
+    expect(result.success).toBe(true)
+  })
+})
+
 describe('useBlogPostForm', () => {
   it('returns field bindings with default empty values', () => {
     const form = useBlogPostForm()
