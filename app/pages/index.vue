@@ -45,7 +45,14 @@ const isMissingApiBase = computed(() => {
   return msg.includes('MISSING_API_BASE')
 })
 
-const limitedProjects = computed(() => projects.value?.slice(0, 3) || [])
+const limitedProjects = computed(() => {
+  if (!projects.value) return []
+  
+  const featured = projects.value.filter(repo => repo.topics?.includes('featured'))
+  const others = projects.value.filter(repo => !repo.topics?.includes('featured'))
+  
+  return [...featured, ...others].slice(0, 3)
+})
 </script>
 
 <template>

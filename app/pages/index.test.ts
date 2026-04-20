@@ -106,6 +106,28 @@ describe('pages/index.vue', () => {
     expect(viewAllBtn.exists()).toBe(true)
     expect(viewAllBtn.text()).toContain('View all projects')
   })
+  
+  it('prioritizes projects with "featured" topic even if they are older', async () => {
+    const repos = [
+      { fullName: 'owner/recent', name: 'recent', description: 'desc', owner: 'owner', topics: [], updatedAt: '2026-04-20T10:00:00Z' },
+      { fullName: 'owner/older-featured', name: 'older-featured', description: 'desc', owner: 'owner', topics: ['featured'], updatedAt: '2026-04-19T10:00:00Z' },
+      { fullName: 'owner/recent-2', name: 'recent-2', description: 'desc', owner: 'owner', topics: [], updatedAt: '2026-04-20T09:00:00Z' },
+    ]
+    mockFetch.mockImplementation((url: string) => {
+      if (typeof url === 'string' && url.includes('/portfolio/repos')) return Promise.resolve(repos)
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    
+    const titles = wrapper.findAll('.home-repo-list h3').map(h3 => h3.text())
+    expect(titles).toContain('older-featured')
+    expect(titles[0]).toBe('older-featured')
+    expect(titles).toHaveLength(3)
+    expect(titles[1]).toBe('recent')
+    expect(titles[2]).toBe('recent-2')
+  })
 
   it('shows error alert when fetch fails', async () => {
     mockFetch.mockImplementation((url: string) => {
