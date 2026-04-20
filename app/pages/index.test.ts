@@ -86,6 +86,27 @@ describe('pages/index.vue', () => {
     expect(wrapper.find('.home-repo-list h3').text()).toBe('repo')
   })
 
+  it('limits to 3 projects and shows view all button when there are more', async () => {
+    const repos = Array.from({ length: 5 }, (_, i) => ({
+      fullName: `owner/repo${i}`,
+      name: `repo${i}`,
+      description: `desc${i}`,
+      owner: 'owner',
+      topics: []
+    }))
+    mockFetch.mockImplementation((url: string) => {
+      if (typeof url === 'string' && url.includes('/portfolio/repos')) return Promise.resolve(repos)
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    
+    expect(wrapper.findAll('.home-repo-list li')).toHaveLength(3)
+    const viewAllBtn = wrapper.find('a[href="/projects"]')
+    expect(viewAllBtn.exists()).toBe(true)
+    expect(viewAllBtn.text()).toContain('View all projects')
+  })
+
   it('shows error alert when fetch fails', async () => {
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/portfolio/repos')) return Promise.reject(new Error('Network error'))

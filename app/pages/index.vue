@@ -44,6 +44,8 @@ const isMissingApiBase = computed(() => {
     : error.value ? String(error.value) : ''
   return msg.includes('MISSING_API_BASE')
 })
+
+const limitedProjects = computed(() => projects.value?.slice(0, 3) || [])
 </script>
 
 <template>
@@ -96,11 +98,11 @@ const isMissingApiBase = computed(() => {
             <p v-else-if="pending" class="mt-4 text-sm text-slate-600 dark:text-slate-400">Loading projects…</p>
 
             <ul
-              v-else-if="projects && projects.length > 0"
+              v-else-if="limitedProjects.length > 0"
               class="home-repo-list mt-4 flex flex-col gap-4"
             >
               <li
-                v-for="repo in projects"
+                v-for="repo in limitedProjects"
                 :key="repo.fullName"
               >
                 <article
@@ -128,6 +130,16 @@ const isMissingApiBase = computed(() => {
                 </article>
               </li>
             </ul>
+
+            <div v-if="projects && projects.length > 3" class="mt-8 flex justify-center">
+              <NuxtLink
+                to="/projects"
+                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+              >
+                View all projects
+                <Icon name="lucide:arrow-right" class="h-4 w-4" />
+              </NuxtLink>
+            </div>
           </div>
         </div>
       </div>
