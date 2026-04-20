@@ -15,7 +15,7 @@ onMounted(() => {
     class="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400"
     @click="toggle($event)"
   >
-    <template v-if="mounted">
+    <ClientOnly>
       <!-- Sun icon -->
       <svg
         v-if="isDark"
@@ -50,7 +50,9 @@ onMounted(() => {
           d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
         />
       </svg>
-    </template>
-    <div v-else class="h-5 w-5" />
+      <template #fallback>
+        <div class="h-5 w-5" />
+      </template>
+    </ClientOnly>
   </button>
 </template>

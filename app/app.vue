@@ -16,12 +16,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <NuxtLayout>
     <NuxtRouteAnnouncer />
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
+    <NuxtPage />
+  </NuxtLayout>
 </template>
 
 <style>
