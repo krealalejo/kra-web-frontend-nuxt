@@ -3,6 +3,7 @@ import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
 import { useMarkdown } from '~/composables/useMarkdown'
 import IconBrandGithub from '~/components/icons/IconBrandGithub.vue'
+import { useApiError } from '~/composables/useApiError'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -43,12 +44,7 @@ const { data: detail, pending, error } = useAsyncData(
   { watch: [owner, repo], lazy: true }
 )
 
-const isMissingApiBase = computed(() => {
-  const msg = error.value && typeof error.value === 'object' && 'message' in error.value
-    ? String((error.value as Error).message)
-    : error.value ? String(error.value) : ''
-  return msg.includes('MISSING_API_BASE')
-})
+const { isMissingApiBase } = useApiError(error)
 
 const isNotFound = computed(() => {
   const e = error.value as { statusCode?: number; statusMessage?: string } | null

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import gsap from 'gsap'
-import { useGsapHeroAnimation, useGsapCardStagger } from '~/composables/useGsapAnimations'
+import { useGsapHeroAnimation, useGsapCardStagger, useCardHoverAnimation } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
 
@@ -19,24 +18,7 @@ const { data: projects, pending, error } = await useAsyncData(
 
 useGsapHeroAnimation()
 useGsapCardStagger('.projects-repo-list > li')
-
-function handleCardHover(e: MouseEvent) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  gsap.to(e.currentTarget, {
-    y: -4,
-    duration: 0.3,
-    ease: 'power1.out'
-  })
-}
-
-function handleCardHoverOut(e: MouseEvent) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  gsap.to(e.currentTarget, {
-    y: 0,
-    duration: 0.3,
-    ease: 'power1.out'
-  })
-}
+const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
 
 useHead({
   title: 'Projects | Kevin Real Alejo',

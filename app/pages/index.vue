@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import gsap from 'gsap'
-import { useGsapHeroAnimation, useGsapCardStagger } from '~/composables/useGsapAnimations'
+import { useGsapHeroAnimation, useGsapCardStagger, useCardHoverAnimation } from '~/composables/useGsapAnimations'
+import { useApiError } from '~/composables/useApiError'
 
 const config = useRuntimeConfig()
 
@@ -19,31 +19,9 @@ const { data: projects, pending, error } = await useAsyncData(
 
 useGsapHeroAnimation()
 useGsapCardStagger('.home-repo-list > li')
+const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
 
-function handleCardHover(e: MouseEvent) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  gsap.to(e.currentTarget, {
-    y: -4,
-    duration: 0.3,
-    ease: 'power1.out'
-  })
-}
-
-function handleCardHoverOut(e: MouseEvent) {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  gsap.to(e.currentTarget, {
-    y: 0,
-    duration: 0.3,
-    ease: 'power1.out'
-  })
-}
-
-const isMissingApiBase = computed(() => {
-  const msg = error.value && typeof error.value === 'object' && 'message' in error.value
-    ? String((error.value as Error).message)
-    : error.value ? String(error.value) : ''
-  return msg.includes('MISSING_API_BASE')
-})
+const { isMissingApiBase } = useApiError(error)
 
 const limitedProjects = computed(() => {
   if (!projects.value) return []
@@ -100,6 +78,9 @@ const limitedProjects = computed(() => {
               role="alert"
             >
               <p class="text-sm font-medium">Error loading projects</p>
+              <p v-if="isMissingApiBase" class="mt-2 text-xs">
+                Set <code class="rounded bg-red-100 px-1 dark:bg-red-900 text-[10px]">NUXT_PUBLIC_API_BASE_URL</code> and restart the dev server.
+              </p>
             </div>
 
             <p v-else-if="pending" class="mt-4 text-sm text-slate-600 dark:text-slate-400">Loading projects…</p>

@@ -3,6 +3,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'
+import { useApiError } from '~/composables/useApiError'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -38,12 +39,7 @@ const { data: post, pending, error } = await useAsyncData(
   { watch: [slug] }
 )
 
-const isMissingApiBase = computed(() => {
-  const msg = error.value && typeof error.value === 'object' && 'message' in error.value
-    ? String((error.value as Error).message)
-    : error.value ? String(error.value) : ''
-  return msg.includes('MISSING_API_BASE')
-})
+const { isMissingApiBase } = useApiError(error)
 
 const isNotFound = computed(() => {
   const e = error.value as { statusCode?: number; statusMessage?: string } | null

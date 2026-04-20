@@ -7,10 +7,23 @@ vi.mock('gsap', () => ({
   default: { from: vi.fn(), to: vi.fn() },
 }))
 
-vi.mock('~/composables/useGsapAnimations', () => ({
-  useGsapHeroAnimation: vi.fn(),
-  useGsapCardStagger: vi.fn(),
-}))
+vi.mock('~/composables/useGsapAnimations', async () => {
+  const gsap = (await import('gsap')).default
+  return {
+    useGsapHeroAnimation: vi.fn(),
+    useGsapCardStagger: vi.fn(),
+    useCardHoverAnimation: () => ({
+      handleCardHover: (e: MouseEvent) => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        gsap.to(e.currentTarget, { y: -4, duration: 0.3, ease: 'power1.out' })
+      },
+      handleCardHoverOut: (e: MouseEvent) => {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+        gsap.to(e.currentTarget, { y: 0, duration: 0.3, ease: 'power1.out' })
+      },
+    }),
+  }
+})
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)

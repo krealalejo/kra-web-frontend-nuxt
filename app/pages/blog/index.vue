@@ -2,6 +2,7 @@
 import type { BlogPostDto } from '~/types/blog'
 import { useGsapCardStagger } from '~/composables/useGsapAnimations'
 import { useMarkdown } from '~/composables/useMarkdown'
+import { useApiError } from '~/composables/useApiError'
 
 const { stripMarkdown } = useMarkdown()
 
@@ -21,12 +22,7 @@ const { data: posts, pending, error } = await useAsyncData(
 
 useGsapCardStagger('.blog-post-list > li')
 
-const isMissingApiBase = computed(() => {
-  const msg = error.value && typeof error.value === 'object' && 'message' in error.value
-    ? String((error.value as Error).message)
-    : error.value ? String(error.value) : ''
-  return msg.includes('MISSING_API_BASE')
-})
+const { isMissingApiBase } = useApiError(error)
 
 function formatDate(iso: string) {
   try {
