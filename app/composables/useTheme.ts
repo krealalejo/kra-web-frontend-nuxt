@@ -69,20 +69,10 @@ export function useTheme() {
   }
 
   const isDark = computed(() => {
-    // Return false during SSR and initial hydration pass to match server output
-    if (import.meta.server || (import.meta.client && !isHydrated.value)) return false
-    
+    if (import.meta.server) return false
     return theme.value === 'dark' ||
       (theme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   })
-
-  // Track hydration state globally for this composable
-  const isHydrated = useState('theme_hydrated', () => false)
-  if (import.meta.client) {
-    onMounted(() => {
-      isHydrated.value = true
-    })
-  }
 
   return { theme, isDark, setTheme, toggle, init }
 }
