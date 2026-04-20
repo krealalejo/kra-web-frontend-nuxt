@@ -25,6 +25,12 @@ useGsapNavAnimation()
               Home
             </NuxtLink>
             <NuxtLink
+              to="/projects"
+              class="hover:text-slate-900 dark:hover:text-slate-100"
+            >
+              Projects
+            </NuxtLink>
+            <NuxtLink
               to="/blog"
               class="hover:text-slate-900 dark:hover:text-slate-100"
             >

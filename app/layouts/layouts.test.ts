@@ -40,7 +40,7 @@ describe('default layout', () => {
     const nav = wrapper.find('header nav')
     expect(nav.exists()).toBe(true)
     const texts = nav.findAll('a').map(a => a.text())
-    expect(texts).toEqual(['Home', 'Blog', 'Contact', 'CV'])
+    expect(texts).toEqual(['Home', 'Projects', 'Blog', 'Contact', 'CV'])
   })
 
   it('renders main slot content', async () => {
