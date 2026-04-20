@@ -2,6 +2,7 @@
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
 import { useMarkdown } from '~/composables/useMarkdown'
+import IconBrandGithub from '~/components/icons/IconBrandGithub.vue'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -169,9 +170,21 @@ onMounted(async () => {
     </div>
 
     <article v-else-if="detail">
-      <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-        {{ detail.fullName }}
-      </h1>
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+          {{ detail.fullName }}
+        </h1>
+        <a
+          v-if="detail.htmlUrl"
+          :href="detail.htmlUrl"
+          class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-900 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-900"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <IconBrandGithub class="h-4 w-4 text-slate-950 dark:text-slate-100" />
+          <span>GitHub</span>
+        </a>
+      </div>
       <p class="mt-4 text-slate-600 dark:text-slate-400">
         {{ detail.description || '—' }}
       </p>
@@ -202,17 +215,6 @@ onMounted(async () => {
           v-html="sanitizedReadme"
         />
       </section>
-      <p
-        v-if="detail.htmlUrl"
-        class="mt-8"
-      >
-        <a
-          :href="detail.htmlUrl"
-          class="text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
-          target="_blank"
-          rel="noopener noreferrer"
-        >Open on GitHub</a>
-      </p>
     </article>
   </div>
 </template>

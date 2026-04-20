@@ -72,15 +72,23 @@ describe('pages/projects/[owner]/[repo].vue', () => {
     expect(wrapper.text()).toContain('spring-boot')
   })
 
-  it('renders the GitHub link after data loads', async () => {
+  it('renders the GitHub link next to the title after data loads', async () => {
     mockFetch.mockResolvedValue(mockDetail)
     const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/krealalejo/project-kra',
     })
     await flushPromises()
+
     const link = wrapper.find(`a[href="${mockDetail.htmlUrl}"]`)
     expect(link.exists()).toBe(true)
     expect(link.text()).toContain('GitHub')
+
+    const header = wrapper.find('article > div.flex')
+    expect(header.exists()).toBe(true)
+    expect(header.find('h1').exists()).toBe(true)
+    expect(header.find(`a[href="${mockDetail.htmlUrl}"]`).exists()).toBe(true)
+
+    expect(link.find('svg').exists()).toBe(true)
   })
 
   it('renders the README section when readmeExcerpt is present', async () => {
@@ -153,13 +161,13 @@ describe('pages/projects/[owner]/[repo].vue', () => {
   it('triggers mermaid rendering on mount', async () => {
     const { useMermaid } = await import('~/composables/useMermaid')
     const { renderDiagrams } = useMermaid()
-    
+
     mockFetch.mockResolvedValue(mockDetail)
     await mountSuspended(RepoPage, {
       route: '/projects/krealalejo/project-kra',
     })
     await flushPromises()
-    
+
     expect(renderDiagramsMock).toHaveBeenCalled()
   })
 
