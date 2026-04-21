@@ -2,6 +2,9 @@
 const { init } = useTheme()
 
 useHead({
+  bodyAttrs: {
+    class: 'bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300 antialiased'
+  },
   script: [
     {
       innerHTML: `(function(){var t=localStorage.getItem('theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t!=='light'&&d)){document.documentElement.classList.add('dark')}})()`,
