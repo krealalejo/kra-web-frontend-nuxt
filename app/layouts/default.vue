@@ -9,15 +9,20 @@ useGsapNavAnimation()
     <header
       class="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-900"
     >
-      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
-        <NuxtLink
-          to="/"
-          class="text-lg font-semibold tracking-tight text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
-        >
-          KRA
-        </NuxtLink>
-        <div class="flex flex-wrap items-center gap-2">
-          <nav class="flex flex-wrap items-center gap-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+      <div class="mx-auto flex max-w-5xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center justify-between">
+          <NuxtLink
+            to="/"
+            class="text-lg font-semibold tracking-tight text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
+          >
+            KRA
+          </NuxtLink>
+          <div class="sm:hidden">
+            <ThemeToggle />
+          </div>
+        </div>
+        <div class="flex items-center gap-4 overflow-x-auto pb-2 sm:overflow-visible sm:pb-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <nav class="flex items-center gap-5 text-sm font-medium whitespace-nowrap text-slate-700 dark:text-slate-300">
             <NuxtLink
               to="/"
               class="hover:text-slate-900 dark:hover:text-slate-100"
@@ -49,7 +54,9 @@ useGsapNavAnimation()
               CV
             </NuxtLink>
           </nav>
-          <ThemeToggle />
+          <div class="hidden sm:block pl-2 border-l border-slate-200 dark:border-slate-700">
+            <ThemeToggle />
+          </div>
         </div>
       </div>
     </header>
