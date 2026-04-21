@@ -5,7 +5,7 @@ useGsapNavAnimation()
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <div class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
     <header
       class="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 py-4 dark:border-slate-800 dark:bg-slate-900"
     >
@@ -53,7 +53,7 @@ useGsapNavAnimation()
         </div>
       </div>
     </header>
-    <main class="mx-auto max-w-5xl px-4 py-8">
+    <main class="mx-auto w-full max-w-5xl flex-grow px-4 py-8">
       <slot />
     </main>
     <footer class="border-t border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900">
