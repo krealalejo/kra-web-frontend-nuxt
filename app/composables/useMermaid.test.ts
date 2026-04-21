@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { useMermaid } from './useMermaid'
 
-// Mock mermaid library
 const mermaidRenderMock = vi.fn().mockResolvedValue({ svg: '<svg>mock-svg</svg>' })
 const mermaidInitializeMock = vi.fn()
 
@@ -44,7 +43,7 @@ describe('useMermaid', () => {
     const svgWrapper = container.querySelector('.mermaid-diagram')
     expect(svgWrapper).not.toBeNull()
     expect(svgWrapper?.innerHTML).toBe('<svg>mock-svg</svg>')
-    expect(container.querySelector('pre')).toBeNull() // should be replaced
+    expect(container.querySelector('pre')).toBeNull()
   })
 
   it('handles multiple diagrams', async () => {
@@ -72,7 +71,6 @@ describe('useMermaid', () => {
     await renderDiagrams(container)
     
     expect(consoleSpy).toHaveBeenCalledWith('[useMermaid] render error', expect.any(Error))
-    // The pre block should still be there because it failed
     expect(container.querySelector('pre')).not.toBeNull()
     
     consoleSpy.mockRestore()

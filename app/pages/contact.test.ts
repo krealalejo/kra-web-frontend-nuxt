@@ -81,7 +81,6 @@ describe('pages/contact.vue', () => {
     const messageInput = wrapper.find('#message')
 
     await emailInput.trigger('focus')
-    // We can't easily check the internal emailFocused ref, 
     // but we can check if the class was applied to the parent
     expect(wrapper.find('.ring-slate-900\\/10').exists()).toBe(true)
 

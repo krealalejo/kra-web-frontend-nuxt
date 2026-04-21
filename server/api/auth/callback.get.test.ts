@@ -119,7 +119,6 @@ describe('auth/callback.get', () => {
     const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
     const mockSetCookie = vi.fn()
 
-    // Build a minimal valid JWT with email claim
     const payload = Buffer.from(JSON.stringify({ email: 'admin@example.com', sub: 'user123' })).toString('base64')
     const fakeIdToken = `header.${payload}.signature`
 

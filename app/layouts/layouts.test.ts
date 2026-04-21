@@ -1,9 +1,15 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
 
 vi.mock('~/composables/useGsapAnimations', () => ({
   useGsapNavAnimation: vi.fn(),
 }))
+
+const mockCookieValue = ref<string | null>(null)
+mockNuxtImport('useCookie', () => {
+  return vi.fn(() => mockCookieValue)
+})
 
 import DefaultLayout from './default.vue'
 import AdminLayout from './admin.vue'
@@ -53,7 +59,22 @@ describe('default layout', () => {
 })
 
 describe('admin layout', () => {
-  it('renders a sticky header pinned to the top with stacking context', async () => {
+  beforeEach(() => {
+    mockCookieValue.value = null
+  })
+
+  it('hides sidebar and header when not authenticated', async () => {
+    mockCookieValue.value = null
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Login content</p>' },
+    })
+    expect(wrapper.find('aside').exists()).toBe(false)
+    expect(wrapper.find('header').exists()).toBe(false)
+    expect(wrapper.text()).toContain('Login content')
+  })
+
+  it('renders a sticky header pinned to the top when authenticated', async () => {
+    mockCookieValue.value = 'admin@example.com'
     const wrapper = await mountSuspended(AdminLayout, {
       slots: { default: '<p>Admin content</p>' },
     })
@@ -62,15 +83,24 @@ describe('admin layout', () => {
     expectStickyHeaderClasses(header.classes())
   })
 
-  it('renders admin title and logout control', async () => {
+  it('renders admin title and logout control when authenticated', async () => {
+    mockCookieValue.value = 'admin@example.com'
     const wrapper = await mountSuspended(AdminLayout, {
       slots: { default: '<p>Admin content</p>' },
     })
-    expect(wrapper.find('header').text()).toContain('KRA Admin')
+    expect(wrapper.find('header').text()).toContain('admin@example.com')
     const logout = wrapper
       .findAll('header button')
       .find(b => b.text().trim() === 'Logout')
     expect(logout).toBeDefined()
     expect(logout!.text()).toBe('Logout')
+  })
+
+  it('renders sidebar when authenticated', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Admin content</p>' },
+    })
+    expect(wrapper.find('aside').exists()).toBe(true)
   })
 })

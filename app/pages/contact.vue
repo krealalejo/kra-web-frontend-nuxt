@@ -50,14 +50,11 @@ useSeoMeta({
   <div class="flex min-h-[calc(100vh-12rem)] items-start justify-center py-6 sm:py-12">
     <div class="w-full max-w-4xl">
 
-      <!-- Card wrapper -->
       <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/60 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/60">
         <div class="grid grid-cols-1 lg:grid-cols-5">
 
-          <!-- Left panel — decorative sidebar -->
           <div class="bg-slate-100 px-8 py-10 dark:bg-slate-950 lg:col-span-2 lg:py-14">
             <div>
-              <!-- Icon badge -->
               <div class="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-slate-200 dark:bg-slate-800">
                 <svg class="h-6 w-6 text-slate-600 dark:text-slate-200" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
@@ -71,10 +68,8 @@ useSeoMeta({
                 Have a question, idea, or just want to say hi? Your message is stored securely and I'll get back to you soon!
               </p>
 
-              <!-- Divider -->
               <div class="my-8 h-px bg-slate-300/70 dark:bg-slate-700/60" />
 
-              <!-- Contact details -->
               <ul class="space-y-4">
                 <li class="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
                   <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-200 dark:bg-slate-800">
@@ -104,10 +99,8 @@ useSeoMeta({
             </div>
           </div>
 
-          <!-- Right panel — form -->
           <div class="px-6 py-10 sm:px-10 lg:col-span-3 lg:py-14">
 
-            <!-- Success state -->
             <Transition
               enter-active-class="transition duration-300 ease-out"
               enter-from-class="opacity-0 translate-y-2"
@@ -150,7 +143,6 @@ useSeoMeta({
                 </h2>
               </div>
 
-              <!-- Email field -->
               <div class="space-y-1.5">
                 <label
                   for="email"
@@ -186,7 +178,6 @@ useSeoMeta({
                 </div>
               </div>
 
-              <!-- Message field -->
               <div class="space-y-1.5">
                 <label
                   for="message"
@@ -221,7 +212,6 @@ useSeoMeta({
                     @focus="messageFocused = true"
                     @blur="messageFocused = false"
                   />
-                  <!-- char counter bar -->
                   <div class="flex items-center justify-between border-t border-slate-100 px-3 py-2 dark:border-slate-800">
                     <span
                       class="text-xs transition-colors"
@@ -236,7 +226,6 @@ useSeoMeta({
                 </div>
               </div>
 
-              <!-- Error banner -->
               <Transition
                 enter-active-class="transition duration-200 ease-out"
                 enter-from-class="opacity-0 -translate-y-1"
@@ -254,13 +243,11 @@ useSeoMeta({
                 </div>
               </Transition>
 
-              <!-- Submit -->
               <button
                 type="submit"
                 :disabled="sending"
                 class="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-slate-900 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-300"
               >
-                <!-- Shimmer on hover -->
                 <span class="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-500 group-hover:translate-x-full dark:via-slate-900/10" />
 
                 <template v-if="sending">

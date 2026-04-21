@@ -1,27 +1,27 @@
 <script setup lang="ts">
 const userCookie = useCookie('kra_user')
 
+const isAuthenticated = computed(() => !!userCookie.value)
 const userEmail = computed(() => userCookie.value || 'Admin')
 
 async function logout() {
   await $fetch('/api/auth/logout', { method: 'POST' })
     .catch(() => {})
-  await navigateTo('/')
+  userCookie.value = null
+  await navigateTo('/admin/login')
 }
 </script>
 
 <template>
   <div class="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-    <!-- Fixed Sidebar -->
-    <AdminSidebar class="hidden md:flex flex-shrink-0" />
+    <AdminSidebar v-if="isAuthenticated" class="hidden md:flex flex-shrink-0" />
 
-    <!-- Main Content Area -->
     <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
       <header
+        v-if="isAuthenticated"
         class="sticky top-0 z-40 border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900"
       >
         <div class="flex items-center justify-between">
-          <!-- Mobile menu toggle placeholder (optional) -->
           <div class="flex md:hidden">
             <span class="text-base font-semibold text-slate-900 dark:text-slate-100">KRA Admin</span>
           </div>
