@@ -4,15 +4,27 @@ import gsap from 'gsap'
 export function useGsapHeroAnimation() {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.from('h1', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' })
-    gsap.from('h1 + p', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out', delay: 0.15 })
+    gsap.from('.gsap-hero-item', { 
+      opacity: 0, 
+      y: 10, 
+      duration: 0.5, 
+      ease: 'power2.out', 
+      stagger: 0.1 
+    })
   })
 }
 
 export function useGsapCardStagger(selector: string = 'li') {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.from(selector, { opacity: 0, y: 20, duration: 0.5, ease: 'power2.out', stagger: 0.1 })
+    gsap.from(selector, { 
+      opacity: 0, 
+      y: 10, 
+      duration: 0.5, 
+      ease: 'power2.out', 
+      stagger: 0.1,
+      delay: 0.2
+    })
   })
 }
 
@@ -26,7 +38,7 @@ export function useGsapNavAnimation() {
 export function useGsapContentAnimation() {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    gsap.from('article', { opacity: 0, y: 20, duration: 0.6, ease: 'power2.out' })
+    gsap.from('article', { opacity: 0, y: 10, duration: 0.5, ease: 'power2.out' })
   })
 }
 

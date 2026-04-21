@@ -40,14 +40,14 @@ const limitedProjects = computed(() => {
         <div class="grid grid-cols-1 gap-12 lg:grid-cols-10">
           <!-- Bio Column (70%) -->
           <div class="lg:col-span-7">
-            <h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            <h1 class="gsap-hero-item text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
               Kevin Real Alejo
             </h1>
-            <p class="mt-3 text-xl font-medium text-slate-600 dark:text-slate-400">
+            <p class="gsap-hero-item mt-3 text-xl font-medium text-slate-600 dark:text-slate-400">
               Full Stack Engineer · Cloud & Architecture
             </p>
             
-            <div class="mt-8 space-y-6 text-base text-slate-600 dark:text-slate-400">
+            <div class="gsap-hero-item mt-8 space-y-6 text-base text-slate-600 dark:text-slate-400">
               <p>
                 Software Engineer specializing in the development of robust and scalable applications. My focus combines the power of the Java/Spring Boot ecosystem with the agility of modern frontends in Nuxt.
               </p>
@@ -56,7 +56,7 @@ const limitedProjects = computed(() => {
               </p>
             </div>
 
-            <div class="mt-8 flex flex-wrap gap-2">
+            <div class="gsap-hero-item mt-8 flex flex-wrap gap-2">
               <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">Spring Boot</span>
               <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">Nuxt 3</span>
               <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">AWS</span>
@@ -64,11 +64,11 @@ const limitedProjects = computed(() => {
               <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">DDD</span>
             </div>
 
-            <AppGithubContributions />
+            <AppGithubContributions class="gsap-hero-item mt-8" />
           </div>
 
           <div class="lg:col-span-3">
-            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h2 class="gsap-hero-item text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
               MY PROJECTS
             </h2>
 
