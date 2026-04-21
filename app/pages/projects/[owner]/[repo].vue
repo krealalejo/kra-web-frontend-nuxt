@@ -166,7 +166,7 @@ onMounted(async () => {
     </div>
 
     <article v-else-if="detail">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {{ detail.fullName }}
         </h1>
