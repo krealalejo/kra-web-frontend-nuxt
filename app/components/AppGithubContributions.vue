@@ -51,7 +51,13 @@ onUnmounted(() => {
 
 const displayWeeks = computed(() => {
   if (!data.value?.weeks) return []
-  return isMobile.value ? data.value.weeks.slice(-16) : data.value.weeks
+  return isMobile.value ? data.value.weeks.slice(-16) : data.value.weeks.slice(-52)
+})
+
+const displayTotalContributions = computed(() => {
+  return displayWeeks.value.reduce((total, week) => {
+    return total + week.contributionDays.reduce((weekTotal, day) => weekTotal + day.contributionCount, 0)
+  }, 0)
 })
 
 function getDayColorClass(count: number) {
@@ -76,10 +82,10 @@ function getDayColorClass(count: number) {
       </div>
       <div v-if="data" class="flex items-center gap-3">
         <span class="text-sm font-semibold text-slate-900 dark:text-slate-100">
-          {{ data.totalContributions }}
+          {{ displayTotalContributions }}
         </span>
         <span class="text-xs text-slate-500 dark:text-slate-400">
-          contributions in the last year
+          contributions in the last {{ isMobile ? '4' : '12' }} months
         </span>
       </div>
     </div>
@@ -94,37 +100,37 @@ function getDayColorClass(count: number) {
        </div>
     </div>
 
-    <div v-else class="mt-6 overflow-x-auto pb-4 custom-scrollbar">
-      <svg
-        :class="isMobile ? 'w-full overflow-visible' : 'min-w-[700px] overflow-visible'"
-        width="100%"
-        :viewBox="`0 0 ${displayWeeks.length * 13 - 3} 91`"
-        preserveAspectRatio="xMinYMin meet"
-      >
-        <g v-for="(week, weekIndex) in displayWeeks" :key="weekIndex" :transform="`translate(${weekIndex * 13}, 0)`">
-          <rect
-            v-for="(day, dayIndex) in week.contributionDays"
-            :key="day.date"
-            :x="0"
-            :y="dayIndex * 13"
-            width="10"
-            height="10"
-            rx="2.5"
-            class="contribution-rect fill-current origin-center transition-all duration-300 hover:stroke-emerald-400 hover:stroke-2 dark:hover:stroke-emerald-300"
-            :class="getDayColorClass(day.contributionCount)"
-          >
-            <title>{{ day.contributionCount }} contributions on {{ day.date }}</title>
-          </rect>
-        </g>
-      </svg>
-    </div>
+    <div v-else class="mt-6 w-full">
+      <div class="w-full pb-1">
+        <svg
+          class="w-full h-auto overflow-visible"
+          :viewBox="`0 0 ${displayWeeks.length * 13 - 3} 91`"
+        >
+          <g v-for="(week, weekIndex) in displayWeeks" :key="weekIndex" :transform="`translate(${weekIndex * 13}, 0)`">
+            <rect
+              v-for="(day, dayIndex) in week.contributionDays"
+              :key="day.date"
+              :x="0"
+              :y="dayIndex * 13"
+              width="10"
+              height="10"
+              rx="2.5"
+              class="contribution-rect fill-current origin-center transition-all duration-300 hover:stroke-emerald-400 hover:stroke-2 dark:hover:stroke-emerald-300"
+              :class="getDayColorClass(day.contributionCount)"
+            >
+              <title>{{ day.contributionCount }} contributions on {{ day.date }}</title>
+            </rect>
+          </g>
+        </svg>
 
-    <div class="mt-2 flex items-center justify-end gap-2 pr-1">
-      <span class="text-[10px] text-slate-400 dark:text-slate-500">Less</span>
-      <div class="flex gap-1">
-        <div v-for="i in [0, 2, 5, 8, 12]" :key="i" class="h-2 w-2 rounded-[1.5px] fill-current" :class="getDayColorClass(i)" />
+        <div class="mt-3 flex items-center justify-end gap-2 pr-1">
+          <span class="text-[10px] text-slate-400 dark:text-slate-500">Less</span>
+          <div class="flex gap-1">
+            <div v-for="i in [0, 2, 5, 8, 12]" :key="i" class="h-2 w-2 rounded-[1.5px] fill-current" :class="getDayColorClass(i)" />
+          </div>
+          <span class="text-[10px] text-slate-400 dark:text-slate-500">More</span>
+        </div>
       </div>
-      <span class="text-[10px] text-slate-400 dark:text-slate-500">More</span>
     </div>
   </div>
 </template>
