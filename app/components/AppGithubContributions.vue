@@ -28,22 +28,31 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
 )
 
 const weeks = computed(() => data.value?.weeks || [])
-const contributionContainer = ref(null)
+const isMobile = ref(false)
 
-watch(pending, (isPending) => {
-  if (!isPending && data.value) {
-    nextTick(() => {
-      if (contributionContainer.value) {
-        gsap.from(contributionContainer.value, {
-          opacity: 0,
-          y: 20,
-          duration: 0.8,
-          ease: 'power3.out'
-        })
-      }
+onMounted(() => {
+  const checkMobile = () => {
+    isMobile.value = window.innerWidth < 640
+  }
+  // Safe check for browser environment
+  if (typeof window !== 'undefined') {
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+  }
+})
+
+onUnmounted(() => {
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('resize', () => {
+      isMobile.value = window.innerWidth < 640
     })
   }
-}, { immediate: true })
+})
+
+const displayWeeks = computed(() => {
+  if (!data.value?.weeks) return []
+  return isMobile.value ? data.value.weeks.slice(-16) : data.value.weeks
+})
 
 function getDayColorClass(count: number) {
   if (count === 0) return 'text-slate-100 dark:text-white/[0.05]'
@@ -55,10 +64,10 @@ function getDayColorClass(count: number) {
 </script>
 
 <template>
-  <div class="group relative mt-10 overflow-hidden rounded-2xl border border-slate-200/60 bg-white/50 p-6 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 hover:shadow-lg dark:border-slate-800/60 dark:bg-slate-900/50 dark:ring-white/5">
+  <div class="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white/50 p-6 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 hover:shadow-lg dark:border-slate-800/60 dark:bg-slate-900/50 dark:ring-white/5">
     <div class="absolute -right-20 -top-20 h-40 w-40 rounded-full bg-emerald-500/10 blur-3xl transition-opacity group-hover:opacity-100 dark:bg-emerald-500/20" />
     
-    <div class="relative flex items-center justify-between">
+    <div class="relative flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div class="flex items-center gap-2">
         <div class="h-2 w-2 rounded-full bg-emerald-500" />
         <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
@@ -85,14 +94,14 @@ function getDayColorClass(count: number) {
        </div>
     </div>
 
-    <div v-else ref="contributionContainer" class="mt-6">
+    <div v-else class="mt-6 overflow-x-auto pb-4 custom-scrollbar">
       <svg
+        :class="isMobile ? 'w-full overflow-visible' : 'min-w-[700px] overflow-visible'"
         width="100%"
-        :viewBox="`0 0 ${weeks.length * 13 - 3} 91`"
-        class="overflow-visible"
+        :viewBox="`0 0 ${displayWeeks.length * 13 - 3} 91`"
         preserveAspectRatio="xMinYMin meet"
       >
-        <g v-for="(week, weekIndex) in weeks" :key="weekIndex" :transform="`translate(${weekIndex * 13}, 0)`">
+        <g v-for="(week, weekIndex) in displayWeeks" :key="weekIndex" :transform="`translate(${weekIndex * 13}, 0)`">
           <rect
             v-for="(day, dayIndex) in week.contributionDays"
             :key="day.date"

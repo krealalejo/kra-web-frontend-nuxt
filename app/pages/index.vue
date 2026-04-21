@@ -37,13 +37,13 @@ const limitedProjects = computed(() => {
   <div>
     <section class="pb-12 pt-6">
       <div class="mx-auto max-w-6xl px-4">
-        <div class="grid grid-cols-1 gap-12 lg:grid-cols-10">
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-10 lg:gap-12">
           <!-- Bio Column (70%) -->
           <div class="lg:col-span-7">
-            <h1 class="gsap-hero-item text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+            <h1 class="gsap-hero-item text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
               Kevin Real Alejo
             </h1>
-            <p class="gsap-hero-item mt-3 text-xl font-medium text-slate-600 dark:text-slate-400">
+            <p class="gsap-hero-item mt-3 text-lg font-medium text-slate-600 dark:text-slate-400 sm:text-xl">
               Full Stack Engineer · Cloud & Architecture
             </p>
             
@@ -64,9 +64,13 @@ const limitedProjects = computed(() => {
               <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">DDD</span>
             </div>
 
-            <AppGithubContributions class="gsap-hero-item mt-8" />
+            <!-- GitHub Contributions -->
+            <div class="gsap-hero-item mt-6">
+              <AppGithubContributions />
+            </div>
           </div>
 
+          <!-- Projects Column (30%) -->
           <div class="lg:col-span-3">
             <h2 class="gsap-hero-item text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
               MY PROJECTS
