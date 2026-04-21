@@ -51,7 +51,7 @@ function isLinkActive(href: string) {
 
     <div class="border-t border-slate-200 p-4 dark:border-slate-800">
       <div class="flex items-center gap-3 px-2 text-xs font-medium text-slate-500 dark:text-slate-500 uppercase tracking-wider">
-        System Status: <span class="text-green-500">Online</span>
+        System Status: <span class="text-green-500">Online</span> <!-- TODO: Add logic to check system status -->
       </div>
     </div>
   </aside>
