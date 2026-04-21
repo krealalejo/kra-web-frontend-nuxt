@@ -23,12 +23,11 @@ describe('useGsapAnimations', () => {
   })
 
   describe('useGsapHeroAnimation', () => {
-    it('calls gsap.from for h1 and h1+p when motion is allowed', async () => {
+    it('calls gsap.from for .gsap-hero-item when motion is allowed', async () => {
       const gsap = (await import('gsap')).default
       const { useGsapHeroAnimation } = await import('./useGsapAnimations')
       useGsapHeroAnimation()
-      expect(gsap.from).toHaveBeenCalledWith('h1', expect.objectContaining({ opacity: 0 }))
-      expect(gsap.from).toHaveBeenCalledWith('h1 + p', expect.objectContaining({ opacity: 0 }))
+      expect(gsap.from).toHaveBeenCalledWith('.gsap-hero-item', expect.objectContaining({ opacity: 0, stagger: 0.1 }))
     })
 
     it('does not call gsap.from when reduced motion is preferred', async () => {
