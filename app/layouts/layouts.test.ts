@@ -56,6 +56,30 @@ describe('default layout', () => {
     expect(wrapper.find('main .page-slot').exists()).toBe(true)
     expect(wrapper.find('main .page-slot').text()).toBe('Hello')
   })
+
+  it('toggles mobile menu when hamburger button is clicked', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+
+    const button = wrapper.find('header button[aria-expanded]')
+
+    expect(button.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(false)
+
+    await button.trigger('click')
+    expect(button.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(true)
+
+    const mobileLinks = wrapper.findAll('.mobile-nav-link')
+    expect(mobileLinks.length).toBe(5)
+    expect(mobileLinks[0]!.classes()).toContain('text-center')
+    expect(mobileLinks[0]!.classes()).toContain('rounded-xl')
+
+    await button.trigger('click')
+    expect(button.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(false)
+  })
 })
 
 describe('admin layout', () => {
