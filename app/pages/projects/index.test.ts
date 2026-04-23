@@ -10,12 +10,15 @@ vi.mock('gsap', () => ({
   default: { from: vi.fn(), to: vi.fn() },
 }))
 
+const handleCardHoverMock = vi.fn()
+const handleCardHoverOutMock = vi.fn()
+
 vi.mock('~/composables/useGsapAnimations', () => ({
   useGsapHeroAnimation: vi.fn(),
   useGsapCardStagger: vi.fn(),
   useCardHoverAnimation: () => ({
-    handleCardHover: vi.fn(),
-    handleCardHoverOut: vi.fn(),
+    handleCardHover: handleCardHoverMock,
+    handleCardHoverOut: handleCardHoverOutMock,
   }),
 }))
 
@@ -23,17 +26,17 @@ mockNuxtImport('useAsyncData', () => {
   return async (_key: string, factory: () => Promise<any>) => {
     try {
       const res = await factory()
-      return { 
-        data: ref(res), 
-        pending: ref(false), 
+      return {
+        data: ref(res),
+        pending: ref(false),
         error: ref(null),
         status: ref('success'),
         refresh: vi.fn()
       }
     } catch (e) {
-      return { 
-        data: ref(null), 
-        pending: ref(false), 
+      return {
+        data: ref(null),
+        pending: ref(false),
         error: ref(e),
         status: ref('error'),
         refresh: vi.fn()
@@ -47,6 +50,8 @@ import ProjectsPage from './index.vue'
 describe('pages/projects/index.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
+    handleCardHoverMock.mockClear()
+    handleCardHoverOutMock.mockClear()
     vi.clearAllMocks()
   })
 
@@ -63,7 +68,7 @@ describe('pages/projects/index.vue', () => {
       { name: 'Project B', owner: 'owner', fullName: 'owner/Project B', description: 'Desc B' }
     ]
     mockFetch.mockResolvedValue(mockProjects)
-    
+
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
     const cards = wrapper.findAll('li')
@@ -92,10 +97,39 @@ describe('pages/projects/index.vue', () => {
       { name: 'Project A', owner: 'krealalejo', fullName: 'krealalejo/Project A', description: 'Desc A' }
     ]
     mockFetch.mockResolvedValue(mockProjects)
-    
+
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
     const link = wrapper.find('a')
     expect(link.attributes('href')).toBe('/projects/krealalejo/Project A')
+  })
+
+  it('triggers hover animations', async () => {
+    const mockProjects = [{ name: 'Project A', owner: 'owner', fullName: 'owner/Project A', description: 'Desc A' }]
+    mockFetch.mockResolvedValue(mockProjects)
+    const wrapper = await mountSuspended(ProjectsPage)
+    await flushPromises()
+
+    const article = wrapper.find('article')
+    await article.trigger('mouseenter')
+    expect(handleCardHoverMock).toHaveBeenCalled()
+
+    await article.trigger('mouseleave')
+    expect(handleCardHoverOutMock).toHaveBeenCalled()
+  })
+
+  it('shows MISSING_API_BASE hint when fetch fails with MISSING_API_BASE', async () => {
+    const { useRuntimeConfig } = await import('#imports')
+    const config = useRuntimeConfig()
+    const originalApiBase = config.public.apiBase
+
+    config.public.apiBase = ''
+
+    const wrapper = await mountSuspended(ProjectsPage)
+    await flushPromises()
+
+    config.public.apiBase = originalApiBase
+
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
 })
