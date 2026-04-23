@@ -116,13 +116,13 @@ describe('blogPostSchema', () => {
   })
 
   describe('content validation', () => {
-    it('accepts empty content', () => {
+    it('rejects empty content', () => {
       const result = blogPostSchema.safeParse({
         slug: 'post',
         title: 'Title',
         content: '',
       })
-      expect(result.success).toBe(true)
+      expect(result.success).toBe(false)
     })
 
     it('rejects content exceeding 200000 characters', () => {
