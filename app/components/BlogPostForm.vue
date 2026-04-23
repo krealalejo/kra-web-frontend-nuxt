@@ -1,9 +1,7 @@
 <script setup lang="ts">
+import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-import { marked } from 'marked'
-import DOMPurify from 'dompurify'
 import type { BlogPost } from '~/stores/blog'
-import type { Reference } from '~/types/blog'
 
 const props = defineProps<{
   open: boolean
@@ -16,26 +14,17 @@ const emit = defineEmits<{
 }>()
 
 const store = useBlogStore()
+const { sanitizeMarkdown } = useMarkdown()
 const { slug, title, content, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
+const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
 
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
-const references = ref<Reference[]>([])
-
 const previewHtml = computed<string>(() => {
-  if (import.meta.server || !content.value) return ''
-  const html = marked.parse(content.value) as string
-  return DOMPurify.sanitize(html)
+  if (!content.value) return ''
+  return sanitizeMarkdown(content.value)
 })
-
-function addReference() {
-  references.value.push({ label: '', url: '' })
-}
-
-function removeReference(index: number) {
-  references.value.splice(index, 1)
-}
 
 watch(() => props.post, (newPost) => {
   if (newPost) {
@@ -45,14 +34,12 @@ watch(() => props.post, (newPost) => {
       content: newPost.content,
       references: newPost.references ? [...newPost.references] : []
     })
-    references.value = newPost.references ? [...newPost.references] : []
   }
 }, { immediate: true })
 
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
     resetForm()
-    references.value = []
     formError.value = null
   }
 })
@@ -61,9 +48,9 @@ const onSubmit = handleSubmit(async (values) => {
   formError.value = null
   try {
     if (isEditMode.value && props.post) {
-      await store.updatePost(props.post.slug, { title: values.title, content: values.content, references: references.value })
+      await store.updatePost(props.post.slug, { title: values.title, content: values.content, references: values.references ?? [] })
     } else {
-      await store.createPost({ slug: values.slug, title: values.title, content: values.content, references: references.value })
+      await store.createPost({ slug: values.slug, title: values.title, content: values.content, references: values.references ?? [] })
     }
     emit('saved')
     emit('close')
@@ -79,8 +66,8 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="fixed inset-0 bg-black/30 dark:bg-black/50" aria-hidden="true" />
 
     <!-- Modal panel -->
-    <div class="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto">
-      <DialogPanel class="w-full max-w-4xl rounded border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900 my-8">
+    <div class="fixed inset-0 flex items-start justify-center p-4 overflow-y-auto">
+      <DialogPanel class="w-full max-w-6xl rounded border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900 my-8">
         <DialogTitle class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-100">
           {{ isEditMode ? 'Edit Post' : 'Create Post' }}
         </DialogTitle>
@@ -158,24 +145,24 @@ const onSubmit = handleSubmit(async (values) => {
               <button
                 type="button"
                 class="text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400"
-                @click="addReference"
+                @click="addReference({ label: '', url: '' })"
               >
                 + Add reference
               </button>
             </div>
             <div
               v-for="(ref, i) in references"
-              :key="i"
+              :key="ref.key"
               class="flex gap-2 items-center"
             >
               <input
-                v-model="ref.label"
+                v-model="ref.value.label"
                 type="text"
                 placeholder="Label"
                 class="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               />
               <input
-                v-model="ref.url"
+                v-model="ref.value.url"
                 type="url"
                 placeholder="https://..."
                 class="flex-1 rounded border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
