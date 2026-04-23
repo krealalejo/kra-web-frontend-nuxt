@@ -14,7 +14,8 @@ export const blogPostSchema = z.object({
     .max(256, 'Title required (1–256 characters)'),
   content: z
     .string()
-    .max(200_000, 'Content required (max 200,000 characters)'),
+    .min(1, 'Content is required')
+    .max(200_000, 'Content must be 200,000 characters or fewer'),
   references: z.array(z.object({
     label: z.string().min(1, 'Label required'),
     url: z.string().url('Must be a valid URL'),
