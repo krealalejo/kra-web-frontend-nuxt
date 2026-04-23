@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { useMarkdown } from './useMarkdown'
 
 // Mock marked and dompurify for unit tests
@@ -14,7 +14,23 @@ vi.mock('dompurify', () => ({
   },
 }))
 
+vi.mock('sanitize-html', () => ({
+  default: Object.assign(
+    vi.fn((html: string) => html),
+    {
+      defaults: {
+        allowedTags: ['p'],
+        allowedAttributes: { p: [] }
+      }
+    }
+  )
+}))
+
 describe('useMarkdown', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   describe('stripMarkdown', () => {
     it('removes heading markers', () => {
       const { stripMarkdown } = useMarkdown()
@@ -74,6 +90,21 @@ describe('useMarkdown', () => {
       const { sanitizeMarkdown } = useMarkdown()
       const result = sanitizeMarkdown('')
       expect(typeof result).toBe('string')
+    })
+
+    it('uses sanitize-html on server', () => {
+      let originalServer: boolean | undefined
+      try {
+        originalServer = import.meta.server
+        // @ts-ignore
+        import.meta.server = true
+        const { sanitizeMarkdown } = useMarkdown()
+        const result = sanitizeMarkdown('hello world')
+        expect(typeof result).toBe('string')
+      } finally {
+        // @ts-ignore
+        import.meta.server = originalServer
+      }
     })
   })
 })
