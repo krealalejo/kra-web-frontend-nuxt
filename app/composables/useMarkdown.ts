@@ -1,5 +1,6 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import sanitizeHtml from 'sanitize-html'
 
 export function useMarkdown() {
   function stripMarkdown(text: string): string {
@@ -20,8 +21,17 @@ export function useMarkdown() {
 
   function sanitizeMarkdown(text: string): string {
     const html = marked.parse(text) as string
-    // SSR guard — DOMPurify needs window/document; skip on server
-    if (import.meta.server) return html
+    if (import.meta.server) {
+      // Server: sanitize with allowlist so SSR payload is safe before hydration.
+      // DOMPurify requires window/document and cannot run in the Node.js context.
+      return sanitizeHtml(html, {
+        allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
+        allowedAttributes: {
+          ...sanitizeHtml.defaults.allowedAttributes,
+          img: ['src', 'alt', 'title'],
+        },
+      })
+    }
     return DOMPurify.sanitize(html)
   }
 
