@@ -31,10 +31,10 @@ useHead({
 <template>
   <div class="projects-page">
     <header class="mb-12">
-      <h1 class="text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
+      <h1 class="gsap-hero-item text-4xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
         All my projects
       </h1>
-      <p class="mt-4 text-xl text-slate-600 dark:text-slate-400">
+      <p class="gsap-hero-item mt-4 text-xl text-slate-600 dark:text-slate-400">
         A complete collection of the works I have been involved in, from CLI tools to enterprise applications.
       </p>
     </header>
