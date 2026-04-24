@@ -24,6 +24,7 @@ describe('useGsapAnimations', () => {
 
   describe('useGsapHeroAnimation', () => {
     it('calls gsap.from for .gsap-hero-item when motion is allowed', async () => {
+      document.body.innerHTML = '<div class="gsap-hero-item"></div>'
       const gsap = (await import('gsap')).default
       const { useGsapHeroAnimation } = await import('./useGsapAnimations')
       useGsapHeroAnimation()
@@ -41,6 +42,7 @@ describe('useGsapAnimations', () => {
 
   describe('useGsapCardStagger', () => {
     it('calls gsap.from with the default selector when motion is allowed', async () => {
+      document.body.innerHTML = '<li></li>'
       const gsap = (await import('gsap')).default
       const { useGsapCardStagger } = await import('./useGsapAnimations')
       useGsapCardStagger()
@@ -48,6 +50,7 @@ describe('useGsapAnimations', () => {
     })
 
     it('calls gsap.from with a custom selector', async () => {
+      document.body.innerHTML = '<div class="card"></div>'
       const gsap = (await import('gsap')).default
       const { useGsapCardStagger } = await import('./useGsapAnimations')
       useGsapCardStagger('.card')
@@ -65,6 +68,7 @@ describe('useGsapAnimations', () => {
 
   describe('useGsapNavAnimation', () => {
     it('calls gsap.from for nav links when motion is allowed', async () => {
+      document.body.innerHTML = '<header><nav><a></a></nav></header>'
       const gsap = (await import('gsap')).default
       const { useGsapNavAnimation } = await import('./useGsapAnimations')
       useGsapNavAnimation()
@@ -82,6 +86,7 @@ describe('useGsapAnimations', () => {
 
   describe('useGsapContentAnimation', () => {
     it('calls gsap.from for article when motion is allowed', async () => {
+      document.body.innerHTML = '<article></article>'
       const gsap = (await import('gsap')).default
       const { useGsapContentAnimation } = await import('./useGsapAnimations')
       useGsapContentAnimation()
