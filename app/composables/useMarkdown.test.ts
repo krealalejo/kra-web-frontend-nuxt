@@ -79,32 +79,27 @@ describe('useMarkdown', () => {
   })
 
   describe('sanitizeMarkdown', () => {
-    it('returns string output', () => {
+    it('returns string output', async () => {
       const { sanitizeMarkdown } = useMarkdown()
-      const result = sanitizeMarkdown('hello world')
+      const result = await sanitizeMarkdown('hello world')
       expect(typeof result).toBe('string')
       expect(result.length).toBeGreaterThan(0)
     })
 
-    it('handles empty string', () => {
+    it('handles empty string', async () => {
       const { sanitizeMarkdown } = useMarkdown()
-      const result = sanitizeMarkdown('')
+      const result = await sanitizeMarkdown('')
       expect(typeof result).toBe('string')
     })
 
-    it('uses sanitize-html on server', () => {
-      let originalServer: boolean | undefined
-      try {
-        originalServer = import.meta.server
-        // @ts-ignore
-        import.meta.server = true
-        const { sanitizeMarkdown } = useMarkdown()
-        const result = sanitizeMarkdown('hello world')
-        expect(typeof result).toBe('string')
-      } finally {
-        // @ts-ignore
-        import.meta.server = originalServer
-      }
+    it('uses sanitize-html on server', async () => {
+      const { sanitizeMarkdown } = useMarkdown()
+
+      vi.stubGlobal('import.meta', { server: true })
+      const result = await sanitizeMarkdown('hello world')
+      expect(typeof result).toBe('string')
+
+      vi.unstubAllGlobals()
     })
   })
 })
