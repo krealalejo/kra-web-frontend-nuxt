@@ -499,6 +499,13 @@
   dependencies:
     "@tanstack/vue-virtual" "^3.0.0-beta.60"
 
+"@iconify-json/lucide@^1.2.103":
+  version "1.2.103"
+  resolved "https://registry.yarnpkg.com/@iconify-json/lucide/-/lucide-1.2.103.tgz#90f2d27cfb83b895bd772ff5331a76a5de6f8891"
+  integrity sha512-A5WdDll62RPxYs1yeYa9b2mV1Vs+lK/wX0wYKR+xVnhwsfPGLBwo6qfyoAQLo7AaP7oHlkw3gnHdOCERegbwTA==
+  dependencies:
+    "@iconify/types" "*"
+
 "@iconify/collections@^1.0.641":
   version "1.0.674"
   resolved "https://registry.yarnpkg.com/@iconify/collections/-/collections-1.0.674.tgz#a3956cc8e04bb1ef84572b8e929ce168e350a5d0"

@@ -1,11 +1,46 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  sourcemap: {
+    client: 'hidden',
+    server: true
+  },
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon'],
+  vite: {
+    optimizeDeps: {
+      include: [
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'gsap',
+        'mermaid',
+        'marked',
+        'dompurify',
+        'sanitize-html',
+        '@headlessui/vue',
+        'zod',
+        '@vee-validate/zod',
+      ]
+    },
+    build: {
+      chunkSizeWarningLimit: 1000,
+    }
+  },
+  icon: {
+    serverBundle: 'local'
+  },
   app: {
     pageTransition: {
       name: 'page',
       mode: 'out-in',
+    }
+  },
+  hooks: {
+    'nitro:config'(nitroConfig) {
+      if (nitroConfig.imports) {
+        nitroConfig.imports.imports = (nitroConfig.imports.imports || []).filter(
+          (i) => typeof i === 'object' && i.name !== 'useAppConfig'
+        );
+      }
     }
   },
   routeRules: {
