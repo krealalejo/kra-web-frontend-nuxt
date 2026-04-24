@@ -1,6 +1,5 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import sanitizeHtml from 'sanitize-html'
 
 export function useMarkdown() {
   function stripMarkdown(text: string): string {
@@ -19,9 +18,10 @@ export function useMarkdown() {
       .trim()
   }
 
-  function sanitizeMarkdown(text: string): string {
-    const html = marked.parse(text) as string
+  async function sanitizeMarkdown(text: string): Promise<string> {
+    const html = await marked.parse(text)
     if (import.meta.server) {
+      const { default: sanitizeHtml } = await import('sanitize-html')
       return sanitizeHtml(html, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
         allowedAttributes: {
