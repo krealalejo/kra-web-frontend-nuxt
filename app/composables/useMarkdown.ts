@@ -10,8 +10,8 @@ export function useMarkdown() {
       .replace(/__([\s\S]{1,2000}?)__/g, '$1')
       .replace(/_([\s\S]{1,2000}?)_/g, '$1')
       .replace(/`{1,3}([^`]{0,2000})`{1,3}/g, '')
-      .replace(/\[([^\]]{1,2000})\]\([^)]{1,2000}\)/g, '$1')
       .replace(/!\[([^\]]{0,2000})\]\([^)]{1,2000}\)/g, '')
+      .replace(/\[([^\]]{1,2000})\]\([^)]{1,2000}\)/g, '$1')
       .replace(/^[ \t]{0,10}[-*+][ \t]{1,10}/gm, '')
       .replace(/^[ \t]{0,10}\d+\.[ \t]{1,10}/gm, '')
       .replace(/\n{2,}/g, ' ')
@@ -20,7 +20,7 @@ export function useMarkdown() {
 
   async function sanitizeMarkdown(text: string): Promise<string> {
     const html = await marked.parse(text)
-    if (import.meta.server) {
+    if (process.server) {
       const { default: sanitizeHtml } = await import('sanitize-html')
       return sanitizeHtml(html, {
         allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img']),
