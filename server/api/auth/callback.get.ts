@@ -53,6 +53,7 @@ export default defineEventHandler(async (event) => {
   let emailValue = 'admin'
   try {
     const payloadB64 = tokenData.id_token.split('.')[1]
+    if (!payloadB64) throw new Error('invalid_token_structure')
     const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'))
     emailValue = decoded.email || decoded['cognito:username'] || 'admin'
   } catch {
