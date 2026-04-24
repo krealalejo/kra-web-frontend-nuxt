@@ -96,7 +96,7 @@ describe('pages/blog/index.vue', () => {
     await flushPromises()
     const links = wrapper.findAll('a').filter(a => a.attributes('href')?.includes('/blog/'))
     expect(links.length).toBeGreaterThan(0)
-    expect(links[0].attributes('href')).toBe('/blog/hello-world')
+    expect(links[0]!.attributes('href')).toBe('/blog/hello-world')
   })
 
   it('shows an error state when fetch fails', async () => {
