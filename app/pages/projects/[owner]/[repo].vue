@@ -55,10 +55,15 @@ const { sanitizeMarkdown } = useMarkdown()
 const { renderDiagrams } = useMermaid()
 const readmeRef = ref<HTMLElement | null>(null)
 
-const sanitizedReadme = computed<string>(() => {
-  const raw = detail.value?.readmeExcerpt ?? ''
-  return sanitizeMarkdown(raw)
-})
+const sanitizedReadme = ref<string>('')
+
+watch(() => detail.value?.readmeExcerpt, async (val) => {
+  if (val) {
+    sanitizedReadme.value = await sanitizeMarkdown(val)
+  } else {
+    sanitizedReadme.value = ''
+  }
+}, { immediate: true })
 
 const ogDescription = computed(() => {
   const d = detail.value?.description ?? ''

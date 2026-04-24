@@ -21,10 +21,14 @@ const { fields: references, push: addReference, remove: removeReference } = useF
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
-const previewHtml = computed<string>(() => {
-  if (!content.value) return ''
-  return sanitizeMarkdown(content.value)
-})
+const previewHtml = ref('')
+watch(content, async (val) => {
+  if (val) {
+    previewHtml.value = await sanitizeMarkdown(val)
+  } else {
+    previewHtml.value = ''
+  }
+}, { immediate: true })
 
 watch(() => props.post, (newPost) => {
   if (newPost) {
