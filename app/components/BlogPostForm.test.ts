@@ -104,4 +104,29 @@ describe('components/BlogPostForm.vue', () => {
     })
     spy.mockRestore()
   })
+
+  it('removes thumbnail when Remove button is clicked', async () => {
+    const postWithImage: BlogPost = { ...mockPost, imageUrl: 'images/test.jpg' }
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: postWithImage },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    // Initially should show the image (mocked thumbUrl logic in component handles this)
+    expect(wrapper.find('img').exists()).toBe(true)
+
+    // Click remove button
+    const removeBtn = wrapper.find('button[title="Remove image"]')
+    expect(removeBtn.exists()).toBe(true)
+    await removeBtn.trigger('click')
+
+    // Image should be gone
+    expect(wrapper.find('img').exists()).toBe(false)
+  })
 })

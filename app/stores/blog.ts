@@ -29,7 +29,7 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
-  const createPost = async (data: { slug: string; title: string; content: string; references?: Array<{ label: string; url: string }>; imageUrl?: string }): Promise<BlogPost> => {
+  const createPost = async (data: { slug: string; title: string; content: string; references?: Array<{ label: string; url: string }>; imageUrl?: string | null }): Promise<BlogPost> => {
     loading.value = true
     error.value = null
     try {
@@ -47,7 +47,7 @@ export const useBlogStore = defineStore('blog', () => {
     }
   }
 
-  const updatePost = async (slug: string, data: { title: string; content: string; references?: Array<{ label: string; url: string }>; imageUrl?: string }): Promise<BlogPost> => {
+  const updatePost = async (slug: string, data: { title: string; content: string; references?: Array<{ label: string; url: string }>; imageUrl?: string | null }): Promise<BlogPost> => {
     loading.value = true
     error.value = null
     try {

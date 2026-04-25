@@ -97,6 +97,12 @@ async function handleImageUpload(event: Event) {
   }
 }
 
+function removeImage() {
+  imageKey.value = null
+  imageFile.value = null
+  thumbReady.value = false
+}
+
 const previewHtml = ref('')
 watch(content, async (val) => {
   if (val) {
@@ -133,13 +139,13 @@ const onSubmit = handleSubmit(async (values) => {
       await store.updatePost(props.post.slug, {
         title: values.title, content: values.content,
         references: values.references ?? [],
-        imageUrl: imageKey.value ?? undefined    // per D-13: S3 key stored on post
+        imageUrl: imageKey.value    // per D-13: S3 key stored on post
       })
     } else {
       await store.createPost({
         slug: values.slug, title: values.title, content: values.content,
         references: values.references ?? [],
-        imageUrl: imageKey.value ?? undefined    // per D-13
+        imageUrl: imageKey.value    // per D-13
       })
     }
     emit('saved')
@@ -239,15 +245,35 @@ const onSubmit = handleSubmit(async (values) => {
               @change="handleImageUpload"
             />
             <span v-if="imageUploading" class="text-sm text-slate-500 dark:text-slate-400">Uploading…</span>
-            <img
-              v-if="thumbReady && thumbUrl"
-              :src="thumbUrl"
-              class="mt-2 h-32 rounded object-cover border border-slate-200 dark:border-slate-600"
-              alt="Thumbnail preview"
-            />
-            <span v-if="imageKey && !thumbReady && !imageUploading" class="text-xs text-slate-400 dark:text-slate-500">
-              Image key: {{ imageKey }} (thumbnail generating…)
-            </span>
+            <div v-if="thumbReady && thumbUrl" class="relative mt-2 w-fit">
+              <img
+                :src="thumbUrl"
+                class="h-32 rounded object-cover border border-slate-200 dark:border-slate-600"
+                alt="Thumbnail preview"
+              />
+              <button
+                type="button"
+                class="absolute -top-2 -right-2 rounded-full bg-red-600 p-1 text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                title="Remove image"
+                @click="removeImage"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div v-if="imageKey && !thumbReady && !imageUploading" class="mt-2 flex items-center gap-2">
+              <span class="text-xs text-slate-400 dark:text-slate-500">
+                Image key: {{ imageKey }} (thumbnail generating…)
+              </span>
+              <button
+                type="button"
+                class="text-xs text-red-600 hover:text-red-800 dark:text-red-400"
+                @click="removeImage"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
 
           <!-- References -->
