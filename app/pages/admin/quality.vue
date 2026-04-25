@@ -43,7 +43,7 @@ const projects = [
           <a
             :href="project.href"
             target="_blank"
-            rel="noopener"
+            rel="noopener noreferrer"
             class="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
           >
             View Full Report

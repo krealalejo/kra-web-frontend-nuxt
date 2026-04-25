@@ -46,18 +46,25 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === 'NOT_FOUND'
 })
 
-const { stripMarkdown } = useMarkdown()
+const { stripMarkdown, sanitizeMarkdown } = useMarkdown()
 const { renderDiagrams } = useMermaid()
 const contentRef = ref<HTMLElement | null>(null)
 
-const sanitizedContent = computed<string>(() => {
-  const raw = post.value?.content ?? ''
-  const html = marked.parse(raw) as string
-  if (import.meta.server) return html
-  return DOMPurify.sanitize(html)
-})
+const sanitizedContent = ref<string>('')
 
-watch(sanitizedContent, async () => {
+async function updateSanitizedContent() {
+  const raw = post.value?.content ?? ''
+  if (raw) {
+    sanitizedContent.value = await sanitizeMarkdown(raw)
+  } else {
+    sanitizedContent.value = ''
+  }
+}
+
+await updateSanitizedContent()
+
+watch(post, async () => {
+  await updateSanitizedContent()
   await nextTick()
   if (contentRef.value) renderDiagrams(contentRef.value)
 })
