@@ -8,6 +8,7 @@ export default defineVitestConfig({
         domEnvironment: 'happy-dom',
         overrides: {
           runtimeConfig: {
+            s3BucketUrl: 'https://s3-test.example.com',
             public: {
               apiBase: 'http://localhost:8080/api',
               cognitoClientId: 'test-client-id',
