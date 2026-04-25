@@ -66,6 +66,14 @@ onMounted(() => {
   if (contentRef.value) renderDiagrams(contentRef.value)
 })
 
+const thumbUrl = computed(() => {
+  if (!post.value?.imageUrl) return null
+  const thumbKey = post.value.imageUrl
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
+})
+
 function formatDate(iso: string) {
   try {
     return new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(iso))
@@ -135,6 +143,12 @@ useSeoMeta({
         <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
           {{ post.title }}
         </h1>
+        <img
+          v-if="thumbUrl"
+          :src="thumbUrl"
+          class="my-6 block max-w-full sm:max-w-[300px] rounded-lg object-cover border border-slate-200 dark:border-slate-700"
+          :alt="`Thumbnail for ${post.title}`"
+        />
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
           {{ formatDate(post.createdAt) }}
           <span v-if="post.updatedAt !== post.createdAt">

@@ -38,6 +38,14 @@ useSeoMeta({
   ogTitle: 'Blog · Project KRA',
   ogDescription: 'Articles and notes from Project KRA.',
 })
+
+function getThumbUrl(imageUrl?: string) {
+  if (!imageUrl) return null
+  const thumbKey = imageUrl
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
+}
 </script>
 
 <template>
@@ -85,29 +93,38 @@ useSeoMeta({
         v-for="post in posts"
         :key="post.slug"
       >
-        <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            <NuxtLink
-              :to="`/blog/${post.slug}`"
-              class="hover:text-slate-700 dark:hover:text-slate-300"
-            >
-              {{ post.title }}
-            </NuxtLink>
-          </h2>
-          <p class="mt-1 text-xs text-slate-500 dark:text-slate-500">
-            {{ formatDate(post.createdAt) }}
-          </p>
-          <p class="mt-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
-            {{ stripMarkdown(post.content) }}
-          </p>
-          <p class="mt-4">
-            <NuxtLink
-              :to="`/blog/${post.slug}`"
-              class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
-            >
-              Read full post
-            </NuxtLink>
-          </p>
+        <article class="flex flex-col gap-4 sm:flex-row rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900">
+          <div v-if="getThumbUrl(post.imageUrl)" class="shrink-0">
+            <img
+              :src="getThumbUrl(post.imageUrl)!"
+              class="h-24 w-24 rounded-md object-cover border border-slate-100 dark:border-slate-800"
+              alt=""
+            />
+          </div>
+          <div class="flex-1">
+            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <NuxtLink
+                :to="`/blog/${post.slug}`"
+                class="hover:text-slate-700 dark:hover:text-slate-300"
+              >
+                {{ post.title }}
+              </NuxtLink>
+            </h2>
+            <p class="mt-1 text-xs text-slate-500 dark:text-slate-500">
+              {{ formatDate(post.createdAt) }}
+            </p>
+            <p class="mt-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+              {{ stripMarkdown(post.content) }}
+            </p>
+            <p class="mt-4">
+              <NuxtLink
+                :to="`/blog/${post.slug}`"
+                class="text-sm font-medium text-slate-900 underline decoration-slate-400 underline-offset-4 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
+              >
+                Read full post
+              </NuxtLink>
+            </p>
+          </div>
         </article>
       </li>
     </ul>
