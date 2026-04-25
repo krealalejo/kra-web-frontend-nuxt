@@ -2,6 +2,7 @@
 import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
+import { useNotificationStore } from '~/stores/notifications'
 
 const props = defineProps<{
   open: boolean
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useBlogStore()
+const notifications = useNotificationStore()
 const { sanitizeMarkdown } = useMarkdown()
 const { slug, title, content, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
 const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
@@ -21,7 +23,6 @@ const { fields: references, push: addReference, remove: removeReference } = useF
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
-// Image upload state — per D-09/D-10/D-11: standalone refs outside vee-validate
 const imageFile = ref<File | null>(null)
 const imageUploading = ref(false)
 const imageKey = ref<string | null>(props.post?.imageUrl ?? null)
@@ -80,8 +81,12 @@ async function handleImageUpload(event: Event) {
         } else if (attempts >= 15) {
           clearInterval(poll)
           isThumbnailPolling.value = false
-          // Timeout — show no preview; user sees warning via formError (per D-16)
-          formError.value = 'Image uploaded but thumbnail is still generating — check back soon.'
+          // Timeout — show no preview; user sees warning via toast
+          notifications.add({
+            type: 'info',
+            title: 'Thumbnail status',
+            message: 'Image uploaded but thumbnail is still generating — it will appear in the list soon.'
+          })
         }
       } catch {
         if (attempts >= 15) {
@@ -92,6 +97,7 @@ async function handleImageUpload(event: Event) {
     }, 2000)
   } catch (e: unknown) {
     formError.value = e instanceof Error ? e.message : 'Image upload failed'
+    notifications.add({ type: 'error', title: 'Upload failed', message: formError.value })
   } finally {
     imageUploading.value = false
   }
@@ -101,6 +107,7 @@ function removeImage() {
   imageKey.value = null
   imageFile.value = null
   thumbReady.value = false
+  notifications.add({ type: 'info', message: 'Image removed from post (unsaved).' })
 }
 
 const previewHtml = ref('')
@@ -120,7 +127,7 @@ watch(() => props.post, (newPost) => {
       content: newPost.content,
       references: newPost.references ? [...newPost.references] : []
     })
-    imageKey.value = newPost.imageUrl ?? null   // restore imageKey when editing existing post
+    imageKey.value = newPost.imageUrl ?? null
     thumbReady.value = !!newPost.imageUrl
   }
 }, { immediate: true })
@@ -139,15 +146,20 @@ const onSubmit = handleSubmit(async (values) => {
       await store.updatePost(props.post.slug, {
         title: values.title, content: values.content,
         references: values.references ?? [],
-        imageUrl: imageKey.value    // per D-13: S3 key stored on post
+        imageUrl: imageKey.value
       })
     } else {
       await store.createPost({
         slug: values.slug, title: values.title, content: values.content,
         references: values.references ?? [],
-        imageUrl: imageKey.value    // per D-13
+        imageUrl: imageKey.value
       })
     }
+    notifications.add({
+      type: 'success',
+      title: isEditMode.value ? 'Post updated' : 'Post created',
+      message: `"${values.title}" has been saved successfully.`
+    })
     emit('saved')
     emit('close')
   } catch (e: unknown) {
@@ -158,17 +170,14 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <Dialog :open="open" class="relative z-50" @close="emit('close')">
-    <!-- Backdrop -->
     <div class="fixed inset-0 bg-black/30 dark:bg-black/50" aria-hidden="true" />
 
-    <!-- Modal panel -->
     <div class="fixed inset-0 flex items-start justify-center p-4 overflow-y-auto">
       <DialogPanel class="w-full max-w-6xl rounded border border-slate-200 bg-white p-6 shadow-lg dark:border-slate-700 dark:bg-slate-900 my-8">
         <DialogTitle class="mb-4 text-base font-semibold text-slate-900 dark:text-slate-100">
           {{ isEditMode ? 'Edit Post' : 'Create Post' }}
         </DialogTitle>
 
-        <!-- Error alert -->
         <div
           v-if="formError"
           class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
@@ -184,7 +193,6 @@ const onSubmit = handleSubmit(async (values) => {
         </div>
 
         <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
-          <!-- Slug -->
           <div class="flex flex-col gap-1">
             <label for="post-slug" class="text-sm font-semibold text-slate-900 dark:text-slate-100">Slug</label>
             <input
@@ -199,7 +207,6 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="slugError" id="slug-error" class="text-sm text-red-600 dark:text-red-400">{{ slugError }}</span>
           </div>
 
-          <!-- Title -->
           <div class="flex flex-col gap-1">
             <label for="post-title" class="text-sm font-semibold text-slate-900 dark:text-slate-100">Title</label>
             <input
@@ -213,7 +220,6 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="titleError" id="title-error" class="text-sm text-red-600 dark:text-red-400">{{ titleError }}</span>
           </div>
 
-          <!-- Content split-pane -->
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">Content</label>
             <div class="grid grid-cols-2 gap-2">
@@ -234,7 +240,6 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="contentError" id="content-error" class="text-sm text-red-600 dark:text-red-400">{{ contentError }}</span>
           </div>
 
-          <!-- Cover Image Upload (per D-09/D-10/D-11) -->
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">Cover Image</label>
             <input
@@ -276,7 +281,6 @@ const onSubmit = handleSubmit(async (values) => {
             </div>
           </div>
 
-          <!-- References -->
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">References</label>
@@ -318,7 +322,6 @@ const onSubmit = handleSubmit(async (values) => {
             </p>
           </div>
 
-          <!-- Footer buttons -->
           <div class="flex justify-end gap-2 pt-2">
             <button
               type="button"

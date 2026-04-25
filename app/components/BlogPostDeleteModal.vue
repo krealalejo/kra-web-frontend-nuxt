@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
+import { useNotificationStore } from '~/stores/notifications'
 
 const props = defineProps<{
   open: boolean
@@ -13,6 +14,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useBlogStore()
+const notifications = useNotificationStore()
 const deleteError = ref<string | null>(null)
 
 watch(() => props.open, (isOpen) => {
@@ -24,6 +26,11 @@ async function confirmDelete() {
   deleteError.value = null
   try {
     await store.deletePost(props.post.slug)
+    notifications.add({
+      type: 'success',
+      title: 'Post deleted',
+      message: `"${props.post.title}" has been removed.`
+    })
     emit('deleted')
     emit('close')
   } catch (e: unknown) {
