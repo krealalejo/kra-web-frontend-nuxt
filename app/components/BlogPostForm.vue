@@ -21,6 +21,82 @@ const { fields: references, push: addReference, remove: removeReference } = useF
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
+// Image upload state — per D-09/D-10/D-11: standalone refs outside vee-validate
+const imageFile = ref<File | null>(null)
+const imageUploading = ref(false)
+const imageKey = ref<string | null>(props.post?.imageUrl ?? null)
+const thumbReady = ref(false)
+const isThumbnailPolling = ref(false)
+
+const runtimeConfig = useRuntimeConfig()
+
+const thumbUrl = computed(() => {
+  if (!imageKey.value) return null
+  const thumbKey = imageKey.value
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
+})
+
+async function handleImageUpload(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  imageFile.value = file
+  imageUploading.value = true
+  thumbReady.value = false
+  formError.value = null
+
+  try {
+    // Step 1: Get presigned URL from Nuxt proxy route (per D-12)
+    const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
+      method: 'POST',
+      body: { filename: file.name, contentType: file.type },
+    })
+
+    // Step 2: PUT file directly to S3 presigned URL from browser (per D-12)
+    await $fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': file.type },
+      body: file,
+    })
+
+    imageKey.value = s3Key
+
+    // Step 3: Poll for thumbnail readiness (per D-16: 1s interval, max 10 attempts)
+    let attempts = 0
+    isThumbnailPolling.value = true
+    const poll = setInterval(async () => {
+      attempts++
+      try {
+        const { ready } = await $fetch<{ ready: boolean }>(
+          `/api/admin/image-status?key=${encodeURIComponent(s3Key)}`
+        )
+        if (ready) {
+          thumbReady.value = true
+          isThumbnailPolling.value = false
+          clearInterval(poll)
+        } else if (attempts >= 15) {
+          clearInterval(poll)
+          isThumbnailPolling.value = false
+          // Timeout — show no preview; user sees warning via formError (per D-16)
+          formError.value = 'Image uploaded but thumbnail is still generating — check back soon.'
+        }
+      } catch {
+        if (attempts >= 15) {
+          isThumbnailPolling.value = false
+          clearInterval(poll)
+        }
+      }
+    }, 2000)
+  } catch (e: unknown) {
+    formError.value = e instanceof Error ? e.message : 'Image upload failed'
+  } finally {
+    imageUploading.value = false
+  }
+}
+
 const previewHtml = ref('')
 watch(content, async (val) => {
   if (val) {
@@ -38,6 +114,8 @@ watch(() => props.post, (newPost) => {
       content: newPost.content,
       references: newPost.references ? [...newPost.references] : []
     })
+    imageKey.value = newPost.imageUrl ?? null   // restore imageKey when editing existing post
+    thumbReady.value = !!newPost.imageUrl
   }
 }, { immediate: true })
 
@@ -52,9 +130,17 @@ const onSubmit = handleSubmit(async (values) => {
   formError.value = null
   try {
     if (isEditMode.value && props.post) {
-      await store.updatePost(props.post.slug, { title: values.title, content: values.content, references: values.references ?? [] })
+      await store.updatePost(props.post.slug, {
+        title: values.title, content: values.content,
+        references: values.references ?? [],
+        imageUrl: imageKey.value ?? undefined    // per D-13: S3 key stored on post
+      })
     } else {
-      await store.createPost({ slug: values.slug, title: values.title, content: values.content, references: values.references ?? [] })
+      await store.createPost({
+        slug: values.slug, title: values.title, content: values.content,
+        references: values.references ?? [],
+        imageUrl: imageKey.value ?? undefined    // per D-13
+      })
     }
     emit('saved')
     emit('close')
@@ -142,6 +228,28 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="contentError" id="content-error" class="text-sm text-red-600 dark:text-red-400">{{ contentError }}</span>
           </div>
 
+          <!-- Cover Image Upload (per D-09/D-10/D-11) -->
+          <div class="flex flex-col gap-1">
+            <label class="text-sm font-semibold text-slate-900 dark:text-slate-100">Cover Image</label>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              :disabled="imageUploading"
+              class="rounded border border-slate-200 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 disabled:opacity-50"
+              @change="handleImageUpload"
+            />
+            <span v-if="imageUploading" class="text-sm text-slate-500 dark:text-slate-400">Uploading…</span>
+            <img
+              v-if="thumbReady && thumbUrl"
+              :src="thumbUrl"
+              class="mt-2 h-32 rounded object-cover border border-slate-200 dark:border-slate-600"
+              alt="Thumbnail preview"
+            />
+            <span v-if="imageKey && !thumbReady && !imageUploading" class="text-xs text-slate-400 dark:text-slate-500">
+              Image key: {{ imageKey }} (thumbnail generating…)
+            </span>
+          </div>
+
           <!-- References -->
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
@@ -195,7 +303,7 @@ const onSubmit = handleSubmit(async (values) => {
             </button>
             <button
               type="submit"
-              :disabled="isSubmitting"
+              :disabled="isSubmitting || imageUploading || isThumbnailPolling"
               class="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-60"
             >
               {{ isSubmitting ? 'Saving…' : 'Save Post' }}
