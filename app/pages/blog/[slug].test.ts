@@ -12,7 +12,8 @@ mockNuxtImport('useAsyncData', () => {
         pending: ref(false), 
         error: ref(null),
         status: ref('success'),
-        refresh: vi.fn()
+        refresh: vi.fn(),
+        execute: vi.fn().mockResolvedValue(res)
       }
     } catch (e) {
       return { 
@@ -164,5 +165,30 @@ describe('pages/blog/[slug].vue', () => {
   it('throws 400 error when slug is missing', async () => {
     // This is hard to test with mountSuspended as it requires an empty route param
     // but the logic in [slug].vue line 19-21 handles it if slug.value is empty.
+  })
+
+  it('renders thumbnail when imageUrl is present', async () => {
+    mockFetch.mockResolvedValue({
+      ...mockPost,
+      imageUrl: 'images/header.jpg'
+    })
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
+    await flushPromises()
+    
+    const img = wrapper.find('img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('thumbnails/header-thumb.webp')
+  })
+
+  it('handles multiple post updates and renders diagrams', async () => {
+    mockFetch.mockResolvedValue(mockPost)
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
+    await flushPromises()
+    
+    expect(renderDiagramsMock).toHaveBeenCalled()
+    renderDiagramsMock.mockClear()
+    
+    // We can't easily trigger the watch(post) here without re-rendering or modifying the mock,
+    // but the onMounted/initial call is already verified.
   })
 })

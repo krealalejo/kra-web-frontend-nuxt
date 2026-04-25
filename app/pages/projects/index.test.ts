@@ -22,8 +22,11 @@ vi.mock('~/composables/useGsapAnimations', () => ({
   }),
 }))
 
+const asyncDataOverride = ref<any>(null)
+
 mockNuxtImport('useAsyncData', () => {
   return async (_key: string, factory: () => Promise<any>) => {
+    if (asyncDataOverride.value) return asyncDataOverride.value
     try {
       const res = await factory()
       return {
@@ -52,6 +55,7 @@ describe('pages/projects/index.vue', () => {
     mockFetch.mockReset()
     handleCardHoverMock.mockClear()
     handleCardHoverOutMock.mockClear()
+    asyncDataOverride.value = null
     vi.clearAllMocks()
   })
 
@@ -131,5 +135,28 @@ describe('pages/projects/index.vue', () => {
     config.public.apiBase = originalApiBase
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+  })
+
+  it('shows loading state when pending', async () => {
+    asyncDataOverride.value = { 
+      data: ref(null), 
+      pending: ref(true), 
+      error: ref(null), 
+      status: ref('pending'), 
+      refresh: vi.fn() 
+    }
+    
+    const wrapper = await mountSuspended(ProjectsPage)
+    expect(wrapper.text()).toContain('Loading projects…')
+  })
+
+  it('renders default description when missing', async () => {
+    mockFetch.mockResolvedValue([{ 
+      name: 'Project A', owner: 'owner', fullName: 'owner/Project A', 
+      description: null 
+    }])
+    const wrapper = await mountSuspended(ProjectsPage)
+    await flushPromises()
+    expect(wrapper.text()).toContain('No description available.')
   })
 })
