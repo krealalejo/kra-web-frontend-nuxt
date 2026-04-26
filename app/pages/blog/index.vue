@@ -17,6 +17,13 @@ function formatDate(iso: string) {
 }
 
 function postNum(i: number) { return String(i + 1).padStart(2, '0') }
+function getThumbUrl(post: BlogPostDto) {
+  if (!post.imageUrl) return null
+  const thumbKey = post.imageUrl
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
+}
 
 onMounted(() => {
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
@@ -67,6 +74,7 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
         >
           <span class="num">{{ postNum(i) }}</span>
           <span class="date">{{ formatDate(post.createdAt) }}</span>
+          <img v-if="post.imageUrl" :src="getThumbUrl(post)!" :alt="post.title" class="post-thumb" />
           <div>
             <h2 class="title">{{ post.title }}</h2>
             <p style="font-size:14px;color:var(--fg-muted);margin-top:6px;max-width:60ch;">

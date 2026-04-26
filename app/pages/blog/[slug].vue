@@ -141,6 +141,10 @@ useSeoMeta({
           </div>
         </div>
 
+        <div v-if="thumbUrl" class="post-thumb">
+          <img :src="thumbUrl" :alt="post.title" />
+        </div>
+
         <div class="post-body">
           <div class="content drop-p" ref="contentRef" v-html="sanitizedContent" />
 
