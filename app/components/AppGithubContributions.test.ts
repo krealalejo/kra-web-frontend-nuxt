@@ -35,6 +35,8 @@ describe('components/AppGithubContributions.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
 
+    const currentYear = new Date().getFullYear()
+
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/portfolio/contributions')) {
         return Promise.resolve({
@@ -42,9 +44,9 @@ describe('components/AppGithubContributions.vue', () => {
           weeks: [
             {
               contributionDays: [
-                { contributionCount: 0, date: '2023-01-01', color: '#ebedf0' },
-                { contributionCount: 5, date: '2023-01-02', color: '#9be9a8' },
-                { contributionCount: 15, date: '2023-01-03', color: '#40c463' }
+                { contributionCount: 0, date: `${currentYear}-01-01`, color: '#ebedf0' },
+                { contributionCount: 5, date: `${currentYear}-01-02`, color: '#9be9a8' },
+                { contributionCount: 15, date: `${currentYear}-01-03`, color: '#40c463' }
               ]
             }
           ]
@@ -64,27 +66,29 @@ describe('components/AppGithubContributions.vue', () => {
 
     expect(wrapper.text()).toContain('GitHub Activity')
     expect(wrapper.text()).toContain('20')
-    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.find('.gh-graph').exists()).toBe(true)
   })
 
-  it('renders 12 months text on desktop', async () => {
+  it('renders current year on desktop', async () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 })
     window.dispatchEvent(new Event('resize'))
 
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('12')
+    const currentYear = new Date().getFullYear().toString()
+    expect(wrapper.text()).toContain(currentYear)
   })
 
-  it('renders 4 months text on mobile', async () => {
+  it('renders current year on mobile', async () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 500 })
     window.dispatchEvent(new Event('resize'))
 
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('4')
+    const currentYear = new Date().getFullYear().toString()
+    expect(wrapper.text()).toContain(currentYear)
   })
 
   it('handles error state', async () => {
@@ -96,6 +100,6 @@ describe('components/AppGithubContributions.vue', () => {
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Unable to load activity data.')
+    expect(wrapper.text()).toContain('API unavailable')
   })
 })

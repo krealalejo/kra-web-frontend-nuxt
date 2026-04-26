@@ -24,10 +24,10 @@ const projects = [
 </script>
 
 <template>
-  <div class="space-y-8">
-    <div>
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Code Quality</h1>
-      <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">
+  <div class="space-y-12">
+    <div class="pb-6" style="border-bottom: 1px solid var(--hairline)">
+      <h1 class="t-h2">Code Quality</h1>
+      <p class="t-label" style="font-size: 10px; margin-top: 4px">
         Monitoring project health and quality metrics via SonarCloud.
       </p>
     </div>
@@ -36,31 +36,33 @@ const projects = [
       <div
         v-for="project in projects"
         :key="project.name"
-        class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+        class="flex flex-col gap-6 rounded-2xl p-6 transition-all hover:translate-y-[-2px]"
+        style="background:var(--bg-elev); border: 1px solid var(--hairline)"
       >
         <div class="flex items-center justify-between">
-          <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-100">{{ project.name }}</h2>
+          <h2 class="t-label" style="font-size: 11px; color: var(--fg)">{{ project.name }}</h2>
           <a
             :href="project.href"
             target="_blank"
-            rel="noopener noreferrer"
-            class="text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+            rel="noopener"
+            class="t-label hover:text-[var(--accent)] transition-colors"
+            style="font-size: 10px; cursor: pointer; text-decoration: underline; text-underline-offset: 4px"
           >
-            View Full Report
+            View Report
           </a>
         </div>
-        <div class="flex justify-center py-4">
+        <div class="flex justify-center py-6 rounded-xl" style="background: var(--bg-sunken); border: 1px solid var(--hairline)">
           <img :src="project.badge" :alt="project.name + ' quality gate'" class="h-6" />
         </div>
       </div>
     </div>
 
-    <div class="rounded-lg border border-blue-100 bg-blue-50/50 p-4 dark:border-blue-900/30 dark:bg-blue-950/20">
-      <div class="flex gap-3">
-        <Icon name="heroicons:information-circle" class="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-        <p class="text-xs text-blue-700 dark:text-blue-300">
+    <div class="rounded-xl p-6" style="background: var(--overlay); border: 1px solid var(--hairline)">
+      <div class="flex gap-4">
+        <Icon name="lucide:info" class="h-5 w-5 flex-shrink-0" style="color: var(--accent)" />
+        <p class="t-body" style="font-size: 13px; color: var(--fg-muted); max-width: none">
           The quality gate status is updated automatically after every merge to the main branch.
-          Click on "View Full Report" to see detailed metrics including coverage, bugs, and vulnerabilities.
+          Click on "View Report" to see detailed metrics including coverage, bugs, and vulnerabilities.
         </p>
       </div>
     </div>

@@ -4,6 +4,7 @@ import DOMPurify from 'dompurify'
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'
 import { useApiError } from '~/composables/useApiError'
+import gsap from 'gsap'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -17,22 +18,16 @@ const { data: post, pending, error } = await useAsyncData(
   () => `blog-post-${slug.value}`,
   async () => {
     const s = slug.value
-    if (!s) {
-      throw createError({ statusCode: 400, statusMessage: 'Invalid post slug' })
-    }
+    if (!s) throw createError({ statusCode: 400, statusMessage: 'Invalid post slug' })
     const raw = config.public.apiBase
     const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
-    if (!apiBase) {
-      throw new Error('MISSING_API_BASE')
-    }
+    if (!apiBase) throw new Error('MISSING_API_BASE')
     try {
       return await $fetch<BlogPostDto>(`${apiBase}/posts/${encodeURIComponent(s)}`)
     } catch (e: unknown) {
       const err = e as { statusCode?: number; status?: number; response?: { status?: number } }
       const code = err?.statusCode ?? err?.status ?? err?.response?.status
-      if (code === 404) {
-        throw createError({ statusCode: 404, statusMessage: 'NOT_FOUND' })
-      }
+      if (code === 404) throw createError({ statusCode: 404, statusMessage: 'NOT_FOUND' })
       throw e
     }
   },
@@ -71,6 +66,8 @@ watch(post, async () => {
 
 onMounted(() => {
   if (contentRef.value) renderDiagrams(contentRef.value)
+  gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
+  gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
 })
 
 const thumbUrl = computed(() => {
@@ -83,104 +80,90 @@ const thumbUrl = computed(() => {
 
 function formatDate(iso: string) {
   try {
-    return new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(iso))
-  } catch {
-    return iso
-  }
+    const d = new Date(iso)
+    if (isNaN(d.getTime())) return iso
+    return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  } catch { return iso }
 }
 
 useSeoMeta({
   title: computed(() => {
-    if (pending.value) return 'Blog · Project KRA'
-    if (error.value && !isNotFound.value) return 'Blog · Project KRA'
-    if (isNotFound.value) return 'Post not found · Project KRA'
-    return post.value ? `${post.value.title} · Blog` : 'Blog · Project KRA'
+    if (pending.value) return 'Posts · Kevin Real Alejo'
+    if (isNotFound.value) return 'Post not found · Kevin Real Alejo'
+    if (error.value) return 'Posts · Kevin Real Alejo'
+    return post.value ? `${post.value.title} · Kevin Real Alejo` : 'Posts · Kevin Real Alejo'
   }),
   description: computed(() => {
     if (pending.value) return 'Loading post…'
     if (isNotFound.value) return 'This post does not exist.'
     if (error.value) return 'Could not load the post.'
     const plain = post.value ? stripMarkdown(post.value.content) : ''
-    if (!plain) return 'Project KRA blog post.'
     return plain.length > 160 ? `${plain.slice(0, 157)}…` : plain
-  }),
-  ogTitle: computed(() => post.value?.title ?? 'Blog · Project KRA'),
-  ogDescription: computed(() => {
-    if (!post.value?.content) return 'Project KRA blog.'
-    const plain = stripMarkdown(post.value.content)
-    return plain.length > 200 ? `${plain.slice(0, 197)}…` : plain
   }),
 })
 </script>
 
 <template>
   <div>
-    <p class="mb-6 text-sm">
-      <NuxtLink
-        to="/blog"
-        class="font-medium text-slate-700 underline decoration-slate-400 underline-offset-4 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
-      >
-        ← All posts
-      </NuxtLink>
-    </p>
-
-    <div
-      v-if="error"
-      class="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
-      role="alert"
-    >
-      <p class="font-medium">
-        <span v-if="isNotFound">Post not found</span>
-        <span v-else>Could not load post</span>
-      </p>
-      <p
-        v-if="isMissingApiBase"
-        class="mt-2 text-sm"
-      >
-        Set <code class="rounded bg-red-100 px-1 dark:bg-red-900">NUXT_PUBLIC_API_BASE_URL</code> and restart the dev server.
-      </p>
+    <div v-if="error" role="alert" class="shell" style="padding:64px 0;">
+      <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);">
+        <div v-if="isNotFound">Post not found.</div>
+        <div v-else-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</div>
+        <div v-else>Could not load post.</div>
+        <NuxtLink to="/blog" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;color:var(--accent);">← All posts</NuxtLink>
+      </div>
     </div>
 
-    <p v-else-if="pending" class="text-sm text-slate-600 dark:text-slate-400">
-      Loading…
-    </p>
-
     <template v-else-if="post">
-      <article class="prose prose-slate max-w-none dark:prose-invert">
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-          {{ post.title }}
-        </h1>
-        <img
-          v-if="thumbUrl"
-          :src="thumbUrl"
-          class="my-6 block max-w-full sm:max-w-[300px] rounded-lg object-cover border border-slate-200 dark:border-slate-700"
-          :alt="`Thumbnail for ${post.title}`"
-        />
-        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          {{ formatDate(post.createdAt) }}
-          <span v-if="post.updatedAt !== post.createdAt">
-            · updated {{ formatDate(post.updatedAt) }}
-          </span>
-        </p>
-        <div ref="contentRef" class="mt-8" v-html="sanitizedContent" />
-      </article>
+      <section class="shell">
+        <div class="post-head">
+          <NuxtLink to="/blog" class="pd-breadcrumb">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 6H2M2 6L6 2M2 6L6 10"/>
+            </svg>
+            All posts
+          </NuxtLink>
 
-      <template v-if="post.references && post.references.length > 0">
-        <hr class="my-8 border-slate-200 dark:border-slate-700" />
-        <section aria-label="References">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">References</h2>
-          <ul class="mt-3 space-y-1 text-sm">
-            <li v-for="(ref, i) in post.references" :key="i">
-              <a
-                :href="ref.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-blue-600 underline decoration-slate-300 underline-offset-4 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-              >{{ ref.label }}</a>
-            </li>
-          </ul>
-        </section>
-      </template>
+          <div class="overline-meta">
+            <span>§05 · Writing</span>
+            <span class="dot" />
+            <span>{{ formatDate(post.createdAt) }}</span>
+            <span v-if="post.updatedAt !== post.createdAt">
+              <span class="dot" />
+              Updated {{ formatDate(post.updatedAt) }}
+            </span>
+          </div>
+
+          <h1>{{ post.title }}</h1>
+
+          <div v-if="post.content" class="lede">
+            {{ stripMarkdown(post.content).slice(0, 200) }}{{ stripMarkdown(post.content).length > 200 ? '…' : '' }}
+          </div>
+        </div>
+
+        <div v-if="thumbUrl" class="post-thumb">
+          <img :src="thumbUrl" :alt="post.title" />
+        </div>
+
+        <div class="post-body">
+          <div class="content drop-p" ref="contentRef" v-html="sanitizedContent" />
+
+          <aside>
+            <section v-if="post.references?.length" aria-label="References" class="post-toc">
+              <h5>References</h5>
+              <ul>
+                <li v-for="(ref, i) in post.references" :key="i">
+                  <a :href="ref.url" target="_blank" rel="noopener noreferrer">{{ ref.label }}</a>
+                </li>
+              </ul>
+            </section>
+          </aside>
+        </div>
+      </section>
     </template>
+
+    <div v-else-if="pending" class="shell" style="padding:64px 0;font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">
+      Loading…
+    </div>
   </div>
 </template>

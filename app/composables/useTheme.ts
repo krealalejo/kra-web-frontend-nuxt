@@ -8,6 +8,7 @@ export function useTheme() {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const shouldBeDark = value === 'dark' || (value === 'system' && prefersDark)
     root.classList.toggle('dark', shouldBeDark)
+    root.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light')
   }
 
   function setTheme(value: Theme) {

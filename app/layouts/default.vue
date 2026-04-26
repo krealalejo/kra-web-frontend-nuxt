@@ -1,111 +1,171 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useGsapNavAnimation } from '~/composables/useGsapAnimations'
 import gsap from 'gsap'
 
-useGsapNavAnimation()
+import { format } from 'date-fns'
 
+const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const route = useRoute()
+
+const currentYear = format(new Date(), 'yyyy')
 
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })
 
+const navItems = [
+  { path: '/', label: 'Home' },
+  { path: '/projects', label: 'Projects' },
+  { path: '/blog', label: 'Blog' },
+  { path: '/contact', label: 'Contact' },
+  { path: '/cv', label: 'CV' },
+]
+
+const mounted = ref(false)
+onMounted(() => {
+  mounted.value = true
+  gsap.from('.kra-nav-logo, .kra-nav-link', {
+    opacity: 0, y: -8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
+  })
+})
+
 const onBeforeEnter = (el: Element) => {
   gsap.set(el, { height: 0, opacity: 0 })
 }
-
 const onEnter = (el: Element, done: () => void) => {
-  gsap.to(el, {
-    height: 'auto',
-    opacity: 1,
-    duration: 0.3,
-    ease: 'power2.out',
-    onComplete: done
-  })
-  
-  gsap.fromTo(
-    el.querySelectorAll('.mobile-nav-link'),
+  gsap.to(el, { height: 'auto', opacity: 1, duration: 0.3, ease: 'power2.out', onComplete: done })
+  gsap.fromTo(el.querySelectorAll('.mobile-nav-link'),
     { y: 15, opacity: 0 },
     { y: 0, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
   )
 }
-
 const onLeave = (el: Element, done: () => void) => {
-  gsap.to(el, {
-    height: 0,
-    opacity: 0,
-    duration: 0.3,
-    ease: 'power2.in',
-    onComplete: done
-  })
+  gsap.to(el, { height: 0, opacity: 0, duration: 0.25, ease: 'power2.in', onComplete: done })
 }
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-    <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur-md px-4 py-4 dark:border-slate-800 dark:bg-slate-900/80">
-      <div class="mx-auto flex max-w-5xl flex-col">
-        <div class="flex items-center justify-between">
+  <div class="min-h-screen relative"> <!-- TODO: FIX THIS -->
+    <header class="sticky top-0 z-50 w-full kra-nav">
+      <div class="shell kra-nav-inner">
+        <NuxtLink to="/" class="kra-nav-logo">
+          <span class="dot" />
+          <span class="serif">KRA</span>
+          <span class="kra-nav-logo-mark">/ Kevin Real Alejo</span>
+        </NuxtLink>
+
+        <nav class="kra-nav-links">
           <NuxtLink
-            to="/"
-            class="text-lg font-semibold tracking-tight text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300 z-50"
-            @click="isMobileMenuOpen = false"
+            v-for="item in navItems"
+            :key="item.path"
+            :to="item.path"
+            class="kra-nav-link"
+            :class="{ 'kra-nav-link--always': true }"
           >
-            KRA
+            {{ item.label }}
           </NuxtLink>
-          
-          <div class="hidden sm:flex items-center gap-4">
-            <nav class="flex items-center gap-5 text-sm font-medium whitespace-nowrap text-slate-700 dark:text-slate-300">
-              <NuxtLink to="/" class="hover:text-slate-900 dark:hover:text-slate-100">Home</NuxtLink>
-              <NuxtLink to="/projects" class="hover:text-slate-900 dark:hover:text-slate-100">Projects</NuxtLink>
-              <NuxtLink to="/blog" class="hover:text-slate-900 dark:hover:text-slate-100">Blog</NuxtLink>
-              <NuxtLink to="/contact" class="hover:text-slate-900 dark:hover:text-slate-100">Contact</NuxtLink>
-              <NuxtLink to="/cv" class="hover:text-slate-900 dark:hover:text-slate-100">CV</NuxtLink>
-            </nav>
-            <div class="pl-2 border-l border-slate-200 dark:border-slate-700">
-              <ThemeToggle />
-            </div>
-          </div>
 
-          <div class="flex items-center gap-2 sm:hidden z-50">
-            <ThemeToggle />
+          <ClientOnly>
             <button
-              @click="isMobileMenuOpen = !isMobileMenuOpen"
-              class="inline-flex items-center justify-center rounded-md p-2 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-slate-500"
-              :aria-expanded="isMobileMenuOpen"
+              class="kra-theme-btn"
+              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+              @click="toggle($event)"
             >
-              <span class="sr-only">Open main menu</span>
-              <Icon v-if="!isMobileMenuOpen" name="lucide:menu" class="h-6 w-6" aria-hidden="true" />
-              <Icon v-else name="lucide:x" class="h-6 w-6" aria-hidden="true" />
+              <svg v-if="isDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
             </button>
-          </div>
-        </div>
+            <template #fallback><span style="width:36px;height:36px;display:inline-block" /></template>
+          </ClientOnly>
 
-        <Transition
-          @before-enter="onBeforeEnter"
-          @enter="onEnter"
-          @leave="onLeave"
-        >
-          <div v-if="isMobileMenuOpen" class="sm:hidden overflow-hidden">
-            <nav class="flex flex-col space-y-2 pt-8 pb-6 px-2">
-              <NuxtLink to="/" class="mobile-nav-link block w-full rounded-xl py-3 text-center text-lg font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-slate-100">Home</NuxtLink>
-              <NuxtLink to="/projects" class="mobile-nav-link block w-full rounded-xl py-3 text-center text-lg font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-slate-100">Projects</NuxtLink>
-              <NuxtLink to="/blog" class="mobile-nav-link block w-full rounded-xl py-3 text-center text-lg font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-slate-100">Blog</NuxtLink>
-              <NuxtLink to="/contact" class="mobile-nav-link block w-full rounded-xl py-3 text-center text-lg font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-slate-100">Contact</NuxtLink>
-              <NuxtLink to="/cv" class="mobile-nav-link block w-full rounded-xl py-3 text-center text-lg font-medium text-slate-700 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800/50 dark:hover:text-slate-100">CV</NuxtLink>
-            </nav>
-          </div>
-        </Transition>
+          <!-- Mobile hamburger -->
+          <button
+            class="kra-theme-btn"
+            style="display:none"
+            :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+            :aria-expanded="isMobileMenuOpen.toString()"
+            @click="isMobileMenuOpen = !isMobileMenuOpen"
+          >
+            <svg v-if="!isMobileMenuOpen" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+            <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </nav>
       </div>
+
+      <Transition @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
+        <div v-if="isMobileMenuOpen" class="sm:hidden overflow-hidden shell">
+          <nav style="display:flex;flex-direction:column;gap:4px;padding:16px 0;">
+            <NuxtLink
+              v-for="item in navItems"
+              :key="item.path"
+              :to="item.path"
+              class="mobile-nav-link kra-nav-link text-center rounded-xl"
+              style="padding:12px 14px;"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </nav>
+        </div>
+      </Transition>
     </header>
-    <main class="mx-auto w-full max-w-5xl flex-grow px-4 py-8">
+
+    <main>
       <slot />
     </main>
-    <footer class="border-t border-slate-200 bg-white px-4 py-6 dark:border-slate-800 dark:bg-slate-900">
-      <AppFooterSocials />
+
+    <footer class="kra-footer">
+      <div class="shell">
+        <div class="kra-footer-grid">
+          <div>
+            <div class="kra-footer-name serif">Kevin Real<br><span style="color:var(--accent)">Alejo</span></div>
+            <p class="kra-footer-tag">Full-stack engineer building calm, reliable software on the JVM &amp; modern frontends.</p>
+          </div>
+          <div class="kra-footer-col">
+            <h5>Sitemap</h5>
+            <ul>
+              <li v-for="item in navItems" :key="item.path">
+                <NuxtLink :to="item.path">
+                  <span class="arrow">↗</span>{{ item.label }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </div>
+          <div class="kra-footer-col">
+            <h5>Elsewhere</h5>
+            <ul>
+              <li><a href="https://github.com/krealalejo" target="_blank" rel="noopener"><span class="arrow">↗</span>GitHub</a></li>
+              <li><a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener"><span class="arrow">↗</span>LinkedIn</a></li>
+              <li><NuxtLink to="/contact"><span class="arrow">↗</span>hi@krealejo.dev</NuxtLink></li>
+            </ul>
+          </div>
+        </div>
+        <div class="kra-footer-bottom">
+          <span>© {{ currentYear }} Kevin Real Alejo · All systems operational</span> <!-- TODO: UPDATE LATER WITH REAL STATUS -->
+          <span>v3.0 · Barcelona, ES · 40.41°N 3.70°W</span>
+        </div>
+      </div>
     </footer>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 640px) {
+  .kra-nav-link { display: none !important; }
+  .kra-nav-link:last-of-type { display: none; }
+  button[aria-label="Open menu"],
+  button[aria-label="Close menu"] { display: inline-flex !important; }
+}
+</style>

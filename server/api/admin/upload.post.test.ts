@@ -1,51 +1,54 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Stub Nuxt/H3 server-side auto-imports
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
+vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({
+  public: {
+    apiBase: 'http://localhost:8080/api'
+  }
+})))
 vi.stubGlobal('getCookie', vi.fn())
-vi.stubGlobal('useRuntimeConfig', vi.fn())
-vi.stubGlobal('createError', (err: any) => err)
 vi.stubGlobal('readBody', vi.fn())
-vi.stubGlobal('$fetch', vi.fn())
+vi.stubGlobal('createError', vi.fn((err) => err))
 
-describe('upload.post', () => {
-  beforeEach(() => {
+const mockFetch = vi.fn()
+vi.stubGlobal('$fetch', mockFetch)
+
+describe('api/admin/upload.post', () => {
+  let handler: Function
+
+  beforeEach(async () => {
     vi.clearAllMocks()
-    vi.stubGlobal('useRuntimeConfig', () => ({ 
-      public: { apiBase: 'https://api.example.com' } 
-    }))
+    const mod = await import('./upload.post')
+    handler = mod.default
   })
 
-  it('throws 401 if no token', async () => {
-    vi.stubGlobal('getCookie', () => undefined)
-    const mod = await import('./upload.post')
-    const handler = mod.default as Function
-    
+  it('throws 401 if no token is present', async () => {
+    vi.mocked(getCookie).mockReturnValue(undefined)
+
     try {
-      await handler({})
+      await handler({} as any)
     } catch (e: any) {
       expect(e.statusCode).toBe(401)
     }
   })
 
-  it('proxies request to backend API with token', async () => {
-    vi.stubGlobal('getCookie', () => 'fake-token')
-    const body = { filename: 'test.png', contentType: 'image/png' }
-    vi.stubGlobal('readBody', () => body)
-    
-    const mockResponse = { uploadUrl: 'https://s3.presigned', s3Key: 'images/test' }
-    const fetchMock = vi.fn().mockResolvedValue(mockResponse)
-    vi.stubGlobal('$fetch', fetchMock)
+  it('proxies upload request to backend api', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    const mockBody = { fileName: 'test.jpg', contentType: 'image/jpeg' }
+    vi.mocked(readBody).mockResolvedValue(mockBody)
+    const mockResponse = { uploadUrl: 'https://s3.url', key: 'images/test.jpg' }
+    mockFetch.mockResolvedValue(mockResponse)
 
-    const mod = await import('./upload.post')
-    const handler = mod.default as Function
-    const result = await handler({})
+    const result = await handler({} as any)
 
     expect(result).toEqual(mockResponse)
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('/admin/upload'), {
-      method: 'POST',
-      headers: { Authorization: 'Bearer fake-token' },
-      body,
-    })
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8080/api/admin/upload',
+      {
+        method: 'POST',
+        headers: { Authorization: 'Bearer valid-token' },
+        body: mockBody
+      }
+    )
   })
 })

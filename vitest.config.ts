@@ -20,7 +20,8 @@ export default defineVitestConfig({
       },
     },
     include: ['**/*.test.ts', '**/*.spec.ts'],
-      coverage: {
+    setupFiles: ['./app/tests/setup.ts'],
+    coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',

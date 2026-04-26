@@ -7,7 +7,7 @@ const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
 }))
 
 const handleCardHoverMock = vi.fn()
@@ -25,25 +25,30 @@ vi.mock('~/composables/useGsapAnimations', () => ({
 const asyncDataOverride = ref<any>(null)
 
 mockNuxtImport('useAsyncData', () => {
-  return async (_key: string, factory: () => Promise<any>) => {
-    if (asyncDataOverride.value) return asyncDataOverride.value
-    try {
-      const res = await factory()
-      return {
-        data: ref(res),
-        pending: ref(false),
-        error: ref(null),
-        status: ref('success'),
-        refresh: vi.fn()
-      }
-    } catch (e) {
-      return {
-        data: ref(null),
-        pending: ref(false),
-        error: ref(e),
-        status: ref('error'),
-        refresh: vi.fn()
-      }
+  return (_key: string, factory: () => Promise<any>, _options?: any) => {
+    const data = ref(null)
+    const pending = ref(true)
+    const error = ref(null)
+    const status = ref('idle')
+
+    const promise = factory().then(res => {
+      data.value = res
+      pending.value = false
+      status.value = 'success'
+    }).catch(e => {
+      error.value = e
+      pending.value = false
+      status.value = 'error'
+    })
+
+    return {
+      data,
+      pending,
+      error,
+      status,
+      refresh: vi.fn(),
+      execute: vi.fn(),
+      clear: vi.fn()
     }
   }
 })
@@ -75,7 +80,7 @@ describe('pages/projects/index.vue', () => {
 
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
-    const cards = wrapper.findAll('li')
+    const cards = wrapper.findAll('a.proj-card')
     expect(cards).toHaveLength(2)
     expect(wrapper.text()).toContain('Project A')
     expect(wrapper.text()).toContain('Project B')
@@ -93,7 +98,7 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Error loading projects')
+    expect(wrapper.text()).toContain('API unavailable')
   })
 
   it('links to individual project details', async () => {
@@ -114,7 +119,7 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
 
-    const article = wrapper.find('article')
+    const article = wrapper.find('a.proj-card')
     await article.trigger('mouseenter')
     expect(handleCardHoverMock).toHaveBeenCalled()
 
@@ -137,26 +142,44 @@ describe('pages/projects/index.vue', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
   })
 
-  it('shows loading state when pending', async () => {
-    asyncDataOverride.value = { 
-      data: ref(null), 
-      pending: ref(true), 
-      error: ref(null), 
-      status: ref('pending'), 
-      refresh: vi.fn() 
-    }
-    
+  it('shows skeleton cards during pending state', async () => {
+    let resolveFetch: any
+    const fetchPromise = new Promise(resolve => { resolveFetch = resolve })
+    mockFetch.mockReturnValue(fetchPromise)
+
     const wrapper = await mountSuspended(ProjectsPage)
-    expect(wrapper.text()).toContain('Loading projects…')
+    
+    // We expect skeletons to be visible while pending
+    const skeletons = wrapper.findAllComponents({ name: 'SkeletonProjectCard' })
+    expect(skeletons.length).toBeGreaterThan(0)
+    
+    // Resolve fetch and wait for updates
+    resolveFetch([])
+    await flushPromises()
+    
+    expect(wrapper.findAllComponents({ name: 'SkeletonProjectCard' }).length).toBe(0)
   })
 
-  it('renders default description when missing', async () => {
-    mockFetch.mockResolvedValue([{ 
-      name: 'Project A', owner: 'owner', fullName: 'owner/Project A', 
-      description: null 
-    }])
+  it('correctly identifies project kinds and glyphs', async () => {
+    const mockProjects = [
+      { name: 'P1', owner: 'o', fullName: 'o/p1', topics: ['backend'], updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P2', owner: 'o', fullName: 'o/p2', topics: ['frontend'], updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P3', owner: 'o', fullName: 'o/p3', topics: ['serverless'], updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P4', owner: 'o', fullName: 'o/p4', topics: ['other'], updatedAt: '2024-01-01T00:00:00Z' }
+    ]
+    mockFetch.mockResolvedValue(mockProjects)
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
-    expect(wrapper.text()).toContain('No description available.')
+
+    const cards = wrapper.findAll('.proj-card')
+    expect(cards[0].text()).toContain('Backend')
+    expect(cards[1].text()).toContain('Frontend')
+    expect(cards[2].text()).toContain('Serverless')
+    expect(cards[3].text()).toContain('Code')
+    
+    expect(cards[0].find('.glyph').text()).toBe('α')
+    expect(cards[1].find('.glyph').text()).toBe('w')
+    expect(cards[2].find('.glyph').text()).toBe('λ')
+    expect(cards[3].find('.glyph').text()).toBe('P')
   })
 })

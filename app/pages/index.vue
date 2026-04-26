@@ -1,140 +1,293 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import { useGsapHeroAnimation, useGsapCardStagger, useCardHoverAnimation } from '~/composables/useGsapAnimations'
-import { useApiError } from '~/composables/useApiError'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { format } from 'date-fns'
+
+const currentYear = format(new Date(), 'yyyy')
 
 const config = useRuntimeConfig()
 
-const { data: projects, pending, error } = await useAsyncData(
+const { data: projects, error, pending } = useAsyncData(
   'home-portfolio-repos',
   async () => {
-    const raw = config.public.apiBase
-    const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
-    if (!apiBase) {
-      throw new Error('MISSING_API_BASE')
-    }
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-  }
+  },
+  { lazy: true }
 )
 
-useGsapHeroAnimation()
-useGsapCardStagger('.home-repo-list > li')
-const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
+// Fetch portrait URL from API (lazy — does not block SSR)
+const { data: profileData } = useAsyncData(
+  'home-profile',
+  async () => {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) return null
+    try {
+      return await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null }>(
+        `${apiBase}/config/profile`
+      )
+    } catch {
+      return null
+    }
+  },
+  { lazy: true }
+)
 
-const { isMissingApiBase } = useApiError(error)
-
-const limitedProjects = computed(() => {
-  if (!projects.value) return []
-  
-  const featured = projects.value.filter(repo => repo.topics?.includes('featured'))
-  const others = projects.value.filter(repo => !repo.topics?.includes('featured'))
-  
-  return [...featured, ...others].slice(0, 3)
+const homePortraitThumbUrl = computed(() => {
+  const key = profileData.value?.homePortraitUrl
+  if (!key) return null
+  const thumbKey = key
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
 })
+
+const featuredProjects = computed(() => {
+  if (!projects?.value) return []
+  const featured = projects.value.filter(r => r.topics?.includes('featured'))
+  const rest = projects.value.filter(r => !r.topics?.includes('featured'))
+  return [...featured, ...rest].slice(0, 4)
+})
+
+const heroRef = ref<HTMLElement | null>(null)
+
+onMounted(async () => {
+  gsap.registerPlugin(ScrollTrigger)
+
+  const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
+  if (display) {
+    const text = display.innerText
+    display.innerHTML = text.split('').map(c =>
+      c === ' ' ? `<span class="dl" style="display:inline-block">&nbsp;</span>` : `<span class="dl">${c}</span>`
+    ).join('')
+    gsap.fromTo('.dl',
+      { yPercent: 110, opacity: 0 },
+      { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' }
+    )
+  }
+
+  gsap.fromTo('.hero-role',    { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5 })
+  gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.7, stagger: 0.12 })
+  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1, stagger: 0.04 })
+  gsap.fromTo('.hero-portrait', { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.2, delay: 0.3 })
+
+  gsap.utils.toArray<HTMLElement>('.reveal-scroll').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 32 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 88%' } }
+    )
+  })
+
+  // Fetch activity cards from API (fail silently on public page)
+  try {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    activityCards.value = await $fetch<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>(
+      `${apiBase}/activity`
+    )
+  } catch {
+    // Fail silently — no error shown to visitor
+  }
+})
+
+watch(pending, (isPending) => {
+  if (!isPending) {
+    nextTick(() => {
+      gsap.utils.toArray<HTMLElement>('.proj-row').forEach((el, i) => {
+        gsap.fromTo(el,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.7, delay: i * 0.06,
+            scrollTrigger: { trigger: el, start: 'top 92%' } }
+        )
+      })
+    })
+  }
+})
+
+// Activity cards — fetched client-side (public endpoint, no auth needed)
+const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>([])
+
+function overlineLabel(type: string): string {
+  const labels: Record<string, string> = {
+    SHIPPING: 'Now shipping',
+    READING: 'Currently reading',
+    PLAYING: 'Playing with',
+  }
+  return labels[type] ?? type
+}
+
+const stackItems = ['Spring Boot 3', 'Nuxt 4', 'Java 21', 'TypeScript', 'AWS', 'Terraform', 'DynamoDB', 'GSAP', 'DDD']
+const marqueeItems = ['Clean Architecture', 'Domain-Driven Design', 'Java · Spring Boot', 'AWS · Terraform', 'Nuxt · Vue 3', 'Event-driven systems', 'Infrastructure as Code']
+
+function projectNum(i: number) {
+  return String(i + 1).padStart(2, '0')
+}
 </script>
 
 <template>
-  <div>
-    <section class="pb-12 pt-6">
-      <div class="mx-auto max-w-6xl px-4">
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-10 lg:gap-12">
-          <!-- Bio Column (70%) -->
-          <div class="lg:col-span-7">
-            <h1 class="gsap-hero-item text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-5xl">
-              Kevin Real Alejo
-            </h1>
-            <p class="gsap-hero-item mt-3 text-lg font-medium text-slate-600 dark:text-slate-400 sm:text-xl">
-              Full Stack Engineer · Cloud & Architecture
-            </p>
-            
-            <div class="gsap-hero-item mt-8 space-y-6 text-base text-slate-600 dark:text-slate-400">
-              <p>
-                Software Engineer specializing in the development of robust and scalable applications. My focus combines the power of the Java/Spring Boot ecosystem with the agility of modern frontends in Nuxt.
+  <div ref="heroRef">
+    <!-- Hero -->
+    <section class="home-hero">
+      <div class="shell">
+        <div class="hero-grid">
+          <div class="hero-left">
+            <h1 class="t-display display-name" style="white-space:nowrap;margin-bottom:28px;">Kevin Real Alejo</h1>
+            <div class="hero-role">
+              <span class="emph">Full-stack engineer</span> — shipping calm,<br> reliable software for the cloud.
+            </div>
+            <div class="hero-paragraphs">
+              <p class="t-body-lg">
+                Specialising in robust, scalable systems that pair the power of the Java / Spring ecosystem with the agility of modern SSR frontends in Nuxt.
               </p>
-              <p>
-                I am a firm believer in Clean Architecture and Domain-Driven Design (DDD). My goal is to transform complex problems into elegant technical solutions, optimized for the cloud with AWS and automated through infrastructure as code (Terraform).
+              <p class="t-body-lg">
+                Firm believer in <em>Clean Architecture</em> and Domain-Driven Design. My goal: turn complex problems into elegant solutions, optimised for the cloud with AWS and wired together through Terraform.
               </p>
             </div>
-
-            <div class="gsap-hero-item mt-8 flex flex-wrap gap-2">
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">Spring Boot</span>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">Nuxt 3</span>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">AWS</span>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">Terraform</span>
-              <span class="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">DDD</span>
-            </div>
-
-            <!-- GitHub Contributions -->
-            <div class="gsap-hero-item mt-6">
-              <AppGithubContributions />
+            <div class="hero-stack">
+              <span v-for="t in stackItems" :key="t" class="chip">{{ t }}</span>
             </div>
           </div>
 
-          <!-- Projects Column (30%) -->
-          <div class="lg:col-span-3">
-            <h2 class="gsap-hero-item text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
-              MY PROJECTS
-            </h2>
-
-            <div
-              v-if="error"
-              class="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-300"
-              role="alert"
-            >
-              <p class="text-sm font-medium">Error loading projects</p>
-              <p v-if="isMissingApiBase" class="mt-2 text-xs">
-                Set <code class="rounded bg-red-100 px-1 dark:bg-red-900 text-[10px]">NUXT_PUBLIC_API_BASE_URL</code> and restart the dev server.
-              </p>
+          <div>
+            <div class="hero-portrait">
+              <span class="corner tl" /><span class="corner tr" />
+              <span class="corner bl" /><span class="corner br" />
+              <!-- Real portrait when available -->
+              <img
+                v-if="homePortraitThumbUrl"
+                :src="homePortraitThumbUrl"
+                alt="Kevin Real Alejo"
+                style="width:100%;height:100%;object-fit:cover;display:block;"
+              />
+              <!-- Placeholder when no portrait configured -->
+              <div v-else class="ph-center">
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                  <circle cx="22" cy="17" r="7" />
+                  <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
+                </svg>
+                <span>portrait.jpg</span>
+                <span style="opacity:0.6">drop your photo here</span>
+              </div>
             </div>
+            <div class="hero-portrait-meta">
+              <span>Fig. 01 · self</span>
+              <span>Barcelona · {{ currentYear }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            <p v-else-if="pending" class="mt-4 text-sm text-slate-600 dark:text-slate-400">Loading projects…</p>
+    <!-- Marquee -->
+    <div class="kra-marquee">
+      <div class="kra-marquee-track">
+        <span
+          v-for="(item, i) in [...marqueeItems, ...marqueeItems]"
+          :key="i"
+          class="kra-marquee-item"
+        >{{ item }}</span>
+      </div>
+    </div>
 
-            <ul
-              v-else-if="limitedProjects.length > 0"
-              class="home-repo-list mt-4 flex flex-col gap-4"
+    <!-- Projects section -->
+    <section class="kra-section">
+      <div class="shell">
+        <div class="section-head reveal-scroll">
+          <span class="num">§01 / Work</span>
+          <h2>Selected <em>projects</em></h2>
+          <span class="sub">Curated — 2025 → Present</span>
+        </div>
+
+        <div class="proj-list">
+          <template v-if="pending">
+            <SkeletonProjectRow v-for="i in 4" :key="i" />
+          </template>
+          <template v-else>
+            <NuxtLink
+              v-for="(repo, i) in featuredProjects"
+              :key="repo.fullName"
+              :to="`/projects/${repo.owner}/${repo.name}`"
+              class="proj-row"
             >
-              <li
-                v-for="repo in limitedProjects"
-                :key="repo.fullName"
+              <span class="num">{{ projectNum(i) }}</span>
+              <span class="name">{{ repo.name }}</span>
+              <p class="desc">{{ repo.description || '—' }}</p>
+              <div class="tags">
+                <span v-for="t in (repo.topics || []).slice(0, 3)" :key="t" class="tag">{{ t }}</span>
+              </div>
+              <span class="cta">
+                View
+                <svg class="arrow-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M2 10L10 2M10 2H4M10 2v6"/>
+                </svg>
+              </span>
+            </NuxtLink>
+          </template>
+        </div>
+
+        <!-- Error / empty state -->
+        <div v-if="error" role="alert" style="padding:32px 16px;color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;">
+          API unavailable — set NUXT_PUBLIC_API_BASE_URL to load projects.
+        </div>
+
+        <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:center;" class="reveal-scroll">
+          <span class="t-label">{{ featuredProjects.length }} shown</span>
+          <NuxtLink to="/projects" class="btn btn-ghost">
+            All projects
+            <svg class="icon" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M2 10L10 2M10 2H4M10 2v6"/>
+            </svg>
+          </NuxtLink>
+        </div>
+      </div>
+    </section>
+
+    <!-- GitHub Activity section -->
+    <section class="kra-section" style="padding-top:40px;">
+      <div class="shell">
+        <div class="section-head reveal-scroll">
+          <span class="num">§02 / Signal</span>
+          <h2>Open source <em>activity</em></h2>
+          <span class="sub">Live from GitHub API</span>
+        </div>
+        <div
+          class="reveal-scroll"
+          style="display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:stretch;"
+        >
+          <AppGithubContributions />
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            <template v-for="card in activityCards" :key="card.type">
+              <div
+                v-if="card.type !== 'PLAYING'
+                  ? (card.title || card.description)
+                  : (card.tags && card.tags.length)"
+                class="activity-card"
               >
-                <article
-                  class="group rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-900"
-                  @mouseenter="handleCardHover"
-                  @mouseleave="handleCardHoverOut"
-                >
-                  <h3 class="font-semibold text-slate-900 dark:text-slate-100">
-                    {{ repo.name }}
-                  </h3>
-                  <p class="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
-                    {{ repo.description || '—' }}
-                  </p>
-                  <div class="mt-4 flex items-center justify-between">
-                    <NuxtLink
-                      :to="`/projects/${repo.owner}/${repo.name}`"
-                      class="text-xs font-bold uppercase tracking-tight text-slate-900 underline decoration-slate-300 underline-offset-4 hover:decoration-slate-900 dark:text-slate-100 dark:decoration-slate-700 dark:hover:decoration-slate-100"
-                    >
-                      View details
-                    </NuxtLink>
-                    <div v-if="repo.topics?.length" class="flex gap-1">
-                      <span class="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
-                    </div>
+                <div class="t-overline" style="margin-bottom:14px;">{{ overlineLabel(card.type) }}</div>
+                <template v-if="card.type !== 'PLAYING'">
+                  <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
+                  <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
+                </template>
+                <template v-else>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <span v-for="t in card.tags" :key="t" class="chip">{{ t }}</span>
                   </div>
-                </article>
-              </li>
-            </ul>
-
-            <div v-if="projects && projects.length > 3" class="mt-8 flex justify-center">
-              <NuxtLink
-                to="/projects"
-                class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-slate-800 hover:shadow-md dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
-              >
-                View all projects
-                <Icon name="lucide:arrow-right" class="h-4 w-4" />
-              </NuxtLink>
-            </div>
+                </template>
+              </div>
+            </template>
           </div>
         </div>
       </div>
     </section>
   </div>
 </template>
+
+<style scoped>
+@media (max-width: 1000px) {
+  div[style*="grid-template-columns:1.4fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>

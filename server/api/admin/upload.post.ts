@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  const response = await $fetch(`${config.apiBase}/admin/upload`, {
+  const response = await $fetch(`${config.public.apiBase}/admin/upload`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body,

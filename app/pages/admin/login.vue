@@ -1,10 +1,8 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin' })
-import { useNotificationStore } from '~/stores/notifications'
 
 const config = useRuntimeConfig()
 const route = useRoute()
-const notifications = useNotificationStore()
 
 const errorMsg = computed(() => {
   const err = route.query.error as string | undefined
@@ -17,12 +15,6 @@ const errorMsg = computed(() => {
   }
   return messages[err] || 'Login failed. Please check your credentials and try again.'
 })
-
-watch(errorMsg, (msg) => {
-  if (msg) {
-    notifications.add({ type: 'error', title: 'Login Error', message: msg })
-  }
-}, { immediate: true })
 
 function signIn() {
   const params = new URLSearchParams({
@@ -37,22 +29,40 @@ function signIn() {
 
 <template>
   <div class="flex min-h-[60vh] items-center justify-center">
-    <div class="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <div 
+      class="w-full max-w-sm rounded-xl p-8" 
+      style="background:var(--bg-elev); border: 1px solid var(--hairline); box-shadow: 0 20px 40px rgba(0,0,0,0.2)"
+    >
+      <div class="mb-8 text-center">
+        <div class="kra-nav-logo justify-center mb-4" style="cursor: default">
+          <div class="dot"></div>
+          <span>KRA <span style="color:var(--accent)">Admin</span></span>
+        </div>
+        <p class="t-label" style="font-size: 10px">Authentication Required</p>
+      </div>
+
       <div
         v-if="errorMsg"
         role="alert"
-        class="mb-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
+        class="mb-6 rounded-lg p-4 text-sm"
+        style="background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); color: #ff4d4d"
       >
         {{ errorMsg }}
       </div>
 
       <button
         type="button"
-        class="w-full rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200 active:opacity-80"
+        class="btn btn-primary w-full justify-center py-4"
         @click="signIn"
       >
         Sign In with Cognito
       </button>
+      
+      <div class="mt-8 text-center">
+        <NuxtLink to="/" class="t-label hover:text-[var(--accent)] transition-colors" style="font-size: 10px; cursor: pointer">
+          ← Back to Portfolio
+        </NuxtLink>
+      </div>
     </div>
   </div>
 </template>

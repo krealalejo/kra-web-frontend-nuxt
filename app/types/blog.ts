@@ -11,5 +11,5 @@ export interface BlogPostDto {
   createdAt: string
   updatedAt: string
   references?: Reference[]
-  imageUrl?: string
+  imageUrl?: string | null
 }

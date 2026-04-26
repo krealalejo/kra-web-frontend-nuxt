@@ -10,6 +10,15 @@ const emit = defineEmits<{
   delete: [post: BlogPost]
 }>()
 
+const runtimeConfig = useRuntimeConfig()
+
+function getThumbUrl(key: string): string {
+  const thumbKey = key
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
+}
+
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-GB', {
     day: '2-digit',
@@ -20,40 +29,64 @@ function formatDate(iso: string): string {
 </script>
 
 <template>
-  <div class="overflow-x-auto rounded border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-    <table class="w-full text-sm text-slate-900 dark:text-slate-100">
-      <thead class="border-b border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+  <div class="overflow-x-auto rounded-xl" style="background:var(--bg-elev); border: 1px solid var(--hairline)">
+    <table class="w-full text-sm">
+      <thead style="border-bottom: 1px solid var(--hairline); background: var(--overlay)">
         <tr>
-          <th scope="col" class="w-[30%] px-4 py-2 text-left font-semibold text-slate-900 dark:text-slate-100">Title</th>
-          <th scope="col" class="w-[25%] px-4 py-2 text-left font-semibold text-slate-900 dark:text-slate-100">Slug</th>
-          <th scope="col" class="w-[20%] px-4 py-2 text-left font-semibold text-slate-900 dark:text-slate-100">Last Updated</th>
-          <th scope="col" class="w-[15%] px-4 py-2 text-left font-semibold text-slate-900 dark:text-slate-100">Actions</th>
+          <th scope="col" class="w-[80px] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Cover</th>
+          <th scope="col" class="w-[30%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Title</th>
+          <th scope="col" class="w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Slug</th>
+          <th scope="col" class="w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Last Updated</th>
+          <th scope="col" class="w-[25%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Actions</th>
         </tr>
       </thead>
       <tbody>
         <tr
           v-for="post in posts"
           :key="post.slug"
-          class="border-b border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
+          class="group transition-colors hover:bg-[var(--overlay)]"
+          style="border-bottom: 1px solid var(--hairline)"
         >
-          <td class="px-4 py-2 text-sm text-slate-900 dark:text-slate-100">{{ post.title }}</td>
-          <td class="px-4 py-2 text-sm text-slate-700 dark:text-slate-400">{{ post.slug }}</td>
-          <td class="px-4 py-2 text-sm text-slate-700 dark:text-slate-400">{{ formatDate(post.updatedAt) }}</td>
-          <td class="px-4 py-2">
-            <div class="flex gap-2">
+          <td class="px-6 py-4">
+            <div 
+              class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center"
+              style="background: var(--bg-sunken); border: 1px solid var(--hairline)"
+            >
+              <img 
+                v-if="post.imageUrl" 
+                :src="getThumbUrl(post.imageUrl)" 
+                class="w-full h-full object-cover" 
+                alt="Thumb" 
+              />
+              <Icon v-else name="lucide:image" class="w-4 h-4 opacity-20" />
+            </div>
+          </td>
+          <td class="px-6 py-4">
+            <span class="font-medium" style="color: var(--fg)">{{ post.title }}</span>
+          </td>
+          <td class="px-6 py-4">
+            <span style="color: var(--fg-muted); font-family: var(--font-mono); font-size: 11px">{{ post.slug }}</span>
+          </td>
+          <td class="px-6 py-4">
+            <span style="color: var(--fg-muted); font-family: var(--font-mono); font-size: 11px">{{ formatDate(post.updatedAt) }}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
               <button
                 type="button"
-                class="rounded px-3 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:text-blue-400 dark:hover:bg-blue-950"
+                class="btn btn-ghost"
+                style="padding: 6px 12px; font-size: 11px"
                 @click="emit('edit', post)"
               >
-                Edit Post
+                Edit
               </button>
               <button
                 type="button"
-                class="rounded px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200 dark:text-red-400 dark:hover:bg-red-950"
+                class="btn btn-ghost"
+                style="padding: 6px 12px; font-size: 11px; color: #ff4d4d; border-color: rgba(255, 77, 77, 0.1)"
                 @click="emit('delete', post)"
               >
-                Delete Post
+                Delete
               </button>
             </div>
           </td>

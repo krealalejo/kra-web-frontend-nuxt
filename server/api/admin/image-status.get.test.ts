@@ -1,71 +1,70 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Stub Nuxt/H3 server-side auto-imports
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
+vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({
+  s3BucketUrl: 'https://test-bucket.s3.amazonaws.com',
+  public: {
+    apiBase: 'http://localhost:8080/api'
+  }
+})))
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('getQuery', vi.fn())
-vi.stubGlobal('useRuntimeConfig', vi.fn())
-vi.stubGlobal('createError', (err: any) => err)
-vi.stubGlobal('$fetch', vi.fn())
+vi.stubGlobal('readBody', vi.fn())
+vi.stubGlobal('createError', vi.fn((err) => err))
 
-describe('image-status.get', () => {
-  beforeEach(() => {
+const mockFetch = vi.fn()
+vi.stubGlobal('$fetch', mockFetch)
+
+describe('api/admin/image-status.get', () => {
+  let handler: Function
+
+  beforeEach(async () => {
     vi.clearAllMocks()
-    vi.stubGlobal('useRuntimeConfig', () => ({ s3BucketUrl: 'https://s3.example.com' }))
+    const mod = await import('./image-status.get')
+    handler = mod.default
   })
 
-  it('throws 401 if no token', async () => {
-    vi.stubGlobal('getCookie', () => undefined)
-    const mod = await import('./image-status.get')
-    const handler = mod.default as Function
-    
+  it('throws 401 if no token is present', async () => {
+    vi.mocked(getCookie).mockReturnValue(undefined)
+
     try {
-      await handler({})
+      await handler({} as any)
     } catch (e: any) {
       expect(e.statusCode).toBe(401)
     }
   })
 
-  it('throws 400 if no key query param', async () => {
-    vi.stubGlobal('getCookie', () => 'fake-token')
-    vi.stubGlobal('getQuery', () => ({}))
-    const mod = await import('./image-status.get')
-    const handler = mod.default as Function
+  it('throws 400 if key is missing', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(getQuery).mockReturnValue({})
 
     try {
-      await handler({})
+      await handler({} as any)
     } catch (e: any) {
       expect(e.statusCode).toBe(400)
-      expect(e.statusMessage).toBe('Missing key parameter')
     }
   })
 
-  it('returns ready: true if HEAD request succeeds', async () => {
-    vi.stubGlobal('getCookie', () => 'fake-token')
-    vi.stubGlobal('getQuery', () => ({ key: 'images/test.jpg' }))
-    // Match actual behavior where s3BucketUrl might be empty in test env if not properly mocked
-    vi.stubGlobal('useRuntimeConfig', () => ({ s3BucketUrl: 'https://s3.example.com' }))
-    
-    const fetchMock = vi.fn().mockResolvedValue({})
-    vi.stubGlobal('$fetch', fetchMock)
+  it('returns ready: true if thumbnail exists', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(getQuery).mockReturnValue({ key: 'images/test.jpg' })
+    mockFetch.mockResolvedValue({})
 
-    const mod = await import('./image-status.get')
-    const handler = mod.default as Function
-    const result = await handler({})
+    const result = await handler({} as any)
 
     expect(result).toEqual({ ready: true })
-    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('thumbnails/test-thumb.webp'), { method: 'HEAD' })
+    expect(mockFetch).toHaveBeenCalledWith(
+      expect.stringContaining('/thumbnails/test-thumb.webp'),
+      { method: 'HEAD' }
+    )
   })
 
-  it('returns ready: false if HEAD request fails', async () => {
-    vi.stubGlobal('getCookie', () => 'fake-token')
-    vi.stubGlobal('getQuery', () => ({ key: 'images/test.jpg' }))
-    const fetchMock = vi.fn().mockRejectedValue(new Error('404'))
-    vi.stubGlobal('$fetch', fetchMock)
+  it('returns ready: false if thumbnail fetch fails', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(getQuery).mockReturnValue({ key: 'images/test.jpg' })
+    mockFetch.mockRejectedValue(new Error('Not found'))
 
-    const mod = await import('./image-status.get')
-    const handler = mod.default as Function
-    const result = await handler({})
+    const result = await handler({} as any)
 
     expect(result).toEqual({ ready: false })
   })

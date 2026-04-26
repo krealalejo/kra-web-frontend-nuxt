@@ -4,31 +4,36 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 
 mockNuxtImport('useAsyncData', () => {
-  return async (_key: string, factory: () => Promise<any>) => {
-    try {
-      const res = await factory()
-      return { 
-        data: ref(res), 
-        pending: ref(false), 
-        error: ref(null),
-        status: ref('success'),
-        refresh: vi.fn(),
-        execute: vi.fn().mockResolvedValue(res)
-      }
-    } catch (e) {
-      return { 
-        data: ref(null), 
-        pending: ref(false), 
-        error: ref(e),
-        status: ref('error'),
-        refresh: vi.fn()
-      }
+  return (_key: string, factory: () => Promise<any>, options?: any) => {
+    const data = ref(null)
+    const pending = ref(!options?.lazy)
+    const error = ref(null)
+    const status = ref('idle')
+
+    const promise = factory().then(res => {
+      data.value = res
+      pending.value = false
+      status.value = 'success'
+    }).catch(e => {
+      error.value = e
+      pending.value = false
+      status.value = 'error'
+    })
+
+    return {
+      data,
+      pending,
+      error,
+      status,
+      refresh: vi.fn(),
+      execute: vi.fn(),
+      clear: vi.fn()
     }
   }
 })
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
 }))
 
 const renderDiagramsMock = vi.fn()
@@ -83,7 +88,7 @@ describe('pages/blog/[slug].vue', () => {
     mockFetch.mockResolvedValue(mockPost)
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    const dateEl = wrapper.find('article p.text-sm')
+    const dateEl = wrapper.find('.overline-meta')
     expect(dateEl.exists()).toBe(true)
     expect(dateEl.text().length).toBeGreaterThan(0)
   })
@@ -136,7 +141,7 @@ describe('pages/blog/[slug].vue', () => {
     })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    expect(wrapper.text()).toContain('updated')
+    expect(wrapper.text()).toContain('Updated')
   })
 
   it('triggers mermaid rendering when content is updated', async () => {

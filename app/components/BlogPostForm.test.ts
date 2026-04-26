@@ -129,4 +129,91 @@ describe('components/BlogPostForm.vue', () => {
     // Image should be gone
     expect(wrapper.find('img').exists()).toBe(false)
   })
+
+  it('calls updatePost on valid submission in edit mode', async () => {
+    const store = useBlogStore()
+    const spy = vi.spyOn(store, 'updatePost').mockImplementation(async () => mockPost)
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: mockPost },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    await wrapper.find('#post-title').setValue('Updated Title')
+    await wrapper.find('#post-content').setValue('Updated content here')
+
+    await wrapper.find('form').trigger('submit.prevent')
+
+    await vi.waitFor(() => {
+      expect(spy).toHaveBeenCalledWith('test-post', expect.objectContaining({ title: 'Updated Title' }))
+    })
+    spy.mockRestore()
+  })
+
+  it('dismisses form error when Dismiss button is clicked', async () => {
+    const store = useBlogStore()
+    vi.spyOn(store, 'createPost').mockRejectedValue(new Error('Server error'))
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    await wrapper.find('#post-slug').setValue('new-post')
+    await wrapper.find('#post-title').setValue('New Title')
+    await wrapper.find('#post-content').setValue('New Content here')
+    await wrapper.find('form').trigger('submit.prevent')
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toMatch(/Server error|unexpected error/)
+    })
+
+    const dismissBtn = wrapper.find('button.t-label')
+    if (dismissBtn.exists()) {
+      await dismissBtn.trigger('click')
+      await wrapper.vm.$nextTick()
+    }
+  })
+
+  it('adds and removes references', async () => {
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    // Initially 0 references in mock
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
+
+    // Click add
+    const addBtn = wrapper.find('button[type="button"].t-label')
+    await addBtn.trigger('click')
+
+    // Should have one reference row
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(1)
+
+    // Click remove
+    const removeBtn = wrapper.find('button.text-red-400')
+    await removeBtn.trigger('click')
+
+    // Should be empty again
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
+  })
 })

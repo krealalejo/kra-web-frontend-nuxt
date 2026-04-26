@@ -13,15 +13,13 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing key parameter' })
   }
 
+  // Derive thumbnail key from image key per D-07:
+  // "images/abc123.jpg" → "thumbnails/abc123-thumb.webp"
   const thumbKey = key
     .replace(/^images\//, 'thumbnails/')
     .replace(/\.[^.]+$/, '-thumb.webp')
 
-  const s3BucketUrl = config.s3BucketUrl
-  if (!s3BucketUrl) {
-    console.error('S3 Bucket URL is not configured in runtimeConfig')
-    return { ready: false }
-  }
+  const s3BucketUrl = config.s3BucketUrl // private runtimeConfig — server-only
 
   try {
     await $fetch(`${s3BucketUrl}/${thumbKey}`, { method: 'HEAD' })
