@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     client_secret: config.cognitoClientSecret,
   })
 
-  let tokenData: { id_token?: string; access_token?: string; error?: string; error_description?: string }
+  let tokenData: { id_token?: string; access_token?: string; refresh_token?: string; error?: string; error_description?: string }
 
   try {
     const response = await fetch(tokenUrl, {
@@ -37,12 +37,12 @@ export default defineEventHandler(async (event) => {
     return sendRedirect(event, `/admin/login?error=${encodeURIComponent('token_fetch_failed')}`, 302)
   }
 
-  if (tokenData.error || !tokenData.id_token) {
+  if (tokenData.error || !tokenData.access_token) {
     const msg = tokenData.error || 'token_exchange_failed'
     return sendRedirect(event, `/admin/login?error=${encodeURIComponent(msg)}`, 302)
   }
 
-  setCookie(event, 'kra_session', tokenData.id_token, {
+  setCookie(event, 'kra_session', tokenData.access_token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -52,7 +52,8 @@ export default defineEventHandler(async (event) => {
 
   let emailValue = 'admin'
   try {
-    const payloadB64 = tokenData.id_token.split('.')[1]
+    const idTokenForEmail = tokenData.id_token || tokenData.access_token
+    const payloadB64 = idTokenForEmail?.split('.')[1]
     if (!payloadB64) throw new Error('invalid_token_structure')
     const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'))
     emailValue = decoded.email || decoded['cognito:username'] || 'admin'
