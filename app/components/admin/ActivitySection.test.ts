@@ -82,6 +82,56 @@ describe('ActivitySection', () => {
     expect(readingCard!.text()).not.toContain('Failed to save SHIPPING')
   })
 
+  it('saves READING card', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
+    const readingBtn = saveButtons[1]!
+    await readingBtn.trigger('click')
+    expect(mockUpdateCard).toHaveBeenCalledWith('READING', expect.objectContaining({ title: 'Read title', description: 'Read desc' }))
+  })
+
+  it('saves PLAYING card', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
+    const playingBtn = saveButtons[2]!
+    await playingBtn.trigger('click')
+    expect(mockUpdateCard).toHaveBeenCalledWith('PLAYING', expect.objectContaining({ tags: expect.any(Array) }))
+  })
+
+  it('adds tag via Enter key and renders it', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
+    await tagInput.setValue('NewTag')
+    await tagInput.trigger('keydown.enter')
+    expect(wrapper.text()).toContain('NewTag')
+  })
+
+  it('does not add duplicate tag', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
+    await tagInput.setValue('tag1')
+    await tagInput.trigger('keydown.enter')
+    const occurrences = wrapper.text().split('tag1').length - 1
+    expect(occurrences).toBe(1)
+  })
+
+  it('does not add empty tag', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    const chipsBefore = wrapper.findAll('.chip').length
+    const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
+    await tagInput.setValue('   ')
+    await tagInput.trigger('keydown.enter')
+    expect(wrapper.findAll('.chip').length).toBe(chipsBefore)
+  })
+
+  it('removes tag via ✕ button', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    expect(wrapper.text()).toContain('tag1')
+    const removeBtn = wrapper.find('.chip button')
+    await removeBtn.trigger('click')
+    expect(wrapper.text()).not.toContain('tag1')
+  })
+
   it('has correct layout classes for bottom alignment', async () => {
     const wrapper = await mountSuspended(ActivitySection)
     const cards = wrapper.findAll('.rounded-2xl')
