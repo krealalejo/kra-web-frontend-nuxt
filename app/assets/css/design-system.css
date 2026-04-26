@@ -961,7 +961,7 @@ em, .emph {
   text-transform: uppercase;
   color: var(--fg-muted);
 }
-.gh-legend .scale { display: flex; gap: 3px; align-items: center; gap: 4px; }
+.gh-legend .scale { display: flex; align-items: center; gap: 4px; }
 .gh-legend .scale .cell { width: 10px; height: 10px; }
 
 /* ========== Blog ========== */
