@@ -129,4 +129,34 @@ describe('components/BlogPostForm.vue', () => {
     // Image should be gone
     expect(wrapper.find('img').exists()).toBe(false)
   })
+
+  it('adds and removes references', async () => {
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    // Initially 0 references in mock
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
+
+    // Click add
+    const addBtn = wrapper.find('button[type="button"].t-label')
+    await addBtn.trigger('click')
+
+    // Should have one reference row
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(1)
+
+    // Click remove
+    const removeBtn = wrapper.find('button.text-red-400')
+    await removeBtn.trigger('click')
+
+    // Should be empty again
+    expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
+  })
 })

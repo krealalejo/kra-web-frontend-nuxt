@@ -81,4 +81,35 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
     expect(wrapper.text()).toContain('Backend')
     expect(wrapper.text()).toContain('Java 21')
   })
+
+  it('renders Education section when educationData is populated', async () => {
+    const education = [
+      { id: '1', title: 'MSc Computer Science', institution: 'University', location: 'UK', years: '2020', description: 'Learned CS', sortOrder: 1 }
+    ]
+    mockData['cv-education'] = education
+
+    const wrapper = await mountSuspended(CvPage)
+
+    expect(wrapper.text()).toContain('MSc Computer Science')
+    expect(wrapper.text()).toContain('University')
+  })
+
+  it('renders portrait image when profileData is populated', async () => {
+    mockData['cv-profile'] = {
+      cvPortraitUrl: 'images/portrait.jpg'
+    }
+
+    const wrapper = await mountSuspended(CvPage)
+    
+    const img = wrapper.find('img[alt="Kevin Real Alejo"]')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('thumbnails/portrait-thumb.webp')
+  })
+
+  it('renders placeholder when profileData has no portrait', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null }
+    const wrapper = await mountSuspended(CvPage)
+    expect(wrapper.find('img').exists()).toBe(false)
+    expect(wrapper.text()).toContain('portrait.jpg')
+  })
 })

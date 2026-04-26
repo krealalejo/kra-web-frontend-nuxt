@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref, nextTick } from 'vue'
 import ActivitySection from './ActivitySection.vue'
 
 // Mock the store
