@@ -102,13 +102,13 @@ onMounted(async () => {
 <template>
   <div>
     <div v-if="pending" role="status" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
-      <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">Loading…</span>
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">Loading repository…</span>
     </div>
 
     <div v-else-if="error" role="alert" class="shell" style="padding:64px 0;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);padding:32px 0;">
         <div v-if="isNotFound">Repository not found.</div>
-        <div v-else-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</div>
+        <div v-else-if="isMissingApiBase">API unavailable — Missing NUXT_PUBLIC_API_BASE_URL.</div>
         <div v-else>Could not load the repository.</div>
         <NuxtLink to="/" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;color:var(--accent);">
           ← Back to home
@@ -163,7 +163,7 @@ onMounted(async () => {
         <div class="pd-body">
           <div v-if="detail.readmeExcerpt" class="pd-content">
             <h2>README</h2>
-            <div ref="readmeRef" v-html="sanitizedReadme" />
+            <div ref="readmeRef" class="prose" v-html="sanitizedReadme" />
           </div>
           <div v-else class="pd-content">
             <p style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;">No README available.</p>

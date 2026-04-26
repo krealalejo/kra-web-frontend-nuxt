@@ -33,15 +33,15 @@ vi.mock('~/composables/useMermaid', () => ({
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
-import RepoDetailPage from './[repo].vue'
+import RepoPage from './[repo].vue'
 
-const mockRepo = {
+const mockDetail = {
   fullName: 'owner/repo',
   description: 'Test repository',
   htmlUrl: 'https://github.com/owner/repo',
   stargazersCount: 10,
   updatedAt: '2024-01-01',
-  topics: ['vue', 'nuxt'],
+  topics: ['vue', 'nuxt', 'spring-boot'],
   readmeExcerpt: '# Welcome\nTest README',
 }
 
@@ -53,7 +53,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
 
   it('renders loading state initially', async () => {
     mockFetch.mockReturnValue(new Promise(() => {})) // Never resolves
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
@@ -61,8 +61,8 @@ describe('pages/projects/[owner]/[repo].vue', () => {
   })
 
   it('renders repository details when loaded', async () => {
-    mockFetch.mockResolvedValue(mockRepo)
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    mockFetch.mockResolvedValue(mockDetail)
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     await flushPromises()
@@ -73,8 +73,8 @@ describe('pages/projects/[owner]/[repo].vue', () => {
   })
 
   it('renders topics list', async () => {
-    mockFetch.mockResolvedValue(mockRepo)
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    mockFetch.mockResolvedValue(mockDetail)
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     await flushPromises()
@@ -119,7 +119,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
 
   it('shows error alert on 404', async () => {
     mockFetch.mockRejectedValue({ statusCode: 404 })
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     await flushPromises()
@@ -130,7 +130,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
 
   it('shows MISSING_API_BASE error', async () => {
     mockFetch.mockRejectedValue(new Error('MISSING_API_BASE'))
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     await flushPromises()
@@ -139,8 +139,8 @@ describe('pages/projects/[owner]/[repo].vue', () => {
   })
 
   it('renders README content', async () => {
-    mockFetch.mockResolvedValue(mockRepo)
-    const wrapper = await mountSuspended(RepoDetailPage, {
+    mockFetch.mockResolvedValue(mockDetail)
+    const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
     await flushPromises()
