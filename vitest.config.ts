@@ -8,6 +8,7 @@ export default defineVitestConfig({
         domEnvironment: 'happy-dom',
         overrides: {
           runtimeConfig: {
+            s3BucketUrl: 'https://s3-test.example.com',
             public: {
               apiBase: 'http://localhost:8080/api',
               cognitoClientId: 'test-client-id',
@@ -24,7 +25,7 @@ export default defineVitestConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
-      include: ['app/**/*.ts', 'app/pages/**/*.vue', 'server/**/*.ts'],
+      include: ['app/**/*.ts', 'app/**/*.vue', 'server/**/*.ts'],
       exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**', 'app/types/**'],
       thresholds: {
         lines: 80,

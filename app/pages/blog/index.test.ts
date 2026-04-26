@@ -102,7 +102,7 @@ describe('pages/blog/index.vue', () => {
     await flushPromises()
     const links = wrapper.findAll('a').filter(a => a.attributes('href')?.includes('/blog/'))
     expect(links.length).toBeGreaterThan(0)
-    expect(links[0].attributes('href')).toBe('/blog/hello-world')
+    expect(links[0]!.attributes('href')).toBe('/blog/hello-world')
   })
 
   it('shows an error state when fetch fails', async () => {
@@ -148,5 +148,29 @@ describe('pages/blog/index.vue', () => {
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
     expect(wrapper.find('.date').text()).toBe('invalid-date')
+  })
+
+  it('renders thumbnail when post has imageUrl', async () => {
+    mockFetch.mockResolvedValue([{
+      ...mockPost,
+      imageUrl: 'images/post-1.png'
+    }])
+    const wrapper = await mountSuspended(BlogIndexPage)
+    await flushPromises()
+    
+    const img = wrapper.find('img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('thumbnails/post-1-thumb.webp')
+  })
+
+  it('returns raw date string on formatting error', async () => {
+    mockFetch.mockResolvedValue([{
+      ...mockPost,
+      createdAt: 'invalid-date'
+    }])
+    const wrapper = await mountSuspended(BlogIndexPage)
+    await flushPromises()
+    
+    expect(wrapper.text()).toContain('invalid-date')
   })
 })

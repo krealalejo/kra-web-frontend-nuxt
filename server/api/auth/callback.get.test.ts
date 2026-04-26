@@ -94,14 +94,14 @@ describe('auth/callback.get', () => {
     )
   })
 
-  it('redirects to login when token response has no id_token', async () => {
+  it('redirects to login when token response has no access_token', async () => {
     const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('getQuery', vi.fn().mockReturnValue({ code: 'valid-code' }))
     vi.stubGlobal('sendRedirect', mockSendRedirect)
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
       headers: { get: () => 'application/json' },
-      json: vi.fn().mockResolvedValue({ access_token: 'at', token_type: 'Bearer' }),
+      json: vi.fn().mockResolvedValue({ id_token: 'it', token_type: 'Bearer' }),
     }))
 
     const mod = await import('./callback.get')
@@ -135,7 +135,7 @@ describe('auth/callback.get', () => {
     const handler = mod.default as Function
     await handler({})
 
-    expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_session', fakeIdToken, expect.any(Object))
+    expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_session', 'at', expect.any(Object))
     expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_user', 'admin@example.com', expect.any(Object))
     expect(mockSendRedirect).toHaveBeenCalledWith(expect.anything(), '/admin', 302)
   })

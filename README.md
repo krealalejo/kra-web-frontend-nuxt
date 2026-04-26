@@ -4,6 +4,12 @@ Frontend for the **KRA** portfolio: a highly interactive and animated interface 
 
 **Stack:** Nuxt **4**, Vue **3**, **Tailwind CSS**, **Pinia** for state management, **GSAP** for premium animations, **VeeValidate** + **Zod** for form validation, **Vitest** for unit testing.
 
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-web-frontend-nuxt&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krealalejo_kra-web-frontend-nuxt)
+![Nuxt](https://img.shields.io/badge/Nuxt_4-00DC82?style=flat&logo=nuxtdotjs&logoColor=white)
+![Vue](https://img.shields.io/badge/Vue_3-4FC08D?style=flat&logo=vuedotjs&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
+![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
+
 ---
 
 ## Prerequisites
@@ -84,6 +90,8 @@ flowchart LR
   API -->|REST| KRA_API
   SEC -->|OAuth2| COG
 ```
+
+> Full system architecture (C4 Level 1, 2 & 3): [kra-docs-architecture](https://github.com/krealalejo/kra-docs-architecture)
 
 **Structure:** Composables handle API logic, Middleware manages route protection for `/admin`, and Pinia stores global state. Animations are orchestrated with GSAP for a premium experience.
 

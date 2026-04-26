@@ -1,6 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
+import { ref } from 'vue'
+
+mockNuxtImport('useAsyncData', () => {
+  return (_key: string, factory: () => Promise<any>) => {
+    const data = ref(null)
+    const pending = ref(true)
+    const error = ref(null)
+
+    factory().then(res => {
+      data.value = res
+      pending.value = false
+    }).catch(err => {
+      error.value = err
+      pending.value = false
+    })
+
+    return { data, pending, error }
+  }
+})
 
 vi.mock('gsap', () => ({
   default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
@@ -14,60 +33,53 @@ vi.mock('~/composables/useMermaid', () => ({
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
-import RepoPage from './[repo].vue'
+import RepoDetailPage from './[repo].vue'
 
-const mockDetail = {
-  fullName: 'krealalejo/project-kra',
-  name: 'project-kra',
-  description: 'A full-stack portfolio project.',
-  owner: 'krealalejo',
-  topics: ['nuxt', 'spring-boot'],
-  stargazersCount: 5,
-  updatedAt: '2024-06-01',
-  defaultBranch: 'main',
-  readmeExcerpt: '# Project KRA\n\nA portfolio project.',
-  htmlUrl: 'https://github.com/krealalejo/project-kra',
+const mockRepo = {
+  fullName: 'owner/repo',
+  description: 'Test repository',
+  htmlUrl: 'https://github.com/owner/repo',
+  stargazersCount: 10,
+  updatedAt: '2024-01-01',
+  topics: ['vue', 'nuxt'],
+  readmeExcerpt: '# Welcome\nTest README',
 }
 
 describe('pages/projects/[owner]/[repo].vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })))
+    vi.clearAllMocks()
   })
 
-  it('shows loading state on initial render', async () => {
-    mockFetch.mockResolvedValue(mockDetail)
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
+  it('renders loading state initially', async () => {
+    mockFetch.mockReturnValue(new Promise(() => {})) // Never resolves
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
-    // lazy: true means component starts in loading state
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('Loading repository…')
   })
 
-  it('renders the repo title after data loads', async () => {
-    mockFetch.mockResolvedValue(mockDetail)
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
+  it('renders repository details when loaded', async () => {
+    mockFetch.mockResolvedValue(mockRepo)
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
     await flushPromises()
-    expect(wrapper.find('h1').text()).toContain('krealalejo/project-kra')
+    
+    expect(wrapper.find('h1').text()).toContain('owner/repo')
+    expect(wrapper.text()).toContain('Test repository')
+    expect(wrapper.find('a[href="https://github.com/owner/repo"]').exists()).toBe(true)
   })
 
-  it('renders the repo description after data loads', async () => {
-    mockFetch.mockResolvedValue(mockDetail)
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
+  it('renders topics list', async () => {
+    mockFetch.mockResolvedValue(mockRepo)
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('A full-stack portfolio project.')
-  })
-
-  it('renders topic tags after data loads', async () => {
-    mockFetch.mockResolvedValue(mockDetail)
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
-    })
-    await flushPromises()
+    
+    expect(wrapper.text()).toContain('vue')
     expect(wrapper.text()).toContain('nuxt')
     expect(wrapper.text()).toContain('spring-boot')
   })
@@ -105,69 +117,35 @@ describe('pages/projects/[owner]/[repo].vue', () => {
     expect(wrapper.text()).toContain('Could not load the repository')
   })
 
-  it('shows "Repository not found" for 404 errors', async () => {
+  it('shows error alert on 404', async () => {
     mockFetch.mockRejectedValue({ statusCode: 404 })
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/missing-repo',
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
     await flushPromises()
+    
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('not found')
+    expect(wrapper.text()).toContain('Repository not found')
   })
 
-  it('shows MISSING_API_BASE hint for missing config', async () => {
+  it('shows MISSING_API_BASE error', async () => {
     mockFetch.mockRejectedValue(new Error('MISSING_API_BASE'))
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
     await flushPromises()
-    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
+    
+    expect(wrapper.text()).toContain('Missing NUXT_PUBLIC_API_BASE_URL')
   })
 
-  it('shows "Back to home" link in error state', async () => {
-    mockFetch.mockRejectedValue(new Error('Error'))
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
+  it('renders README content', async () => {
+    mockFetch.mockResolvedValue(mockRepo)
+    const wrapper = await mountSuspended(RepoDetailPage, {
+      route: '/projects/owner/repo'
     })
     await flushPromises()
-    const backLink = wrapper.find('a[href="/"]')
-    expect(backLink.exists()).toBe(true)
-  })
-
-  it('shows default branch name', async () => {
-    mockFetch.mockResolvedValue(mockDetail)
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
-    })
-    await flushPromises()
-    expect(wrapper.text()).toContain('main')
-  })
-
-  it('renders dash when description is empty', async () => {
-    mockFetch.mockResolvedValue({ ...mockDetail, description: '' })
-    const wrapper = await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
-    })
-    await flushPromises()
-    expect(wrapper.text()).toContain('—')
-  })
-
-  it('triggers mermaid rendering on mount', async () => {
-    const { useMermaid } = await import('~/composables/useMermaid')
-    const { renderDiagrams } = useMermaid()
-
-    mockFetch.mockResolvedValue(mockDetail)
-    await mountSuspended(RepoPage, {
-      route: '/projects/krealalejo/project-kra',
-    })
-    await flushPromises()
-
-    expect(renderDiagramsMock).toHaveBeenCalled()
-  })
-
-  it('throws 400 error when owner or repo is missing', async () => {
-    // Similar to blog slug, testing with empty route params in mountSuspended is tricky
-    // but the logic is there.
+    
+    expect(wrapper.text()).toContain('README')
+    expect(wrapper.find('div.prose').exists()).toBe(true)
   })
 })

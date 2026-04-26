@@ -93,7 +93,7 @@ describe('useBlogStore', () => {
       const newPost = { slug: 'new', title: 'New', content: '', createdAt: '', updatedAt: '' }
       mockFetch.mockResolvedValue(newPost)
       await store.createPost({ slug: 'new', title: 'New', content: '' })
-      expect(store.posts[0]).toEqual(newPost)
+      expect(store.posts[0]!).toEqual(newPost)
     })
 
     it('throws and sets error on failure', async () => {
@@ -128,7 +128,7 @@ describe('useBlogStore', () => {
       store.posts = [{ slug: 'post', title: 'Old', content: '', createdAt: '', updatedAt: '' }]
       mockFetch.mockResolvedValue({ slug: 'post', title: 'New', content: 'new', createdAt: '', updatedAt: '' })
       await store.updatePost('post', { title: 'New', content: 'new' })
-      expect(store.posts[0].title).toBe('New')
+      expect(store.posts[0]!.title).toBe('New')
     })
 
     it('does not crash when updated post slug is not in the local array', async () => {
@@ -174,7 +174,7 @@ describe('useBlogStore', () => {
       mockFetch.mockResolvedValue(undefined)
       await store.deletePost('delete')
       expect(store.posts).toHaveLength(1)
-      expect(store.posts[0].slug).toBe('keep')
+      expect(store.posts[0]!.slug).toBe('keep')
     })
 
     it('throws and sets error message on Error failure', async () => {

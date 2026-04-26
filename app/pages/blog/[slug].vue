@@ -41,18 +41,25 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === 'NOT_FOUND'
 })
 
-const { stripMarkdown } = useMarkdown()
+const { stripMarkdown, sanitizeMarkdown } = useMarkdown()
 const { renderDiagrams } = useMermaid()
 const contentRef = ref<HTMLElement | null>(null)
 
-const sanitizedContent = computed<string>(() => {
-  const raw = post.value?.content ?? ''
-  const html = marked.parse(raw) as string
-  if (import.meta.server) return html
-  return DOMPurify.sanitize(html)
-})
+const sanitizedContent = ref<string>('')
 
-watch(sanitizedContent, async () => {
+async function updateSanitizedContent() {
+  const raw = post.value?.content ?? ''
+  if (raw) {
+    sanitizedContent.value = await sanitizeMarkdown(raw)
+  } else {
+    sanitizedContent.value = ''
+  }
+}
+
+await updateSanitizedContent()
+
+watch(post, async () => {
+  await updateSanitizedContent()
   await nextTick()
   if (contentRef.value) renderDiagrams(contentRef.value)
 })
@@ -61,6 +68,14 @@ onMounted(() => {
   if (contentRef.value) renderDiagrams(contentRef.value)
   gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
+})
+
+const thumbUrl = computed(() => {
+  if (!post.value?.imageUrl) return null
+  const thumbKey = post.value.imageUrl
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
 })
 
 function formatDate(iso: string) {

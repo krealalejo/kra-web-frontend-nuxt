@@ -1,8 +1,10 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'admin' })
+import { useNotificationStore } from '~/stores/notifications'
 
 const config = useRuntimeConfig()
 const route = useRoute()
+const notifications = useNotificationStore()
 
 const errorMsg = computed(() => {
   const err = route.query.error as string | undefined
@@ -15,6 +17,12 @@ const errorMsg = computed(() => {
   }
   return messages[err] || 'Login failed. Please check your credentials and try again.'
 })
+
+watch(errorMsg, (msg) => {
+  if (msg) {
+    notifications.add({ type: 'error', title: 'Login Error', message: msg })
+  }
+}, { immediate: true })
 
 function signIn() {
   const params = new URLSearchParams({

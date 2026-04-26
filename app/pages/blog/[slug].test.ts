@@ -133,6 +133,7 @@ describe('pages/blog/[slug].vue', () => {
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
   })
+
   it('shows "updated" date when updatedAt differs from createdAt', async () => {
     mockFetch.mockResolvedValue({
       ...mockPost,
@@ -144,16 +145,9 @@ describe('pages/blog/[slug].vue', () => {
   })
 
   it('triggers mermaid rendering when content is updated', async () => {
-    const { useMermaid } = await import('~/composables/useMermaid')
-    const { renderDiagrams } = useMermaid()
-    
     mockFetch.mockResolvedValue(mockPost)
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    
-    // Changing the content to trigger the watch
-    // Since post is reactive from useAsyncData mock, we just need to re-mock and refresh if possible
-    // or just rely on the onMounted call which is also covered by this logic
     expect(renderDiagramsMock).toHaveBeenCalled()
   })
 
@@ -167,8 +161,23 @@ describe('pages/blog/[slug].vue', () => {
     expect(wrapper.text()).toContain('invalid-date')
   })
 
-  it('throws 400 error when slug is missing', async () => {
-    // This is hard to test with mountSuspended as it requires an empty route param
-    // but the logic in [slug].vue line 19-21 handles it if slug.value is empty.
+  it('throws 400 error when slug is empty', async () => {
+    mockFetch.mockRejectedValue({ statusCode: 400, statusMessage: 'Invalid post slug' })
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/' })
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+  })
+
+  it('renders thumbnail when imageUrl is present', async () => {
+    mockFetch.mockResolvedValue({
+      ...mockPost,
+      imageUrl: 'images/header.jpg'
+    })
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
+    await flushPromises()
+    
+    const img = wrapper.find('img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('thumbnails/header-thumb.webp')
   })
 })

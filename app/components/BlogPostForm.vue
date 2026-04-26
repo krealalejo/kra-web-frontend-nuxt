@@ -2,6 +2,7 @@
 import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
+import { useNotificationStore } from '~/stores/notifications'
 
 const props = defineProps<{
   open: boolean
@@ -14,6 +15,7 @@ const emit = defineEmits<{
 }>()
 
 const store = useBlogStore()
+const notifications = useNotificationStore()
 const { sanitizeMarkdown } = useMarkdown()
 const { slug, title, content, imageUrl, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
 const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
@@ -154,6 +156,11 @@ const onSubmit = handleSubmit(async (values) => {
         imageUrl: values.imageUrl
       })
     }
+    notifications.add({
+      type: 'success',
+      title: isEditMode.value ? 'Post updated' : 'Post created',
+      message: `"${values.title}" has been saved successfully.`
+    })
     emit('saved')
     emit('close')
   } catch (e: unknown) {
@@ -167,7 +174,6 @@ const onSubmit = handleSubmit(async (values) => {
     <!-- Backdrop -->
     <div class="fixed inset-0 backdrop-blur-md" style="background:color-mix(in srgb, var(--bg) 60%, transparent)" aria-hidden="true" />
 
-    <!-- Modal panel -->
     <div class="fixed inset-0 flex items-start justify-center p-4 overflow-y-auto">
       <DialogPanel 
         class="w-full max-w-6xl rounded-2xl p-8 my-8 transition-all"
@@ -177,7 +183,6 @@ const onSubmit = handleSubmit(async (values) => {
           {{ isEditMode ? 'Edit Post' : 'Create Post' }}
         </DialogTitle>
 
-        <!-- Error alert -->
         <div
           v-if="formError"
           class="mb-6 rounded-xl p-4 text-sm"

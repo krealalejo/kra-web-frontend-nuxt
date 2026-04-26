@@ -22,6 +22,8 @@ vi.mock('~/composables/useGsapAnimations', () => ({
   }),
 }))
 
+const asyncDataOverride = ref<any>(null)
+
 mockNuxtImport('useAsyncData', () => {
   return (_key: string, factory: () => Promise<any>, _options?: any) => {
     const data = ref(null)
@@ -58,6 +60,7 @@ describe('pages/projects/index.vue', () => {
     mockFetch.mockReset()
     handleCardHoverMock.mockClear()
     handleCardHoverOutMock.mockClear()
+    asyncDataOverride.value = null
     vi.clearAllMocks()
   })
 

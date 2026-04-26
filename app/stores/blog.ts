@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useNotificationStore } from './notifications'
 
 export interface BlogPost {
   slug: string
@@ -15,6 +16,7 @@ export const useBlogStore = defineStore('blog', () => {
   const posts = ref<BlogPost[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const notifications = useNotificationStore()
 
   const fetchPosts = async () => {
     loading.value = true
@@ -24,6 +26,7 @@ export const useBlogStore = defineStore('blog', () => {
       posts.value = response
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to load posts'
+      notifications.add({ type: 'error', title: 'Error loading posts', message: error.value })
     } finally {
       loading.value = false
     }
@@ -41,6 +44,7 @@ export const useBlogStore = defineStore('blog', () => {
       return created
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to create post'
+      notifications.add({ type: 'error', title: 'Creation failed', message: error.value })
       throw e
     } finally {
       loading.value = false
@@ -60,6 +64,7 @@ export const useBlogStore = defineStore('blog', () => {
       return updated
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to update post'
+      notifications.add({ type: 'error', title: 'Update failed', message: error.value })
       throw e
     } finally {
       loading.value = false
@@ -76,6 +81,7 @@ export const useBlogStore = defineStore('blog', () => {
       posts.value = posts.value.filter(p => p.slug !== slug)
     } catch (e: unknown) {
       error.value = e instanceof Error ? e.message : 'Failed to delete post'
+      notifications.add({ type: 'error', title: 'Deletion failed', message: error.value })
       throw e
     } finally {
       loading.value = false

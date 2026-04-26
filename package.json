@@ -35,6 +35,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.103",
     "@nuxt/test-utils": "^4.0.2",
+    "@pinia/testing": "^1.0.3",
     "@types/dompurify": "3.2.0",
     "@types/marked": "^6.0.0",
     "@types/sanitize-html": "^2.16.1",
@@ -43,5 +44,6 @@
     "eslint-plugin-sonarjs": "^4.0.3",
     "happy-dom": "^20.9.0",
     "vitest": "^4.1.4"
-  }
+  },
+  "packageManager": "yarn@4.14.1"
 }
