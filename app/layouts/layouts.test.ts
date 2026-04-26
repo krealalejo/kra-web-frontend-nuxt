@@ -102,6 +102,35 @@ describe('admin layout', () => {
     mockCookieValue.value = null
   })
 
+  it('opens mobile menu when hamburger button is clicked', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+  })
+
+  it('closes mobile menu when overlay is clicked', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+
+    await wrapper.find('.mobile-overlay').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+  })
+
   it('shows header but hides sidebar when not authenticated', async () => {
     mockCookieValue.value = null
     const wrapper = await mountSuspended(AdminLayout, {
