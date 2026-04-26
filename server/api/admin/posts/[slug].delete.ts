@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing slug parameter' })
   }
 
-  await $fetch(`${config.public.apiBase}/posts/${slug}`, {
+  await $fetch(`${config.apiBase}/posts/${slug}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   })

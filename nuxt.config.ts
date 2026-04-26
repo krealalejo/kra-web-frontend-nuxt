@@ -52,6 +52,7 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
+    apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
     cognitoClientSecret: process.env.NUXT_COGNITO_CLIENT_SECRET || '',
     s3BucketUrl: process.env.NUXT_S3_BUCKET_URL || process.env.NUXT_PUBLIC_S3_BUCKET_URL || '',
     public: {

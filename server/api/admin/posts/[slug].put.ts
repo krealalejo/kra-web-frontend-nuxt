@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  const response = await $fetch(`${config.public.apiBase}/posts/${slug}`, {
+  const response = await $fetch(`${config.apiBase}/posts/${slug}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
     body,
