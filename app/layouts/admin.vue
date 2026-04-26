@@ -106,6 +106,5 @@ const onLeave = (el: Element, done: () => void) => {
         </div>
       </main>
     </div>
-    <AdminNotificationContainer />
   </div>
 </template>

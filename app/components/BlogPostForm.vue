@@ -2,7 +2,6 @@
 import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
-import { useNotificationStore } from '~/stores/notifications'
 
 const props = defineProps<{
   open: boolean
@@ -15,7 +14,6 @@ const emit = defineEmits<{
 }>()
 
 const store = useBlogStore()
-const notifications = useNotificationStore()
 const { sanitizeMarkdown } = useMarkdown()
 const { slug, title, content, imageUrl, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
 const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
@@ -156,11 +154,6 @@ const onSubmit = handleSubmit(async (values) => {
         imageUrl: values.imageUrl
       })
     }
-    notifications.add({
-      type: 'success',
-      title: isEditMode.value ? 'Post updated' : 'Post created',
-      message: `"${values.title}" has been saved successfully.`
-    })
     emit('saved')
     emit('close')
   } catch (e: unknown) {
@@ -273,6 +266,7 @@ const onSubmit = handleSubmit(async (values) => {
                 <img :src="thumbUrl" class="w-full h-full object-cover" alt="Cover" />
                 <button
                   type="button"
+                  title="Remove image"
                   class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
                   @click="removeImage"
                 >
