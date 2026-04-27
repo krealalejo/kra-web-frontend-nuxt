@@ -46,40 +46,55 @@ function closeDeleteModal() {
 <template>
   <div>
     <!-- Page header -->
-    <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-xl font-semibold text-slate-900 dark:text-slate-100">Blog Posts</h1>
+    <div class="mb-12 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
+      <div>
+        <h1 class="t-h2">Blog Posts</h1>
+        <p class="t-label" style="font-size: 10px; margin-top: 4px">Manage your articles and updates</p>
+      </div>
       <button
         type="button"
-        class="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-200"
+        class="btn btn-primary"
         @click="openCreateModal"
       >
+        <Icon name="lucide:plus" class="w-4 h-4" />
         Create Post
       </button>
     </div>
 
     <!-- Loading state -->
-    <p v-if="store.loading" class="text-sm text-slate-600 dark:text-slate-400">Loading posts…</p>
+    <div v-if="store.loading" class="flex flex-col items-center justify-center py-20 gap-4">
+      <div class="w-8 h-8 rounded-full border-2 border-[var(--hairline)] border-t-[var(--accent)] animate-spin"></div>
+      <p class="t-label" style="font-size: 11px">Loading posts…</p>
+    </div>
 
     <!-- Error state -->
     <div
       v-else-if="store.error && !store.loading"
-      class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
+      class="mb-8 rounded-xl p-6 text-sm"
+      style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #ff4d4d"
     >
-      {{ store.error }}
+      <div class="flex items-center gap-3">
+        <Icon name="lucide:alert-circle" class="w-5 h-5" />
+        <span>{{ store.error }}</span>
+      </div>
     </div>
 
     <!-- Empty state -->
     <div
       v-else-if="!store.loading && store.posts.length === 0"
-      class="rounded border border-slate-200 bg-white px-6 py-12 text-center dark:border-slate-700 dark:bg-slate-900"
+      class="rounded-2xl px-6 py-20 text-center"
+      style="background:var(--bg-elev); border: 1px solid var(--hairline)"
     >
-      <p class="mb-1 text-base font-semibold text-slate-900 dark:text-slate-100">No blog posts yet</p>
-      <p class="mb-4 text-sm text-slate-700 dark:text-slate-300">
-        Create your first post to get started. Click the 'Create Post' button to begin.
+      <div class="w-16 h-16 rounded-full mx-auto mb-6 flex items-center justify-center" style="background:var(--overlay)">
+        <Icon name="lucide:file-text" class="w-8 h-8" style="color:var(--fg-faint)" />
+      </div>
+      <h3 class="t-h3" style="font-size: 24px; margin-bottom: 12px">No blog posts yet</h3>
+      <p class="t-body mx-auto mb-8" style="max-width: 32ch">
+        Create your first post to get started. Your articles will appear here once published.
       </p>
       <button
         type="button"
-        class="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        class="btn btn-primary"
         @click="openCreateModal"
       >
         Create Post

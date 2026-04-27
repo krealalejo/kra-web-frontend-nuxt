@@ -20,6 +20,7 @@ export const blogPostSchema = z.object({
     label: z.string().min(1, 'Label required'),
     url: z.string().url('Must be a valid URL'),
   })).optional(),
+  imageUrl: z.string().nullable().optional(),
 })
 
 export type CreateBlogPostFormData = z.infer<typeof blogPostSchema>
@@ -36,12 +37,14 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
       title: options.initialValues?.title ?? '',
       content: options.initialValues?.content ?? '',
       references: options.initialValues?.references ?? [],
+      imageUrl: options.initialValues?.imageUrl ?? null,
     },
   })
 
   const { value: slug, errorMessage: slugError } = useField<string>('slug')
   const { value: title, errorMessage: titleError } = useField<string>('title')
   const { value: content, errorMessage: contentError } = useField<string>('content')
+  const { value: imageUrl } = useField<string | null>('imageUrl')
 
   return {
     slug,
@@ -50,6 +53,7 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
     slugError,
     titleError,
     contentError,
+    imageUrl,
     isSubmitting: form.isSubmitting,
     handleSubmit: form.handleSubmit,
     resetForm: form.resetForm,

@@ -58,7 +58,7 @@ const onLeave = (el: Element, done: () => void) => {
 </script>
 
 <template>
-  <div class="flex h-screen overflow-hidden bg-slate-50 font-sans text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <div class="flex h-screen overflow-hidden font-sans" style="background:var(--bg); color:var(--fg)">
     <AdminSidebar v-if="isAuthenticated" class="hidden md:flex flex-shrink-0" />
 
     <Transition
@@ -68,7 +68,7 @@ const onLeave = (el: Element, done: () => void) => {
       :css="false"
     >
       <div v-if="isMobileMenuOpen && isAuthenticated" class="fixed inset-0 z-50 flex md:hidden">
-        <div class="mobile-overlay fixed inset-0 bg-slate-900/80 backdrop-blur-sm" @click="isMobileMenuOpen = false"></div>
+        <div class="mobile-overlay fixed inset-0 backdrop-blur-sm" style="background:color-mix(in srgb, var(--bg) 80%, transparent)" @click="isMobileMenuOpen = false"></div>
         <div class="mobile-sidebar relative flex">
           <AdminSidebar @click="isMobileMenuOpen = false" />
         </div>
@@ -77,7 +77,8 @@ const onLeave = (el: Element, done: () => void) => {
 
     <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
       <header
-        class="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 md:px-6 py-4 dark:border-slate-800 dark:bg-slate-900"
+        class="sticky top-0 z-40 px-4 md:px-6 py-4"
+        style="backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); background:color-mix(in srgb, var(--bg) 80%, transparent); border-bottom: 1px solid var(--hairline)"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
@@ -89,17 +90,18 @@ const onLeave = (el: Element, done: () => void) => {
               <Icon name="lucide:menu" class="h-6 w-6" />
             </button>
             <NuxtLink to="/admin" class="flex items-center gap-2">
-              <span class="text-base font-semibold text-slate-900 dark:text-slate-100">KRA Admin</span>
+              <span class="text-base font-semibold" style="font-family:var(--font-display); letter-spacing:-0.01em">KRA Admin</span>
             </NuxtLink>
           </div>
 
           <div class="flex items-center gap-3 md:gap-4">
             <template v-if="isAuthenticated">
-              <span class="hidden sm:inline text-sm text-slate-700 dark:text-slate-300">{{ userEmail }}</span>
+              <span class="hidden sm:inline text-sm" style="color:var(--fg-muted); font-family:var(--font-mono)">{{ userEmail }}</span>
               <ThemeToggle />
               <button
                 type="button"
-                class="rounded px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200 dark:text-red-400 dark:hover:bg-red-950"
+                class="btn btn-ghost"
+                style="padding: 6px 14px; color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2)"
                 @click="logout"
               >
                 Logout

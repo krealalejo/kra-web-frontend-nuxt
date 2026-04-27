@@ -149,8 +149,8 @@ const onLeave = (el: Element, done: () => void) => {
           </div>
         </div>
         <div class="kra-footer-bottom">
-          <span>© 2026 Kevin Real Alejo · All systems operational</span>
-          <span>v3.0 · Madrid, ES · 40.41°N 3.70°W</span>
+          <span>© 2026 Kevin Real Alejo · All systems operational</span> <!-- TODO: UPDATE LATER WITH REAL STATUS -->
+          <span>v3.0 · Barcelona, ES · 40.41°N 3.70°W</span>
         </div>
       </div>
     </footer>
