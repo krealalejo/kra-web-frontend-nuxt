@@ -11,6 +11,34 @@ useSeoMeta({
   ogDescription: 'Experience, skills, and education of Kevin Real Alejo, full-stack engineer.'
 })
 
+const config = useRuntimeConfig()
+
+// Fetch portrait URL from API
+const { data: profileData } = useAsyncData(
+  'cv-profile',
+  async () => {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) return null
+    try {
+      return await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null }>(
+        `${apiBase}/config/profile`
+      )
+    } catch {
+      return null
+    }
+  },
+  { lazy: true }
+)
+
+const cvPortraitThumbUrl = computed(() => {
+  const key = profileData.value?.cvPortraitUrl
+  if (!key) return null
+  const thumbKey = key
+    .replace(/^images\//, 'thumbnails/')
+    .replace(/\.[^.]+$/, '-thumb.webp')
+  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
+})
+
 onMounted(() => {
   gsap.fromTo('.cv-head h1',  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.cv-head .role', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
@@ -34,7 +62,15 @@ onMounted(() => {
         <div class="hero-portrait" style="aspect-ratio:3/4;">
           <span class="corner tl" /><span class="corner tr" />
           <span class="corner bl" /><span class="corner br" />
-          <div class="ph-center">
+          <!-- Real portrait when available -->
+          <img
+            v-if="cvPortraitThumbUrl"
+            :src="cvPortraitThumbUrl"
+            alt="Kevin Real Alejo"
+            style="width:100%;height:100%;object-fit:cover;display:block;"
+          />
+          <!-- Placeholder when no portrait configured -->
+          <div v-else class="ph-center">
             <svg width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
               <circle cx="22" cy="17" r="7" />
               <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
