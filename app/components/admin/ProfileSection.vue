@@ -38,8 +38,13 @@ onMounted(async () => {
     )
     homePortraitKey.value = profile.homePortraitUrl ?? null
     cvPortraitKey.value = profile.cvPortraitUrl ?? null
-  } catch {
-    // Silently ignore — no portraits configured yet
+  } catch (e: unknown) {
+    // A 404 means no portraits are configured yet — safe to ignore.
+    // Any other error (auth failure, network error, etc.) surfaces to the admin.
+    const status = (e as any)?.response?.status ?? (e as any)?.statusCode
+    if (status !== 404) {
+      homePortraitError.value = 'Failed to load current portraits'
+    }
   }
 })
 
