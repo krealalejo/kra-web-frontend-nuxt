@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing id parameter' })
   }
 
-  await $fetch(`${config.public.apiBase}/cv/education/${id}`, {
+  await $fetch(`${config.apiBase}/cv/education/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   })
