@@ -43,6 +43,9 @@ onMounted(async () => {
   }
 })
 
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
+
 // Upload handler (shared logic for both portrait types)
 async function uploadPortrait(
   file: File,
@@ -51,6 +54,15 @@ async function uploadPortrait(
   errorRef: Ref<string | null>,
   keyRef: Ref<string | null>
 ) {
+  if (!ALLOWED_TYPES.includes(file.type)) {
+    errorRef.value = 'Only JPEG, PNG, or WebP images are allowed'
+    return
+  }
+  if (file.size > MAX_BYTES) {
+    errorRef.value = 'Image must be smaller than 5 MB'
+    return
+  }
+
   uploadingRef.value = true
   errorRef.value = null
 
