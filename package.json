@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "test": "vitest run --coverage",
+    "test": "mkdir -p coverage/.tmp && vitest run --coverage",
     "test:watch": "vitest"
   },
   "dependencies": {
