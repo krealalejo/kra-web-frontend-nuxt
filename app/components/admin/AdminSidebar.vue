@@ -6,6 +6,7 @@ const userEmail = computed(() => userCookie.value || 'Admin')
 
 const navigation = [
   { name: 'Profile', href: '/admin/profile', icon: 'heroicons:user-circle-20-solid' },
+  { name: 'Activity', href: '/admin/activity', icon: 'heroicons:signal-20-solid' },
   { name: 'Blog Posts', href: '/admin', icon: 'heroicons:document-text-20-solid' },
   { name: 'Code Quality', href: '/admin/quality', icon: 'heroicons:chart-bar-20-solid' },
 ]

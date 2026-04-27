@@ -53,7 +53,7 @@ const featuredProjects = computed(() => {
 
 const heroRef = ref<HTMLElement | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
   gsap.registerPlugin(ScrollTrigger)
 
   const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
@@ -80,6 +80,16 @@ onMounted(() => {
         scrollTrigger: { trigger: el, start: 'top 88%' } }
     )
   })
+
+  // Fetch activity cards from API (fail silently on public page)
+  try {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    activityCards.value = await $fetch<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>(
+      `${apiBase}/activity`
+    )
+  } catch {
+    // Fail silently — no error shown to visitor
+  }
 })
 
 watch(pending, (isPending) => {
@@ -95,6 +105,18 @@ watch(pending, (isPending) => {
     })
   }
 })
+
+// Activity cards — fetched client-side (public endpoint, no auth needed)
+const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>([])
+
+function overlineLabel(type: string): string {
+  const labels: Record<string, string> = {
+    SHIPPING: 'Now shipping',
+    READING: 'Currently reading',
+    PLAYING: 'Playing with',
+  }
+  return labels[type] ?? type
+}
 
 const stackItems = ['Spring Boot 3', 'Nuxt 4', 'Java 21', 'TypeScript', 'AWS', 'Terraform', 'DynamoDB', 'GSAP', 'DDD']
 const marqueeItems = ['Clean Architecture', 'Domain-Driven Design', 'Java · Spring Boot', 'AWS · Terraform', 'Nuxt · Vue 3', 'Event-driven systems', 'Infrastructure as Code']
@@ -236,22 +258,25 @@ function projectNum(i: number) {
         >
           <AppGithubContributions />
           <div style="display:flex;flex-direction:column;gap:16px;">
-            <div class="activity-card">
-              <div class="t-overline" style="margin-bottom:14px;">Now shipping</div>
-              <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">kra-api v1.2</div>
-              <div style="font-size:13px;color:var(--fg-muted);">Migration to DynamoDB Enhanced Client · JWT resource server hardening · webhook ingestion for GitHub.</div>
-            </div>
-            <div class="activity-card">
-              <div class="t-overline" style="margin-bottom:14px;">Currently reading</div>
-              <div style="font-family:var(--font-display);font-size:20px;letter-spacing:-0.02em;margin-bottom:6px;font-weight:500;">Team Topologies</div>
-              <div style="font-size:13px;color:var(--fg-muted);">Skelton & Pais · organising business and technology teams for fast flow.</div>
-            </div>
-            <div class="activity-card">
-              <div class="t-overline" style="margin-bottom:14px;">Playing with</div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <span v-for="t in ['Kotlin', 'Temporal', 'htmx', 'Rust (slowly)']" :key="t" class="chip">{{ t }}</span>
+            <template v-for="card in activityCards" :key="card.type">
+              <div
+                v-if="card.type !== 'PLAYING'
+                  ? (card.title || card.description)
+                  : (card.tags && card.tags.length)"
+                class="activity-card"
+              >
+                <div class="t-overline" style="margin-bottom:14px;">{{ overlineLabel(card.type) }}</div>
+                <template v-if="card.type !== 'PLAYING'">
+                  <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
+                  <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
+                </template>
+                <template v-else>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <span v-for="t in card.tags" :key="t" class="chip">{{ t }}</span>
+                  </div>
+                </template>
               </div>
-            </div>
+            </template>
           </div>
         </div>
       </div>
