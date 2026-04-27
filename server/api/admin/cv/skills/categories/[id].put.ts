@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     ...(body.skills !== undefined && { skills: body.skills }),
   }
 
-  const response = await $fetch(`${config.public.apiBase}/cv/skills/categories/${id}`, {
+  const response = await $fetch(`${config.apiBase}/cv/skills/categories/${id}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
     body: safeBody,

@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
   }
 
-  const response = await $fetch(`${config.public.apiBase}/cv/skills/categories`, {
+  const response = await $fetch(`${config.apiBase}/cv/skills/categories`, {
     headers: { Authorization: `Bearer ${token}` },
   })
 
