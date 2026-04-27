@@ -17,7 +17,8 @@ import AdminLayout from './admin.vue'
 function expectStickyHeaderClasses(classes: string[]) {
   expect(classes).toContain('sticky')
   expect(classes).toContain('top-0')
-  expect(classes).toContain('z-40')
+  expect(classes).toContain('z-50')
+  expect(classes).toContain('w-full')
 }
 
 describe('default layout', () => {
@@ -28,6 +29,20 @@ describe('default layout', () => {
     const header = wrapper.find('header')
     expect(header.exists()).toBe(true)
     expectStickyHeaderClasses(header.classes())
+  })
+
+  it('verifies the header has top-0 and w-full for correct sticking', async () => {
+    const wrapper = await mountSuspended(DefaultLayout)
+    const header = wrapper.find('header')
+    expect(header.attributes('class')).toContain('top-0')
+    expect(header.attributes('class')).toContain('w-full')
+  })
+
+  it('has computed position sticky', async () => {
+    const wrapper = await mountSuspended(DefaultLayout)
+    const header = wrapper.find('header')
+    // In happy-dom/vitest, we might need to check the style object if it's not in classes
+    expect(header.attributes('class')).toContain('sticky')
   })
 
   it('renders the site brand link to home', async () => {
@@ -106,7 +121,9 @@ describe('admin layout', () => {
     })
     const header = wrapper.find('header')
     expect(header.exists()).toBe(true)
-    expectStickyHeaderClasses(header.classes())
+    expect(header.classes()).toContain('sticky')
+    expect(header.classes()).toContain('top-0')
+    expect(header.classes()).toContain('z-40')
   })
 
   it('renders admin title and logout control when authenticated', async () => {

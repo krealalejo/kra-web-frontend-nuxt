@@ -43,8 +43,8 @@ const onLeave = (el: Element, done: () => void) => {
 </script>
 
 <template>
-  <div>
-    <header class="sticky top-0 z-40 kra-nav">
+  <div class="min-h-screen relative"> <!-- TODO: FIX THIS -->
+    <header class="sticky top-0 z-50 w-full kra-nav">
       <div class="shell kra-nav-inner">
         <NuxtLink to="/" class="kra-nav-logo">
           <span class="dot" />
