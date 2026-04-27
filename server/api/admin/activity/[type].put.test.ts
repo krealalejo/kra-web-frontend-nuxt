@@ -4,7 +4,7 @@ vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('readBody', vi.fn())
 vi.stubGlobal('getRouterParam', vi.fn((_event, param) => param === 'type' ? 'SHIPPING' : ''))
-vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ public: { apiBase: 'http://localhost:3001' } }))
+vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ apiBase: 'http://localhost:3001', public: { apiBase: 'http://localhost:3001' } }))
 vi.stubGlobal('$fetch', vi.fn())
 vi.stubGlobal('createError', (opts: { statusCode: number; statusMessage: string }) => {
   const err = new Error(opts.statusMessage) as any

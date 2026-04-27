@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     ...(body.tags !== undefined && { tags: body.tags }),
   }
 
-  const response = await $fetch(`${config.public.apiBase}/activity/${type}`, {
+  const response = await $fetch(`${config.apiBase}/activity/${type}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
     body: safeBody,
