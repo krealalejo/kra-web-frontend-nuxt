@@ -6,16 +6,16 @@ import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
 const config = useRuntimeConfig()
 const filter = ref('all')
 
-const { data: projects, error } = await useAsyncData('all-portfolio-repos', async () => {
+const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', async () => {
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-})
+}, { lazy: true })
 
 const kinds = ['all', 'frontend', 'backend', 'serverless']
 
 const filtered = computed(() => {
-  if (!projects.value) return []
+  if (!projects?.value) return []
   if (filter.value === 'all') return projects.value
   return projects.value.filter(r => r.topics?.includes(filter.value))
 })
@@ -43,6 +43,14 @@ onMounted(() => {
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
   gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.3, stagger: 0.08 })
+})
+
+watch(pending, (isPending) => {
+  if (!isPending) {
+    nextTick(() => {
+      gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
+    })
+  }
 })
 
 const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
@@ -80,6 +88,10 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
     <section class="shell" style="padding-bottom:80px;">
       <div v-if="error" role="alert" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
         API unavailable — set NUXT_PUBLIC_API_BASE_URL.
+      </div>
+
+      <div v-else-if="pending" class="proj-grid">
+        <SkeletonProjectCard v-for="i in 6" :key="i" />
       </div>
 
       <div v-else-if="!filtered.length" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">

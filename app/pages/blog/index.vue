@@ -4,17 +4,16 @@ import gsap from 'gsap'
 
 const config = useRuntimeConfig()
 
-const { data: posts, error } = await useAsyncData('blog-list', async () => {
+const { data: posts, error, pending } = useAsyncData('blog-list', async () => {
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<BlogPostDto[]>(`${apiBase}/posts`)
-})
+}, { lazy: true })
 
 function formatDate(iso: string) {
-  try {
-    const d = new Date(iso)
-    return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
-  } catch { return iso }
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return iso
+  return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
 }
 
 function postNum(i: number) { return String(i + 1).padStart(2, '0') }
@@ -23,6 +22,14 @@ onMounted(() => {
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08 })
+})
+
+watch(pending, (isPending) => {
+  if (!isPending) {
+    nextTick(() => {
+      gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
+    })
+  }
 })
 
 useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and essays on architecture, tooling, and shipping software.' })
@@ -42,9 +49,15 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
       <div v-if="error" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
         API unavailable — set NUXT_PUBLIC_API_BASE_URL.
       </div>
+
+      <div v-else-if="pending" class="blog-list">
+        <SkeletonBlogRow v-for="i in 5" :key="i" />
+      </div>
+
       <div v-else-if="!posts?.length" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
         No posts yet.
       </div>
+
       <div v-else class="blog-list">
         <NuxtLink
           v-for="(post, i) in posts"

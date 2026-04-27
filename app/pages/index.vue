@@ -5,17 +5,18 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 const config = useRuntimeConfig()
 
-const { data: projects, error } = await useAsyncData(
+const { data: projects, error, pending } = useAsyncData(
   'home-portfolio-repos',
   async () => {
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
     if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-  }
+  },
+  { lazy: true }
 )
 
 const featuredProjects = computed(() => {
-  if (!projects.value) return []
+  if (!projects?.value) return []
   const featured = projects.value.filter(r => r.topics?.includes('featured'))
   const rest = projects.value.filter(r => !r.topics?.includes('featured'))
   return [...featured, ...rest].slice(0, 4)
@@ -50,14 +51,20 @@ onMounted(() => {
         scrollTrigger: { trigger: el, start: 'top 88%' } }
     )
   })
+})
 
-  gsap.utils.toArray<HTMLElement>('.proj-row').forEach((el, i) => {
-    gsap.fromTo(el,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.7, delay: i * 0.06,
-        scrollTrigger: { trigger: el, start: 'top 92%' } }
-    )
-  })
+watch(pending, (isPending) => {
+  if (!isPending) {
+    nextTick(() => {
+      gsap.utils.toArray<HTMLElement>('.proj-row').forEach((el, i) => {
+        gsap.fromTo(el,
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.7, delay: i * 0.06,
+            scrollTrigger: { trigger: el, start: 'top 92%' } }
+        )
+      })
+    })
+  }
 })
 
 const stackItems = ['Spring Boot 3', 'Nuxt 4', 'Java 21', 'TypeScript', 'AWS', 'Terraform', 'DynamoDB', 'GSAP', 'DDD']
@@ -65,13 +72,6 @@ const marqueeItems = ['Clean Architecture', 'Domain-Driven Design', 'Java · Spr
 
 function projectNum(i: number) {
   return String(i + 1).padStart(2, '0')
-}
-
-function projectKind(repo: PortfolioRepoDto) {
-  if (repo.topics?.includes('backend')) return 'Backend'
-  if (repo.topics?.includes('frontend')) return 'Frontend'
-  if (repo.topics?.includes('serverless')) return 'Serverless'
-  return 'Code'
 }
 </script>
 
@@ -143,25 +143,30 @@ function projectKind(repo: PortfolioRepoDto) {
         </div>
 
         <div class="proj-list">
-          <NuxtLink
-            v-for="(repo, i) in featuredProjects"
-            :key="repo.fullName"
-            :to="`/projects/${repo.owner}/${repo.name}`"
-            class="proj-row"
-          >
-            <span class="num">{{ projectNum(i) }}</span>
-            <span class="name">{{ repo.name }}</span>
-            <p class="desc">{{ repo.description || '—' }}</p>
-            <div class="tags">
-              <span v-for="t in (repo.topics || []).slice(0, 3)" :key="t" class="tag">{{ t }}</span>
-            </div>
-            <span class="cta">
-              View
-              <svg class="arrow-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M2 10L10 2M10 2H4M10 2v6"/>
-              </svg>
-            </span>
-          </NuxtLink>
+          <template v-if="pending">
+            <SkeletonProjectRow v-for="i in 4" :key="i" />
+          </template>
+          <template v-else>
+            <NuxtLink
+              v-for="(repo, i) in featuredProjects"
+              :key="repo.fullName"
+              :to="`/projects/${repo.owner}/${repo.name}`"
+              class="proj-row"
+            >
+              <span class="num">{{ projectNum(i) }}</span>
+              <span class="name">{{ repo.name }}</span>
+              <p class="desc">{{ repo.description || '—' }}</p>
+              <div class="tags">
+                <span v-for="t in (repo.topics || []).slice(0, 3)" :key="t" class="tag">{{ t }}</span>
+              </div>
+              <span class="cta">
+                View
+                <svg class="arrow-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M2 10L10 2M10 2H4M10 2v6"/>
+                </svg>
+              </span>
+            </NuxtLink>
+          </template>
         </div>
 
         <!-- Error / empty state -->
