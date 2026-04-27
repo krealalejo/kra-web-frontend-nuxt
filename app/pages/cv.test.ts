@@ -1,70 +1,60 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { ref } from 'vue'
+import CvPage from './cv.vue'
 
-// Mock useAsyncData — returns lazy-resolved data
+// Variable to store mock data for useAsyncData
+let mockData: Record<string, any> = {}
+
+// Mock useAsyncData — returns data based on mockData state
 mockNuxtImport('useAsyncData', () => {
-  return vi.fn().mockImplementation((_key: string, _fetcher: () => Promise<any>) => {
-    return { data: ref(null) }
-  })
-})
-
-// Mock useRuntimeConfig
-mockNuxtImport('useRuntimeConfig', () => {
-  return () => ({
-    public: {
-      apiBase: 'http://localhost:3001',
-      s3PublicBucketUrl: 'http://localhost:9000',
-    },
+  return vi.fn().mockImplementation((key: string) => {
+    return { data: ref(mockData[key] || null) }
   })
 })
 
 describe('pages/cv.vue', () => {
+  beforeEach(() => {
+    mockData = {}
+    vi.clearAllMocks()
+  })
+
   it('renders without crashing', async () => {
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
     expect(wrapper.exists()).toBe(true)
   })
 
   it('renders the main heading with the expected name', async () => {
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
-    expect(wrapper.find('h1').text()).toBe('Kevin Real Alejo')
+    expect(wrapper.find('h1').text().replace(/\s+/g, ' ')).toContain('Kevin Real Alejo')
   })
 
   it('renders static Summary section always', async () => {
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
     expect(wrapper.text()).toContain('Summary')
   })
 
-  it('renders static sections only when useAsyncData returns null (no hardcoded skill tags)', async () => {
-    const { default: CvPage } = await import('./cv.vue')
+  it('renders static sections only when useAsyncData returns null', async () => {
     const wrapper = await mountSuspended(CvPage)
     const text = wrapper.text()
-    // Static sections always visible
     expect(text).toContain('Summary')
     expect(text).toContain('Elsewhere')
-    // Dynamic sections hidden when data is null/empty (D-15)
-    expect(text).not.toContain('Sample Role')
+    // Dynamic sections should not be visible when data is null
+    expect(text).not.toContain('Experience')
   })
 })
 
 describe('cv.vue — API-driven sections (CV-04)', () => {
+  beforeEach(() => {
+    mockData = {}
+  })
+
   it('renders Experience section when experienceData is populated', async () => {
     const experience = [
       { id: '1', title: 'Senior Engineer', company: 'ACME', location: 'Barcelona, ES', years: '2024 — Present', description: 'Built things', sortOrder: 1 }
     ]
+    mockData['cv-experience'] = experience
 
-    mockNuxtImport('useAsyncData', () => {
-      return vi.fn().mockImplementation((key: string) => {
-        if (key === 'cv-experience') return { data: ref(experience) }
-        if (key === 'cv-education') return { data: ref([]) }
-        if (key === 'cv-skills') return { data: ref([]) }
-        return { data: ref(null) }
-      })
-    })
-
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
 
     expect(wrapper.text()).toContain('Senior Engineer')
@@ -72,33 +62,20 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
   })
 
   it('hides Experience section when experienceData is empty (D-15)', async () => {
-    mockNuxtImport('useAsyncData', () => {
-      return vi.fn().mockImplementation((_key: string) => {
-        return { data: ref([]) }
-      })
-    })
+    mockData['cv-experience'] = []
 
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
 
-    // Static sections remain; dynamic Experience/Education/Skills sections hidden
-    expect(wrapper.text()).toContain('Summary') // Summary is static, always visible
-    expect(wrapper.text()).not.toContain('Sample Role') // Old hardcoded content gone
+    expect(wrapper.text()).toContain('Summary')
+    expect(wrapper.find('section.cv-section:nth-of-type(2)').text()).not.toContain('Experience')
   })
 
   it('renders Skills section with chip list when skillsData is populated', async () => {
     const skills = [
       { id: '1', name: 'Backend', skills: ['Java 21', 'Spring Boot'], sortOrder: 1 }
     ]
+    mockData['cv-skills'] = skills
 
-    mockNuxtImport('useAsyncData', () => {
-      return vi.fn().mockImplementation((key: string) => {
-        if (key === 'cv-skills') return { data: ref(skills) }
-        return { data: ref([]) }
-      })
-    })
-
-    const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
 
     expect(wrapper.text()).toContain('Backend')

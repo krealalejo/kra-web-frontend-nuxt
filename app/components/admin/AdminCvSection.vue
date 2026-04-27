@@ -27,9 +27,8 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 
 // --- Per-operation saving/error state ---
-const modalSaving = ref(false)
-const modalError = ref<string | null>(null)
 const deletingId = ref<string | null>(null)
+const deletingCategoryId = ref<string | null>(null)
 
 // Per-category saving state for Skills tab
 const categorySaving = reactive<Record<string, boolean>>({})
@@ -40,6 +39,8 @@ const expModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
   data: { id: '', title: '', company: '', location: '', years: '', description: '' },
+  saving: false,
+  error: null as string | null,
 })
 
 // --- Education modal (D-04) ---
@@ -47,6 +48,8 @@ const eduModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
   data: { id: '', title: '', institution: '', location: '', years: '', description: '' },
+  saving: false,
+  error: null as string | null,
 })
 
 // --- Skills: per-category local chip state ---
@@ -61,17 +64,15 @@ const addCategorySaving = ref(false)
 const addCategoryError = ref<string | null>(null)
 
 // --- onMounted: fetch all three CV sections ---
-const config = useRuntimeConfig()
-
 onMounted(async () => {
   loading.value = true
   error.value = null
   try {
-    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    // Route reads through BFF so auth middleware covers reads as well as writes
     const [exp, edu, skills] = await Promise.all([
-      $fetch<ExperienceEntry[]>(`${apiBase}/cv/experience`),
-      $fetch<EducationEntry[]>(`${apiBase}/cv/education`),
-      $fetch<SkillCategory[]>(`${apiBase}/cv/skills/categories`),
+      $fetch<ExperienceEntry[]>('/api/admin/cv/experience'),
+      $fetch<EducationEntry[]>('/api/admin/cv/education'),
+      $fetch<SkillCategory[]>('/api/admin/cv/skills/categories'),
     ])
     experience.value = exp
     education.value = edu
@@ -94,19 +95,19 @@ function openAddExpModal() {
   expModal.mode = 'add'
   expModal.data = { id: '', title: '', company: '', location: '', years: '', description: '' }
   expModal.open = true
-  modalError.value = null
+  expModal.error = null
 }
 
 function openEditExpModal(item: ExperienceEntry) {
   expModal.mode = 'edit'
   expModal.data = { ...item }
   expModal.open = true
-  modalError.value = null
+  expModal.error = null
 }
 
 async function saveExpModal() {
-  modalSaving.value = true
-  modalError.value = null
+  expModal.saving = true
+  expModal.error = null
   try {
     if (expModal.mode === 'add') {
       // D-07: auto-compute sortOrder
@@ -133,14 +134,14 @@ async function saveExpModal() {
     }
     expModal.open = false
   } catch (e: unknown) {
-    modalError.value = e instanceof Error ? e.message : 'Save failed'
+    expModal.error = e instanceof Error ? e.message : 'Save failed'
   } finally {
-    modalSaving.value = false
+    expModal.saving = false
   }
 }
 
 async function deleteExp(id: string) {
-  if (!window.confirm('Delete this experience entry?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this experience entry?')) return  // D-06
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/experience/${id}`, { method: 'DELETE' })
@@ -159,19 +160,19 @@ function openAddEduModal() {
   eduModal.mode = 'add'
   eduModal.data = { id: '', title: '', institution: '', location: '', years: '', description: '' }
   eduModal.open = true
-  modalError.value = null
+  eduModal.error = null
 }
 
 function openEditEduModal(item: EducationEntry) {
   eduModal.mode = 'edit'
   eduModal.data = { ...item }
   eduModal.open = true
-  modalError.value = null
+  eduModal.error = null
 }
 
 async function saveEduModal() {
-  modalSaving.value = true
-  modalError.value = null
+  eduModal.saving = true
+  eduModal.error = null
   try {
     if (eduModal.mode === 'add') {
       const nextSortOrder = Math.max(0, ...education.value.map(i => i.sortOrder)) + 1
@@ -196,14 +197,14 @@ async function saveEduModal() {
     }
     eduModal.open = false
   } catch (e: unknown) {
-    modalError.value = e instanceof Error ? e.message : 'Save failed'
+    eduModal.error = e instanceof Error ? e.message : 'Save failed'
   } finally {
-    modalSaving.value = false
+    eduModal.saving = false
   }
 }
 
 async function deleteEdu(id: string) {
-  if (!window.confirm('Delete this education entry?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this education entry?')) return  // D-06
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/education/${id}`, { method: 'DELETE' })
@@ -220,7 +221,9 @@ async function deleteEdu(id: string) {
 
 function addSkill(catId: string) {
   const trimmed = (categoryNewSkill[catId] ?? '').trim()
-  if (trimmed && !categorySkills[catId].includes(trimmed)) {
+  if (!trimmed) return
+  if (!categorySkills[catId]) categorySkills[catId] = []
+  if (!categorySkills[catId].includes(trimmed)) {
     categorySkills[catId].push(trimmed)
     categoryNewSkill[catId] = ''
   }
@@ -250,7 +253,8 @@ async function saveCategory(catId: string) {
 }
 
 async function deleteCategory(id: string) {
-  if (!window.confirm('Delete this skill category?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this skill category?')) return  // D-06
+  deletingCategoryId.value = id
   try {
     await $fetch(`/api/admin/cv/skills/categories/${id}`, { method: 'DELETE' })
     const idx = skillCategories.value.findIndex(c => c.id === id)
@@ -261,6 +265,8 @@ async function deleteCategory(id: string) {
     }
   } catch (e: unknown) {
     error.value = e instanceof Error ? e.message : 'Delete failed'
+  } finally {
+    deletingCategoryId.value = null
   }
 }
 
@@ -425,6 +431,7 @@ async function submitAddCategory() {
             <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
             <button
               style="background: none; border: none; cursor: pointer; color: #ff4d4d; font-size: 14px; padding: 0;"
+              :disabled="deletingCategoryId === cat.id"
               @click="deleteCategory(cat.id)"
               title="Delete category"
             >✕</button>
@@ -573,8 +580,8 @@ async function submitAddCategory() {
         </div>
 
         <!-- Modal error banner -->
-        <div v-if="modalError" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
-          {{ modalError }}
+        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+          {{ expModal.error }}
         </div>
 
         <!-- Modal footer -->
@@ -585,12 +592,12 @@ async function submitAddCategory() {
             @click="expModal.open = false"
           >Cancel</button>
           <button
-            :disabled="modalSaving"
+            :disabled="expModal.saving"
             class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
             style="background:var(--accent);color:var(--bg)"
-            :style="modalSaving ? 'opacity:0.5' : ''"
+            :style="expModal.saving ? 'opacity:0.5' : ''"
             @click="saveExpModal"
-          >{{ modalSaving ? 'Saving…' : 'Save' }}</button>
+          >{{ expModal.saving ? 'Saving…' : 'Save' }}</button>
         </div>
       </div>
     </div>
@@ -654,8 +661,8 @@ async function submitAddCategory() {
         </div>
 
         <!-- Modal error banner -->
-        <div v-if="modalError" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
-          {{ modalError }}
+        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+          {{ eduModal.error }}
         </div>
 
         <!-- Modal footer -->
@@ -666,12 +673,12 @@ async function submitAddCategory() {
             @click="eduModal.open = false"
           >Cancel</button>
           <button
-            :disabled="modalSaving"
+            :disabled="eduModal.saving"
             class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
             style="background:var(--accent);color:var(--bg)"
-            :style="modalSaving ? 'opacity:0.5' : ''"
+            :style="eduModal.saving ? 'opacity:0.5' : ''"
             @click="saveEduModal"
-          >{{ modalSaving ? 'Saving…' : 'Save' }}</button>
+          >{{ eduModal.saving ? 'Saving…' : 'Save' }}</button>
         </div>
       </div>
     </div>
