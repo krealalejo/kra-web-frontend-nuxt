@@ -45,9 +45,6 @@ function closeDeleteModal() {
 
 <template>
   <div>
-    <!-- Profile portraits -->
-    <ProfileSection />
-
     <!-- Page header -->
     <div class="mb-12 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
       <div>

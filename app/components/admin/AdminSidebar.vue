@@ -1,10 +1,21 @@
 <script setup lang="ts">
 const route = useRoute()
 
+const userCookie = useCookie('kra_user')
+const userEmail = computed(() => userCookie.value || 'Admin')
+
 const navigation = [
+  { name: 'Profile', href: '/admin/profile', icon: 'heroicons:user-circle-20-solid' },
   { name: 'Blog Posts', href: '/admin', icon: 'heroicons:document-text-20-solid' },
   { name: 'Code Quality', href: '/admin/quality', icon: 'heroicons:chart-bar-20-solid' },
 ]
+
+async function logout() {
+  await $fetch('/api/auth/logout', { method: 'POST' })
+    .catch(() => {})
+  userCookie.value = null
+  await navigateTo('/admin/login')
+}
 
 function isLinkActive(href: string) {
   if (href === '/admin') {
@@ -45,8 +56,28 @@ function isLinkActive(href: string) {
       </NuxtLink>
     </nav>
 
-    <div class="p-6" style="border-top: 1px solid var(--hairline)">
-      <div class="flex items-center gap-3 text-[10px] font-medium uppercase tracking-widest" style="color:var(--fg-muted); font-family:var(--font-mono)">
+    <!-- User Profile Section -->
+    <div class="p-4 space-y-4" style="border-top: 1px solid var(--hairline)">
+      <div class="flex items-center gap-3 px-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] font-bold text-xs">
+          {{ userEmail.charAt(0).toUpperCase() }}
+        </div>
+        <div class="flex flex-1 flex-col min-w-0">
+          <span class="truncate text-xs font-medium" style="color:var(--fg)">{{ userEmail }}</span>
+          <span class="text-[9px] uppercase tracking-tighter" style="color:var(--fg-muted); font-family:var(--font-mono)">Administrator</span>
+        </div>
+      </div>
+
+      <button
+        @click="logout"
+        class="flex w-full items-center gap-3 rounded-lg px-4 py-2 text-xs font-medium transition-all duration-200 hover:bg-[var(--overlay)]"
+        style="color: #ff4d4d"
+      >
+        <Icon name="heroicons:arrow-left-on-rectangle-20-solid" class="h-4 w-4" />
+        Logout
+      </button>
+
+      <div class="flex items-center gap-3 px-2 text-[9px] font-medium uppercase tracking-widest" style="color:var(--fg-muted); font-family:var(--font-mono)">
         System: <span style="color:var(--accent); display:flex; align-items:center; gap:6px">
           <span class="w-1.5 h-1.5 rounded-full" style="background:var(--accent); box-shadow:0 0 8px var(--accent)"></span>
           Operational

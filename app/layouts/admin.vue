@@ -6,20 +6,12 @@ import gsap from 'gsap'
 const userCookie = useCookie('kra_user')
 
 const isAuthenticated = computed(() => !!userCookie.value)
-const userEmail = computed(() => userCookie.value || 'Admin')
 const isMobileMenuOpen = ref(false)
 const route = useRoute()
 
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })
-
-async function logout() {
-  await $fetch('/api/auth/logout', { method: 'POST' })
-    .catch(() => {})
-  userCookie.value = null
-  await navigateTo('/admin/login')
-}
 
 const onBeforeEnter = (el: Element) => {
   const sidebar = el.querySelector('.mobile-sidebar')
@@ -95,20 +87,8 @@ const onLeave = (el: Element, done: () => void) => {
           </div>
 
           <div class="flex items-center gap-3 md:gap-4">
-            <template v-if="isAuthenticated">
-              <span class="hidden sm:inline text-sm" style="color:var(--fg-muted); font-family:var(--font-mono)">{{ userEmail }}</span>
-              <ThemeToggle />
-              <button
-                type="button"
-                class="btn btn-ghost"
-                style="padding: 6px 14px; color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2)"
-                @click="logout"
-              >
-                Logout
-              </button>
-            </template>
-            <template v-else>
-              <ThemeToggle />
+            <ThemeToggle />
+            <template v-if="!isAuthenticated">
               <NuxtLink
                 to="/"
                 class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
