@@ -3,9 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({
   s3BucketUrl: 'https://test-bucket.s3.amazonaws.com',
-  public: {
-    apiBase: 'http://localhost:8080/api'
-  }
+  apiBase: 'http://localhost:8080/api', public: { apiBase: 'http://localhost:8080/api' }
 })))
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('getQuery', vi.fn())

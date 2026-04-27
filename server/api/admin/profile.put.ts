@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     ...(body.cvPortraitUrl !== undefined && { cvPortraitUrl: body.cvPortraitUrl }),
   }
 
-  const response = await $fetch(`${config.public.apiBase}/config/profile`, {
+  const response = await $fetch(`${config.apiBase}/config/profile`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
     body: safeBody,

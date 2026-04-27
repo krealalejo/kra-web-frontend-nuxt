@@ -2,9 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({
-  public: {
-    apiBase: 'http://localhost:8080/api'
-  }
+  apiBase: 'http://localhost:8080', public: { apiBase: 'http://localhost:8080' }
 })))
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('readBody', vi.fn())
@@ -43,7 +41,7 @@ describe('api/admin/upload.post', () => {
 
     expect(result).toEqual(mockResponse)
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:8080/api/admin/upload',
+      'http://localhost:8080/admin/upload',
       {
         method: 'POST',
         headers: { Authorization: 'Bearer valid-token' },
