@@ -13,6 +13,12 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
+  if (body.skills !== undefined) {
+    if (!Array.isArray(body.skills) || !body.skills.every((s: unknown) => typeof s === 'string')) {
+      throw createError({ statusCode: 422, statusMessage: 'skills must be an array of strings' })
+    }
+  }
+
   // sortOrder intentionally excluded — PUT preserves existing sortOrder per D-08
   // skills list fully replaced when non-null (backend patch semantics from Phase 26)
   const safeBody = {
