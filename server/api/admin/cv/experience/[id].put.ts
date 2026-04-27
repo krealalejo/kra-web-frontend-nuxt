@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     ...(body.description !== undefined && { description: body.description }),
   }
 
-  const response = await $fetch(`${config.public.apiBase}/cv/experience/${id}`, {
+  const response = await $fetch(`${config.apiBase}/cv/experience/${id}`, {
     method: 'PUT',
     headers: { Authorization: `Bearer ${token}` },
     body: safeBody,

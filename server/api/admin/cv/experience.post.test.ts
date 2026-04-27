@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('readBody', vi.fn())
-vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ public: { apiBase: 'http://localhost:3001' } }))
+vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ apiBase: 'http://localhost:3001', public: { apiBase: 'http://localhost:3001' } }))
 vi.stubGlobal('$fetch', vi.fn())
 vi.stubGlobal('createError', (opts: { statusCode: number; statusMessage: string }) => {
   const err = new Error(opts.statusMessage) as any
@@ -14,7 +14,7 @@ vi.stubGlobal('createError', (opts: { statusCode: number; statusMessage: string 
 describe('server/api/admin/cv/experience.post', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ public: { apiBase: 'http://localhost:3001' } }))
+    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ apiBase: 'http://localhost:3001', public: { apiBase: 'http://localhost:3001' } }))
     vi.stubGlobal('readBody', vi.fn().mockResolvedValue({
       title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems', sortOrder: 1,
     }))

@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     ...(sortOrder !== undefined && { sortOrder }),
   }
 
-  const response = await $fetch(`${config.public.apiBase}/cv/experience`, {
+  const response = await $fetch(`${config.apiBase}/cv/experience`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
     body: safeBody,
