@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest'
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
-  public: { apiBase: 'http://localhost:3001' },
+  apiBase: 'http://localhost:3001', public: { apiBase: 'http://localhost:3001' },
 }))
 vi.stubGlobal('$fetch', vi.fn())
 
