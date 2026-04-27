@@ -2,6 +2,9 @@
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { format } from 'date-fns'
+
+const currentYear = format(new Date(), 'yyyy')
 
 const config = useRuntimeConfig()
 
@@ -115,7 +118,7 @@ function projectNum(i: number) {
             </div>
             <div class="hero-portrait-meta">
               <span>Fig. 01 · self</span>
-              <span>Barcelona · 2026</span>
+              <span>Barcelona · {{ currentYear }}</span>
             </div>
           </div>
         </div>

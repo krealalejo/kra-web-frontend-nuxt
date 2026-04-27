@@ -3,9 +3,13 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import gsap from 'gsap'
 
+import { format } from 'date-fns'
+
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const route = useRoute()
+
+const currentYear = format(new Date(), 'yyyy')
 
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
@@ -149,7 +153,7 @@ const onLeave = (el: Element, done: () => void) => {
           </div>
         </div>
         <div class="kra-footer-bottom">
-          <span>© 2026 Kevin Real Alejo · All systems operational</span> <!-- TODO: UPDATE LATER WITH REAL STATUS -->
+          <span>© {{ currentYear }} Kevin Real Alejo · All systems operational</span> <!-- TODO: UPDATE LATER WITH REAL STATUS -->
           <span>v3.0 · Barcelona, ES · 40.41°N 3.70°W</span>
         </div>
       </div>

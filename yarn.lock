@@ -4856,6 +4856,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
+  languageName: node
+  linkType: hard
+
 "dayjs@npm:^1.11.19":
   version: 1.11.20
   resolution: "dayjs@npm:1.11.20"
@@ -6681,6 +6688,7 @@ __metadata:
     "@vee-validate/zod": "npm:^4.15.1"
     "@vitest/coverage-v8": "npm:^4.1.4"
     "@vue/test-utils": "npm:^2.4.6"
+    date-fns: "npm:^4.1.0"
     dompurify: "npm:3.4.0"
     eslint-plugin-sonarjs: "npm:^4.0.3"
     gsap: "npm:^3.12.2"

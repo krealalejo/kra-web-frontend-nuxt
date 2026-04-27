@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import gsap from 'gsap'
+import { format } from 'date-fns'
+
+const currentYear = format(new Date(), 'yyyy')
 
 useSeoMeta({
   title: 'CV · Kevin Real Alejo',
@@ -41,7 +44,7 @@ onMounted(() => {
         </div>
         <div class="hero-portrait-meta">
           <span>Fig. 01 · self</span>
-          <span>Barcelona · 2026</span>
+          <span>Barcelona · {{ currentYear }}</span>
         </div>
       </div>
     </div>
