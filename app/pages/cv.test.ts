@@ -37,13 +37,15 @@ describe('pages/cv.vue', () => {
     expect(wrapper.text()).toContain('Summary')
   })
 
-  it('renders the skill tags', async () => {
+  it('renders static sections only when useAsyncData returns null (no hardcoded skill tags)', async () => {
     const { default: CvPage } = await import('./cv.vue')
     const wrapper = await mountSuspended(CvPage)
     const text = wrapper.text()
-    expect(text).toContain('TypeScript')
-    expect(text).toContain('AWS')
-    expect(text).toContain('Nuxt')
+    // Static sections always visible
+    expect(text).toContain('Summary')
+    expect(text).toContain('Elsewhere')
+    // Dynamic sections hidden when data is null/empty (D-15)
+    expect(text).not.toContain('Sample Role')
   })
 })
 

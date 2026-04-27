@@ -30,6 +30,62 @@ const { data: profileData } = useAsyncData(
   { lazy: true }
 )
 
+// --- CV data interfaces ---
+interface ExperienceEntry {
+  id: string; title: string; company: string; location: string
+  years: string; description: string; sortOrder: number
+}
+interface EducationEntry {
+  id: string; title: string; institution: string; location: string
+  years: string; description: string; sortOrder: number
+}
+interface SkillCategory {
+  id: string; name: string; skills: string[]; sortOrder: number
+}
+
+// --- CV data fetches (D-14: three separate useAsyncData, lazy:true) ---
+const { data: experienceData } = useAsyncData(
+  'cv-experience',
+  async () => {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) return [] as ExperienceEntry[]
+    try {
+      return await $fetch<ExperienceEntry[]>(`${apiBase}/cv/experience`)
+    } catch {
+      return [] as ExperienceEntry[]
+    }
+  },
+  { lazy: true }
+)
+
+const { data: educationData } = useAsyncData(
+  'cv-education',
+  async () => {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) return [] as EducationEntry[]
+    try {
+      return await $fetch<EducationEntry[]>(`${apiBase}/cv/education`)
+    } catch {
+      return [] as EducationEntry[]
+    }
+  },
+  { lazy: true }
+)
+
+const { data: skillsData } = useAsyncData(
+  'cv-skills',
+  async () => {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    if (!apiBase) return [] as SkillCategory[]
+    try {
+      return await $fetch<SkillCategory[]>(`${apiBase}/cv/skills/categories`)
+    } catch {
+      return [] as SkillCategory[]
+    }
+  },
+  { lazy: true }
+)
+
 const cvPortraitThumbUrl = computed(() => {
   const key = profileData.value?.cvPortraitUrl
   if (!key) return null
@@ -92,68 +148,42 @@ onMounted(() => {
       </div>
     </section>
 
-    <section class="cv-section">
+    <section v-if="experienceData?.length" class="cv-section">
       <div class="title">Experience</div>
       <div>
-        <div class="role-row">
+        <div v-for="exp in experienceData" :key="exp.id" class="role-row">
           <div>
-            <div class="rt">Sample Role · Company Name</div>
-            <div class="rc">Barcelona, ES · Full-time</div>
-            <div class="rd">Led development of microservices on AWS, introduced DDD and Clean Architecture. Reduced deployment time by 40% with CI/CD pipelines in GitHub Actions. Migrated legacy monolith to event-driven architecture using SNS/SQS.</div>
+            <div class="rt">{{ exp.title }} · {{ exp.company }}</div>
+            <div class="rc">{{ exp.location }}</div>
+            <div class="rd">{{ exp.description }}</div>
           </div>
-          <div class="ryears">2024 — Present</div>
-        </div>
-        <div class="role-row">
-          <div>
-            <div class="rt">Sample Role · Previous Company</div>
-            <div class="rc">Remote · Full-time</div>
-            <div class="rd">Built REST APIs with Spring Boot, deployed on EC2 / Lambda. Implemented observability with CloudWatch and structured logging. Collaborated closely with product to define domain boundaries.</div>
-          </div>
-          <div class="ryears">2022 — 2024</div>
+          <div class="ryears">{{ exp.years }}</div>
         </div>
       </div>
     </section>
 
-    <section class="cv-section">
+    <section v-if="skillsData?.length" class="cv-section">
       <div class="title">Skills</div>
       <div>
-        <div class="skill-group">
-          <h4>Backend</h4>
+        <div v-for="category in skillsData" :key="category.id" class="skill-group">
+          <h4>{{ category.name }}</h4>
           <div class="skill-row">
-            <span v-for="s in ['Java 21', 'Spring Boot 3', 'Spring Security', 'DDD', 'Clean Architecture', 'Event-driven']" :key="s" class="chip">{{ s }}</span>
-          </div>
-        </div>
-        <div class="skill-group">
-          <h4>Frontend</h4>
-          <div class="skill-row">
-            <span v-for="s in ['TypeScript', 'Nuxt 4', 'Vue 3', 'GSAP', 'CSS / Design systems']" :key="s" class="chip">{{ s }}</span>
-          </div>
-        </div>
-        <div class="skill-group">
-          <h4>Cloud & Infra</h4>
-          <div class="skill-row">
-            <span v-for="s in ['AWS', 'Terraform', 'DynamoDB', 'Lambda', 'EC2', 'SNS/SQS', 'CloudWatch']" :key="s" class="chip">{{ s }}</span>
-          </div>
-        </div>
-        <div class="skill-group">
-          <h4>Tooling</h4>
-          <div class="skill-row">
-            <span v-for="s in ['Git', 'GitHub Actions', 'Docker', 'IntelliJ IDEA', 'Postman']" :key="s" class="chip">{{ s }}</span>
+            <span v-for="s in category.skills" :key="s" class="chip">{{ s }}</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="cv-section">
+    <section v-if="educationData?.length" class="cv-section">
       <div class="title">Education</div>
       <div>
-        <div class="role-row">
+        <div v-for="edu in educationData" :key="edu.id" class="role-row">
           <div>
-            <div class="rt">Degree in Computer Engineering</div>
-            <div class="rc">University / Institution Name</div>
-            <div class="rd">Specialisation in software engineering, distributed systems, and cloud computing.</div>
+            <div class="rt">{{ edu.title }}</div>
+            <div class="rc">{{ edu.institution }}</div>
+            <div class="rd">{{ edu.description }}</div>
           </div>
-          <div class="ryears">2018 — 2022</div>
+          <div class="ryears">{{ edu.years }}</div>
         </div>
       </div>
     </section>
