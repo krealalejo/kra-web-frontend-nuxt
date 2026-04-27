@@ -131,12 +131,13 @@ describe('admin layout', () => {
     const wrapper = await mountSuspended(AdminLayout, {
       slots: { default: '<p>Admin content</p>' },
     })
-    expect(wrapper.find('header').text()).toContain('admin@example.com')
+    // Search in the whole wrapper since user info is in Sidebar
+    expect(wrapper.text()).toContain('admin@example.com')
     const logout = wrapper
-      .findAll('header button')
-      .find(b => b.text().trim() === 'Logout')
+      .findAll('button')
+      .find(b => b.text().includes('Logout'))
     expect(logout).toBeDefined()
-    expect(logout!.text()).toBe('Logout')
+    expect(logout!.text()).toContain('Logout')
   })
 
   it('renders sidebar when authenticated', async () => {
