@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { format, parseISO } from 'date-fns'
 import gsap from 'gsap'
 
 interface GitHubContributionResponse {
@@ -36,11 +37,43 @@ onMounted(() => {
 
 const displayWeeks = computed(() => {
   if (!data.value?.weeks) return []
-  return isMobile.value ? data.value.weeks.slice(-20) : data.value.weeks.slice(-52)
+  const currentYear = new Date().getFullYear()
+
+  return data.value.weeks
+    .map(week => {
+      const days = week.contributionDays.map(day => {
+        const d = parseISO(day.date)
+        return d.getFullYear() === currentYear ? day : null
+      })
+      return { days }
+    })
+    .filter(week => week.days.some(d => d !== null))
+})
+
+const monthLabels = computed(() => {
+  const labels: { label: string, index: number }[] = []
+  let lastMonth = -1
+
+  displayWeeks.value.forEach((week, i) => {
+    const firstValidDay = week.days.find(d => d !== null)
+    if (!firstValidDay) return
+
+    const date = parseISO(firstValidDay.date)
+    const currentMonth = date.getMonth()
+
+    if (currentMonth !== lastMonth) {
+      labels.push({
+        label: format(date, 'MMM'),
+        index: i
+      })
+      lastMonth = currentMonth
+    }
+  })
+  return labels
 })
 
 const totalContributions = computed(() =>
-  displayWeeks.value.reduce((t, w) => t + w.contributionDays.reduce((d, c) => d + c.contributionCount, 0), 0)
+  displayWeeks.value.reduce((t, w) => t + w.days.reduce((d, c) => d + (c?.contributionCount || 0), 0), 0)
 )
 
 function level(count: number): string {
@@ -52,8 +85,9 @@ function level(count: number): string {
 }
 
 watch(displayWeeks, () => {
+  if (!import.meta.client) return
   nextTick(() => {
-    gsap.fromTo('.gh-graph .cell',
+    gsap.fromTo('.gh-graph .cell:not(.is-empty)',
       { opacity: 0, scale: 0.5 },
       { opacity: 1, scale: 1, duration: 0.4, stagger: { amount: 0.8, from: 'start' }, ease: 'power2.out' }
     )
@@ -70,7 +104,7 @@ watch(displayWeeks, () => {
       </div>
       <div v-if="data" class="gh-count">
         {{ totalContributions }}
-        <small>contributions · {{ isMobile ? '5' : '12' }} months</small>
+        <small>contributions · {{ new Date().getFullYear() }}</small>
       </div>
     </div>
 
@@ -83,20 +117,27 @@ watch(displayWeeks, () => {
     </div>
 
     <template v-else>
+      <div class="gh-months" :style="`grid-template-columns: repeat(${displayWeeks.length}, 1fr)`">
+        <div v-for="m in monthLabels" :key="m.index" :style="`grid-column: ${m.index + 1}`" class="month">
+          {{ m.label }}
+        </div>
+      </div>
+
       <div class="gh-graph" :style="`grid-template-columns: repeat(${displayWeeks.length}, 1fr)`">
         <div v-for="(week, wi) in displayWeeks" :key="wi" class="col">
           <div
-            v-for="day in week.contributionDays"
-            :key="day.date"
+            v-for="(day, di) in week.days"
+            :key="di"
             class="cell"
-            :data-l="level(day.contributionCount)"
-            :title="`${day.contributionCount} on ${day.date}`"
+            :class="{ 'is-empty': !day }"
+            :data-l="day ? level(day.contributionCount) : '0'"
+            :title="day ? `${day.contributionCount} on ${day.date}` : ''"
           />
         </div>
       </div>
 
       <div class="gh-legend">
-        <span>{{ isMobile ? '5' : '12' }} months</span>
+        <span>{{ new Date().getFullYear() }}</span>
         <div class="scale">
           <span style="margin-right:4px;">Less</span>
           <div v-for="l in ['0','1','2','3','4']" :key="l" class="cell" :data-l="l" />
