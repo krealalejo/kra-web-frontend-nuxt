@@ -101,17 +101,17 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div v-if="pending" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
+    <div v-if="pending" role="status" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">Loading…</span>
     </div>
 
-    <div v-else-if="error" class="shell" style="padding:64px 0;">
+    <div v-else-if="error" role="alert" class="shell" style="padding:64px 0;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);padding:32px 0;">
         <div v-if="isNotFound">Repository not found.</div>
         <div v-else-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</div>
-        <div v-else">Could not load repository.</div>
-        <NuxtLink to="/projects" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;color:var(--accent);">
-          ← Back to projects
+        <div v-else>Could not load the repository.</div>
+        <NuxtLink to="/" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;color:var(--accent);">
+          ← Back to home
         </NuxtLink>
       </div>
     </div>
@@ -127,7 +127,7 @@ onMounted(async () => {
           </NuxtLink>
 
           <h1 style="font-family:var(--font-display);font-size:clamp(40px,6vw,80px);line-height:0.97;letter-spacing:-0.03em;font-weight:500;margin-bottom:16px;">
-            {{ detail.name }}
+            {{ detail.fullName }}
           </h1>
           <p style="font-size:18px;color:var(--fg-dim);max-width:60ch;margin-bottom:20px;">
             {{ detail.description || '—' }}
@@ -162,6 +162,7 @@ onMounted(async () => {
 
         <div class="pd-body">
           <div v-if="detail.readmeExcerpt" class="pd-content">
+            <h2>README</h2>
             <div ref="readmeRef" v-html="sanitizedReadme" />
           </div>
           <div v-else class="pd-content">

@@ -165,7 +165,7 @@ function projectKind(repo: PortfolioRepoDto) {
         </div>
 
         <!-- Error / empty state -->
-        <div v-if="error" style="padding:32px 16px;color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;">
+        <div v-if="error" role="alert" style="padding:32px 16px;color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;">
           API unavailable — set NUXT_PUBLIC_API_BASE_URL to load projects.
         </div>
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
+import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
 const filter = ref('all')
@@ -44,6 +45,8 @@ onMounted(() => {
   gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.3, stagger: 0.08 })
 })
 
+const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
+
 useHead({ title: 'Projects · Kevin Real Alejo' })
 </script>
 
@@ -75,8 +78,12 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
     </header>
 
     <section class="shell" style="padding-bottom:80px;">
-      <div v-if="error" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
+      <div v-if="error" role="alert" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
         API unavailable — set NUXT_PUBLIC_API_BASE_URL.
+      </div>
+
+      <div v-else-if="!filtered.length" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
+        No projects found.
       </div>
 
       <div v-else class="proj-grid">
@@ -85,6 +92,8 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
           :key="repo.fullName"
           :to="`/projects/${repo.owner}/${repo.name}`"
           class="proj-card"
+          @mouseenter="handleCardHover"
+          @mouseleave="handleCardHoverOut"
         >
           <div class="visual">
             <span class="glyph">{{ projectGlyph(repo) }}</span>

@@ -7,7 +7,7 @@ const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
 }))
 
 const handleCardHoverMock = vi.fn()
@@ -71,7 +71,7 @@ describe('pages/projects/index.vue', () => {
 
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
-    const cards = wrapper.findAll('li')
+    const cards = wrapper.findAll('a.proj-card')
     expect(cards).toHaveLength(2)
     expect(wrapper.text()).toContain('Project A')
     expect(wrapper.text()).toContain('Project B')
@@ -89,7 +89,7 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Error loading projects')
+    expect(wrapper.text()).toContain('API unavailable')
   })
 
   it('links to individual project details', async () => {
@@ -110,7 +110,7 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
 
-    const article = wrapper.find('article')
+    const article = wrapper.find('a.proj-card')
     await article.trigger('mouseenter')
     expect(handleCardHoverMock).toHaveBeenCalled()
 

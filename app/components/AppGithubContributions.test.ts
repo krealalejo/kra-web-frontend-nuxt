@@ -64,7 +64,7 @@ describe('components/AppGithubContributions.vue', () => {
 
     expect(wrapper.text()).toContain('GitHub Activity')
     expect(wrapper.text()).toContain('20')
-    expect(wrapper.find('svg').exists()).toBe(true)
+    expect(wrapper.find('.gh-graph').exists()).toBe(true)
   })
 
   it('renders 12 months text on desktop', async () => {
@@ -77,14 +77,14 @@ describe('components/AppGithubContributions.vue', () => {
     expect(wrapper.text()).toContain('12')
   })
 
-  it('renders 4 months text on mobile', async () => {
+  it('renders 5 months text on mobile', async () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 500 })
     window.dispatchEvent(new Event('resize'))
 
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('4')
+    expect(wrapper.text()).toContain('5')
   })
 
   it('handles error state', async () => {
@@ -96,6 +96,6 @@ describe('components/AppGithubContributions.vue', () => {
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Unable to load activity data.')
+    expect(wrapper.text()).toContain('API unavailable')
   })
 })

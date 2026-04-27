@@ -66,6 +66,7 @@ onMounted(() => {
 function formatDate(iso: string) {
   try {
     const d = new Date(iso)
+    if (isNaN(d.getTime())) return iso
     return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
   } catch { return iso }
 }
@@ -89,11 +90,11 @@ useSeoMeta({
 
 <template>
   <div>
-    <div v-if="error" class="shell" style="padding:64px 0;">
+    <div v-if="error" role="alert" class="shell" style="padding:64px 0;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);">
         <div v-if="isNotFound">Post not found.</div>
         <div v-else-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</div>
-        <div v-else">Could not load post.</div>
+        <div v-else>Could not load post.</div>
         <NuxtLink to="/blog" style="display:inline-flex;align-items:center;gap:8px;margin-top:24px;color:var(--accent);">← All posts</NuxtLink>
       </div>
     </div>
@@ -129,14 +130,14 @@ useSeoMeta({
           <div class="content drop-p" ref="contentRef" v-html="sanitizedContent" />
 
           <aside>
-            <div v-if="post.references?.length" class="post-toc">
+            <section v-if="post.references?.length" aria-label="References" class="post-toc">
               <h5>References</h5>
               <ul>
                 <li v-for="(ref, i) in post.references" :key="i">
                   <a :href="ref.url" target="_blank" rel="noopener noreferrer">{{ ref.label }}</a>
                 </li>
               </ul>
-            </div>
+            </section>
           </aside>
         </div>
       </section>

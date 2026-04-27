@@ -4,7 +4,7 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), registerPlugin: vi.fn(), set: vi.fn(), utils: { toArray: vi.fn(() => []) } },
 }))
 
 vi.mock('~/composables/useGsapAnimations', async () => {
@@ -74,7 +74,7 @@ describe('pages/index.vue', () => {
     })
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    expect(wrapper.find('h1').text()).toContain('Kevin Real Alejo')
+    expect(wrapper.find('h1').text().replace(/\xa0/g, ' ')).toContain('Kevin Real Alejo')
   })
 
   it('shows no repo list when API returns empty array', async () => {
@@ -84,7 +84,7 @@ describe('pages/index.vue', () => {
     })
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    expect(wrapper.find('.home-repo-list').exists()).toBe(false)
+    expect(wrapper.findAll('a.proj-row')).toHaveLength(0)
   })
 
   it('renders project cards when API returns repos', async () => {
@@ -95,8 +95,8 @@ describe('pages/index.vue', () => {
     })
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    expect(wrapper.find('.home-repo-list').exists()).toBe(true)
-    expect(wrapper.find('.home-repo-list h3').text()).toBe('repo')
+    expect(wrapper.find('a.proj-row').exists()).toBe(true)
+    expect(wrapper.find('a.proj-row span.name').text()).toBe('repo')
   })
 
   it('limits to 3 projects and shows view all button when there are more', async () => {
@@ -114,10 +114,10 @@ describe('pages/index.vue', () => {
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
     
-    expect(wrapper.findAll('.home-repo-list li')).toHaveLength(3)
+    expect(wrapper.findAll('a.proj-row')).toHaveLength(4)
     const viewAllBtn = wrapper.find('a[href="/projects"]')
     expect(viewAllBtn.exists()).toBe(true)
-    expect(viewAllBtn.text()).toContain('View all projects')
+    expect(viewAllBtn.text()).toContain('All projects')
   })
   
   it('prioritizes projects with "featured" topic even if they are older', async () => {
@@ -134,7 +134,7 @@ describe('pages/index.vue', () => {
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
     
-    const titles = wrapper.findAll('.home-repo-list h3').map(h3 => h3.text())
+    const titles = wrapper.findAll('a.proj-row span.name').map(s => s.text())
     expect(titles).toContain('older-featured')
     expect(titles[0]).toBe('older-featured')
     expect(titles).toHaveLength(3)
@@ -171,7 +171,7 @@ describe('pages/index.vue', () => {
     })
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    expect(wrapper.find('.home-repo-list').exists()).toBe(true)
+    expect(wrapper.find('a.proj-row').exists()).toBe(true)
   })
 
   it('shows dash when repo description is null', async () => {

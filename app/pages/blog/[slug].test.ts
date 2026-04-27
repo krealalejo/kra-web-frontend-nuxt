@@ -27,7 +27,7 @@ mockNuxtImport('useAsyncData', () => {
 })
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
 }))
 
 const renderDiagramsMock = vi.fn()
@@ -82,7 +82,7 @@ describe('pages/blog/[slug].vue', () => {
     mockFetch.mockResolvedValue(mockPost)
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    const dateEl = wrapper.find('article p.text-sm')
+    const dateEl = wrapper.find('.overline-meta')
     expect(dateEl.exists()).toBe(true)
     expect(dateEl.text().length).toBeGreaterThan(0)
   })
@@ -134,7 +134,7 @@ describe('pages/blog/[slug].vue', () => {
     })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    expect(wrapper.text()).toContain('updated')
+    expect(wrapper.text()).toContain('Updated')
   })
 
   it('triggers mermaid rendering when content is updated', async () => {

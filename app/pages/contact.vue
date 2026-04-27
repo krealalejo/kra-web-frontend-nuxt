@@ -96,7 +96,7 @@ onMounted(() => {
           <div class="form-num">01</div>
 
           <div v-if="success" style="display:flex;flex-direction:column;align-items:flex-start;gap:16px;padding:40px 0;">
-            <div style="font-family:var(--font-display);font-size:42px;line-height:1;letter-spacing:-0.02em;font-weight:500;">Message<br>sent.</div>
+            <div style="font-family:var(--font-display);font-size:42px;line-height:1;letter-spacing:-0.02em;font-weight:500;">Message <br>sent.</div>
             <p style="font-size:14px;color:var(--fg-muted);">Thanks for reaching out — I'll be in touch soon.</p>
             <button class="btn btn-ghost" @click="success = false">Send another</button>
           </div>
@@ -126,7 +126,7 @@ onMounted(() => {
               </div>
             </div>
 
-            <div v-if="submitError" style="font-family:var(--font-mono);font-size:12px;color:#E86D6D;margin-bottom:20px;padding:12px 16px;border:1px solid rgba(232,109,109,0.3);border-radius:3px;">
+            <div v-if="submitError" role="alert" style="font-family:var(--font-mono);font-size:12px;color:#E86D6D;margin-bottom:20px;padding:12px 16px;border:1px solid rgba(232,109,109,0.3);border-radius:3px;">
               {{ submitError }}
             </div>
 

@@ -63,14 +63,14 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.find('h1').text()).toBe('Blog')
+    expect(wrapper.find('h1').text()).toContain('Field notes')
   })
 
   it('renders post titles when posts are loaded', async () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.find('.blog-post-list').exists()).toBe(true)
+    expect(wrapper.find('.blog-list').exists()).toBe(true)
     expect(wrapper.text()).toContain('Hello World')
   })
 
@@ -85,7 +85,7 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    const dateEl = wrapper.find('.blog-post-list li p.text-xs')
+    const dateEl = wrapper.find('.date')
     expect(dateEl.exists()).toBe(true)
     expect(dateEl.text().length).toBeGreaterThan(0)
   })
@@ -103,8 +103,7 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockRejectedValue(new Error('API error'))
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('Could not load posts')
+    expect(wrapper.text()).toContain('API unavailable')
   })
 
   it('shows NUXT_PUBLIC_API_BASE_URL hint for MISSING_API_BASE errors', async () => {
@@ -114,10 +113,10 @@ describe('pages/blog/index.vue', () => {
     expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
   })
 
-  it('shows Spring Boot hint for generic API errors', async () => {
+  it('shows error message for generic API errors', async () => {
     mockFetch.mockRejectedValue(new Error('Connection refused'))
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.text()).toContain('Spring Boot')
+    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
   })
 })

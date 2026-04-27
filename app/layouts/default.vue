@@ -14,7 +14,7 @@ watch(() => route.path, () => {
 const navItems = [
   { path: '/', label: 'Home' },
   { path: '/projects', label: 'Projects' },
-  { path: '/blog', label: 'Posts' },
+  { path: '/blog', label: 'Blog' },
   { path: '/contact', label: 'Contact' },
   { path: '/cv', label: 'CV' },
 ]
@@ -44,7 +44,7 @@ const onLeave = (el: Element, done: () => void) => {
 
 <template>
   <div>
-    <nav class="kra-nav">
+    <header class="sticky top-0 z-40 kra-nav">
       <div class="shell kra-nav-inner">
         <NuxtLink to="/" class="kra-nav-logo">
           <span class="dot" />
@@ -52,7 +52,7 @@ const onLeave = (el: Element, done: () => void) => {
           <span class="kra-nav-logo-mark">/ Kevin Real Alejo</span>
         </NuxtLink>
 
-        <div class="kra-nav-links">
+        <nav class="kra-nav-links">
           <NuxtLink
             v-for="item in navItems"
             :key="item.path"
@@ -88,6 +88,7 @@ const onLeave = (el: Element, done: () => void) => {
             class="kra-theme-btn"
             style="display:none"
             :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
+            :aria-expanded="isMobileMenuOpen.toString()"
             @click="isMobileMenuOpen = !isMobileMenuOpen"
           >
             <svg v-if="!isMobileMenuOpen" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -97,25 +98,25 @@ const onLeave = (el: Element, done: () => void) => {
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
-        </div>
+        </nav>
       </div>
 
       <Transition @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
-        <div v-if="isMobileMenuOpen" class="shell" style="overflow:hidden">
+        <div v-if="isMobileMenuOpen" class="sm:hidden overflow-hidden shell">
           <nav style="display:flex;flex-direction:column;gap:4px;padding:16px 0;">
             <NuxtLink
               v-for="item in navItems"
               :key="item.path"
               :to="item.path"
-              class="mobile-nav-link kra-nav-link"
-              style="text-align:center;padding:12px 14px;"
+              class="mobile-nav-link kra-nav-link text-center rounded-xl"
+              style="padding:12px 14px;"
             >
               {{ item.label }}
             </NuxtLink>
           </nav>
         </div>
       </Transition>
-    </nav>
+    </header>
 
     <main>
       <slot />

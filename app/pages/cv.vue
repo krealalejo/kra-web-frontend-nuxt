@@ -20,7 +20,7 @@ onMounted(() => {
   <div class="shell cv-wrap">
     <div class="cv-head">
       <div class="cv-head-main">
-        <h1>Kevin Real<br><em style="color:var(--accent);font-style:normal">Alejo</em></h1>
+        <h1>Kevin Real <br><em style="color:var(--accent);font-style:normal">Alejo</em></h1>
         <div class="role">Full-stack engineer · Madrid, ES</div>
         <div class="actions">
           <NuxtLink to="/contact" class="btn">Contact me</NuxtLink>

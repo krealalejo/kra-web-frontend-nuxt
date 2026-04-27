@@ -15,7 +15,7 @@ describe('pages/cv.vue', () => {
 
   it('renders all four main sections', async () => {
     const wrapper = await mountSuspended(CvPage)
-    const headings = wrapper.findAll('h2').map(h => h.text())
+    const headings = wrapper.findAll('.title').map(h => h.text())
     expect(headings).toContain('Summary')
     expect(headings).toContain('Experience')
     expect(headings).toContain('Skills')

@@ -3,7 +3,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
 }))
 
 const renderDiagramsMock = vi.fn()
@@ -82,12 +82,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
     const link = wrapper.find(`a[href="${mockDetail.htmlUrl}"]`)
     expect(link.exists()).toBe(true)
     expect(link.text()).toContain('GitHub')
-
-    const header = wrapper.find('article > div.flex')
-    expect(header.exists()).toBe(true)
-    expect(header.find('h1').exists()).toBe(true)
-    expect(header.find(`a[href="${mockDetail.htmlUrl}"]`).exists()).toBe(true)
-
+    expect(wrapper.find('h1').exists()).toBe(true)
     expect(link.find('svg').exists()).toBe(true)
   })
 

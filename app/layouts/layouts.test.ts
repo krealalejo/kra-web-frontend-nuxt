@@ -36,7 +36,7 @@ describe('default layout', () => {
     })
     const brand = wrapper.find('header a[href="/"]')
     expect(brand.exists()).toBe(true)
-    expect(brand.text()).toBe('KRA')
+    expect(brand.text()).toContain('KRA')
   })
 
   it('renders primary navigation links', async () => {
