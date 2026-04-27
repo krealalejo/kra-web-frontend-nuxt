@@ -115,7 +115,7 @@ function projectNum(i: number) {
             </div>
             <div class="hero-portrait-meta">
               <span>Fig. 01 · self</span>
-              <span>Madrid · 2026</span>
+              <span>Barcelona · 2026</span>
             </div>
           </div>
         </div>

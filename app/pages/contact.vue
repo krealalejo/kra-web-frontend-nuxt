@@ -71,7 +71,7 @@ onMounted(() => {
           <div class="contact-facts">
             <div class="row">
               <span class="k">Location</span>
-              <span class="v">Madrid, Spain · UTC+1</span>
+              <span class="v">Barcelona, Spain · UTC+1</span>
             </div>
             <div class="row">
               <span class="k">Email</span>

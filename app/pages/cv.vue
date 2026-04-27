@@ -21,7 +21,7 @@ onMounted(() => {
     <div class="cv-head">
       <div class="cv-head-main">
         <h1>Kevin Real <br><em style="color:var(--accent);font-style:normal">Alejo</em></h1>
-        <div class="role">Full-stack engineer · Madrid, ES</div>
+        <div class="role">Full-stack engineer · Barcelona, ES</div>
         <div class="actions">
           <NuxtLink to="/contact" class="btn">Contact me</NuxtLink>
           <a href="https://github.com/krealalejo" target="_blank" rel="noopener" class="btn btn-ghost">GitHub ↗</a>
@@ -41,7 +41,7 @@ onMounted(() => {
         </div>
         <div class="hero-portrait-meta">
           <span>Fig. 01 · self</span>
-          <span>Madrid · 2026</span>
+          <span>Barcelona · 2026</span>
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@ onMounted(() => {
         <div class="role-row">
           <div>
             <div class="rt">Sample Role · Company Name</div>
-            <div class="rc">Madrid, ES · Full-time</div>
+            <div class="rc">Barcelona, ES · Full-time</div>
             <div class="rd">Led development of microservices on AWS, introduced DDD and Clean Architecture. Reduced deployment time by 40% with CI/CD pipelines in GitHub Actions. Migrated legacy monolith to event-driven architecture using SNS/SQS.</div>
           </div>
           <div class="ryears">2024 — Present</div>
@@ -137,7 +137,7 @@ onMounted(() => {
           </div>
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">Location</span>
-            Madrid, Spain · UTC+1
+            Barcelona, Spain · UTC+1
           </div>
         </div>
       </div>
