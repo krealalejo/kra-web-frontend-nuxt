@@ -29,24 +29,30 @@ const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
 mockNuxtImport('useAsyncData', () => {
-  return async (_key: string, factory: () => Promise<any>) => {
-    try {
-      const res = await factory()
-      return { 
-        data: ref(res), 
-        pending: ref(false), 
-        error: ref(null),
-        status: ref('success'),
-        refresh: vi.fn()
-      }
-    } catch (e) {
-      return { 
-        data: ref(null), 
-        pending: ref(false), 
-        error: ref(e),
-        status: ref('error'),
-        refresh: vi.fn()
-      }
+  return (_key: string, factory: () => Promise<any>, _options?: any) => {
+    const data = ref(null)
+    const pending = ref(true)
+    const error = ref(null)
+    const status = ref('idle')
+
+    const promise = factory().then(res => {
+      data.value = res
+      pending.value = false
+      status.value = 'success'
+    }).catch(e => {
+      error.value = e
+      pending.value = false
+      status.value = 'error'
+    })
+
+    return {
+      data,
+      pending,
+      error,
+      status,
+      refresh: vi.fn(),
+      execute: vi.fn(),
+      clear: vi.fn()
     }
   }
 })
@@ -229,16 +235,28 @@ describe('pages/index.vue', () => {
 
   it('skips gsap.to on mouseleave when reduced motion is preferred', async () => {
     const { default: gsap } = await import('gsap')
-    ;(gsap.to as ReturnType<typeof vi.fn>).mockClear()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
-    mockFetch.mockResolvedValue([
-      { fullName: 'o/r', name: 'r', description: 'desc', owner: 'o', topics: [] },
-    ])
+    mockFetch.mockResolvedValue([{ name: 'p1', owner: 'o', fullName: 'o/p1', topics: [] }])
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }))
     const wrapper = await mountSuspended(IndexPage)
-    const article = wrapper.find('article')
-    if (article.exists()) {
-      await article.trigger('mouseleave')
-      expect(gsap.to).not.toHaveBeenCalled()
-    }
+    await flushPromises()
+    const article = wrapper.find('.proj-row')
+    await article.trigger('mouseleave')
+    expect(vi.mocked(gsap.to)).not.toHaveBeenCalled()
+  })
+
+  it('shows skeleton rows during pending state', async () => {
+    let resolveFetch: any
+    const fetchPromise = new Promise(resolve => { resolveFetch = resolve })
+    mockFetch.mockReturnValue(fetchPromise)
+
+    const wrapper = await mountSuspended(IndexPage)
+    
+    const skeletons = wrapper.findAllComponents({ name: 'SkeletonProjectRow' })
+    expect(skeletons.length).toBeGreaterThan(0)
+    
+    resolveFetch([])
+    await flushPromises()
+    
+    expect(wrapper.findAllComponents({ name: 'SkeletonProjectRow' }).length).toBe(0)
   })
 })
