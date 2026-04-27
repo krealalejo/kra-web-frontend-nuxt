@@ -25,7 +25,7 @@ export function useMarkdown() {
         .replace(/<[^>]*>?/gm, '') // Strip HTML tags
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+        .replace(/^-{1,200}|-{1,200}$/g, '')
       return `<h${depth} id="${id}">${text}</h${depth}>`
     }
     const html = await marked.parse(text, { renderer })
@@ -47,14 +47,14 @@ export function useMarkdown() {
     const headings: { title: string; id: string }[] = []
     const lines = text.split('\n')
     for (const line of lines) {
-      const match = line.match(/^##\s+(.+)$/)
+      const match = line.match(/^##\s+(.{1,500})$/)
       if (match) {
         const rawTitle = match[1].trim()
         const title = stripMarkdown(rawTitle)
         const id = title.toLowerCase()
           .replace(/[^\w\s-]/g, '')
           .replace(/[\s_-]+/g, '-')
-          .replace(/^-+|-+$/g, '')
+          .replace(/^-{1,200}|-{1,200}$/g, '')
         headings.push({ title, id })
       }
     }
