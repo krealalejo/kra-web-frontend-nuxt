@@ -10,7 +10,7 @@ describe('pages/admin/quality.vue', () => {
 
   it('renders all three project cards', async () => {
     const wrapper = await mountSuspended(QualityPage)
-    const cards = wrapper.findAll('.flex.flex-col.gap-4')
+    const cards = wrapper.findAll('.flex.flex-col.gap-6')
     expect(cards).toHaveLength(3)
     
     expect(cards[0].find('h2').text()).toBe('kra-api')
@@ -25,7 +25,7 @@ describe('pages/admin/quality.vue', () => {
     expect(badges[0].attributes('src')).toContain('project=krealalejo_kra-api')
   })
 
-  it('renders "View Full Report" links with correct hrefs', async () => {
+  it('renders "View Report" links with correct hrefs', async () => {
     const wrapper = await mountSuspended(QualityPage)
     const links = wrapper.findAll('a')
     expect(links).toHaveLength(3)
