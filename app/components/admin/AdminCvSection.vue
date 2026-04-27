@@ -1,0 +1,680 @@
+<script setup lang="ts">
+// No Pinia store — direct $fetch pattern per D-16
+
+// --- TypeScript interfaces ---
+interface ExperienceEntry {
+  id: string; title: string; company: string; location: string
+  years: string; description: string; sortOrder: number
+}
+interface EducationEntry {
+  id: string; title: string; institution: string; location: string
+  years: string; description: string; sortOrder: number
+}
+interface SkillCategory {
+  id: string; name: string; skills: string[]; sortOrder: number
+}
+
+// --- Tab state (D-03) ---
+const activeTab = ref<'experience' | 'education' | 'skills'>('experience')
+
+// --- Data refs (D-16: direct $fetch, no Pinia) ---
+const experience = ref<ExperienceEntry[]>([])
+const education = ref<EducationEntry[]>([])
+const skillCategories = ref<SkillCategory[]>([])
+
+// --- Loading/error state ---
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+// --- Per-operation saving/error state ---
+const modalSaving = ref(false)
+const modalError = ref<string | null>(null)
+const deletingId = ref<string | null>(null)
+
+// Per-category saving state for Skills tab
+const categorySaving = reactive<Record<string, boolean>>({})
+const categoryError = reactive<Record<string, string | null>>({})
+
+// --- Experience modal (D-04) ---
+const expModal = reactive({
+  open: false,
+  mode: 'add' as 'add' | 'edit',
+  data: { id: '', title: '', company: '', location: '', years: '', description: '' },
+})
+
+// --- Education modal (D-04) ---
+const eduModal = reactive({
+  open: false,
+  mode: 'add' as 'add' | 'edit',
+  data: { id: '', title: '', institution: '', location: '', years: '', description: '' },
+})
+
+// --- Skills: per-category local chip state ---
+// Each category has local skills array (editable copy) and newSkill input
+const categorySkills = reactive<Record<string, string[]>>({})
+const categoryNewSkill = reactive<Record<string, string>>({})
+
+// --- Add Category state (D-12) ---
+const addCategoryOpen = ref(false)
+const newCategoryName = ref('')
+const addCategorySaving = ref(false)
+const addCategoryError = ref<string | null>(null)
+
+// --- onMounted: fetch all three CV sections ---
+const config = useRuntimeConfig()
+
+onMounted(async () => {
+  loading.value = true
+  error.value = null
+  try {
+    const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+    const [exp, edu, skills] = await Promise.all([
+      $fetch<ExperienceEntry[]>(`${apiBase}/cv/experience`),
+      $fetch<EducationEntry[]>(`${apiBase}/cv/education`),
+      $fetch<SkillCategory[]>(`${apiBase}/cv/skills/categories`),
+    ])
+    experience.value = exp
+    education.value = edu
+    skillCategories.value = skills
+    // Initialize per-category local state
+    for (const cat of skills) {
+      categorySkills[cat.id] = [...cat.skills]
+      categoryNewSkill[cat.id] = ''
+    }
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Failed to load CV data'
+  } finally {
+    loading.value = false
+  }
+})
+
+// === EXPERIENCE CRUD ===
+
+function openAddExpModal() {
+  expModal.mode = 'add'
+  expModal.data = { id: '', title: '', company: '', location: '', years: '', description: '' }
+  expModal.open = true
+  modalError.value = null
+}
+
+function openEditExpModal(item: ExperienceEntry) {
+  expModal.mode = 'edit'
+  expModal.data = { ...item }
+  expModal.open = true
+  modalError.value = null
+}
+
+async function saveExpModal() {
+  modalSaving.value = true
+  modalError.value = null
+  try {
+    if (expModal.mode === 'add') {
+      // D-07: auto-compute sortOrder
+      const nextSortOrder = Math.max(0, ...experience.value.map(i => i.sortOrder)) + 1
+      const created = await $fetch<ExperienceEntry>('/api/admin/cv/experience', {
+        method: 'POST',
+        body: { ...expModal.data, sortOrder: nextSortOrder },
+      })
+      experience.value.push(created)
+    } else {
+      // D-08: PUT does not send sortOrder
+      const updated = await $fetch<ExperienceEntry>(`/api/admin/cv/experience/${expModal.data.id}`, {
+        method: 'PUT',
+        body: {
+          title: expModal.data.title,
+          company: expModal.data.company,
+          location: expModal.data.location,
+          years: expModal.data.years,
+          description: expModal.data.description,
+        },
+      })
+      const idx = experience.value.findIndex(e => e.id === expModal.data.id)
+      if (idx !== -1) experience.value[idx] = updated
+    }
+    expModal.open = false
+  } catch (e: unknown) {
+    modalError.value = e instanceof Error ? e.message : 'Save failed'
+  } finally {
+    modalSaving.value = false
+  }
+}
+
+async function deleteExp(id: string) {
+  if (!window.confirm('Delete this experience entry?')) return  // D-06
+  deletingId.value = id
+  try {
+    await $fetch(`/api/admin/cv/experience/${id}`, { method: 'DELETE' })
+    const idx = experience.value.findIndex(e => e.id === id)
+    if (idx !== -1) experience.value.splice(idx, 1)
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Delete failed'
+  } finally {
+    deletingId.value = null
+  }
+}
+
+// === EDUCATION CRUD ===
+
+function openAddEduModal() {
+  eduModal.mode = 'add'
+  eduModal.data = { id: '', title: '', institution: '', location: '', years: '', description: '' }
+  eduModal.open = true
+  modalError.value = null
+}
+
+function openEditEduModal(item: EducationEntry) {
+  eduModal.mode = 'edit'
+  eduModal.data = { ...item }
+  eduModal.open = true
+  modalError.value = null
+}
+
+async function saveEduModal() {
+  modalSaving.value = true
+  modalError.value = null
+  try {
+    if (eduModal.mode === 'add') {
+      const nextSortOrder = Math.max(0, ...education.value.map(i => i.sortOrder)) + 1
+      const created = await $fetch<EducationEntry>('/api/admin/cv/education', {
+        method: 'POST',
+        body: { ...eduModal.data, sortOrder: nextSortOrder },
+      })
+      education.value.push(created)
+    } else {
+      const updated = await $fetch<EducationEntry>(`/api/admin/cv/education/${eduModal.data.id}`, {
+        method: 'PUT',
+        body: {
+          title: eduModal.data.title,
+          institution: eduModal.data.institution,
+          location: eduModal.data.location,
+          years: eduModal.data.years,
+          description: eduModal.data.description,
+        },
+      })
+      const idx = education.value.findIndex(e => e.id === eduModal.data.id)
+      if (idx !== -1) education.value[idx] = updated
+    }
+    eduModal.open = false
+  } catch (e: unknown) {
+    modalError.value = e instanceof Error ? e.message : 'Save failed'
+  } finally {
+    modalSaving.value = false
+  }
+}
+
+async function deleteEdu(id: string) {
+  if (!window.confirm('Delete this education entry?')) return  // D-06
+  deletingId.value = id
+  try {
+    await $fetch(`/api/admin/cv/education/${id}`, { method: 'DELETE' })
+    const idx = education.value.findIndex(e => e.id === id)
+    if (idx !== -1) education.value.splice(idx, 1)
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Delete failed'
+  } finally {
+    deletingId.value = null
+  }
+}
+
+// === SKILL CATEGORIES CRUD ===
+
+function addSkill(catId: string) {
+  const trimmed = (categoryNewSkill[catId] ?? '').trim()
+  if (trimmed && !categorySkills[catId].includes(trimmed)) {
+    categorySkills[catId].push(trimmed)
+    categoryNewSkill[catId] = ''
+  }
+}
+
+function removeSkill(catId: string, index: number) {
+  categorySkills[catId].splice(index, 1)
+}
+
+async function saveCategory(catId: string) {
+  categorySaving[catId] = true
+  categoryError[catId] = null
+  try {
+    // D-13: Save button per card — PUT /cv/skills/categories/{id}
+    await $fetch(`/api/admin/cv/skills/categories/${catId}`, {
+      method: 'PUT',
+      body: { skills: categorySkills[catId] },
+    })
+    // Update local skillCategories ref
+    const idx = skillCategories.value.findIndex(c => c.id === catId)
+    if (idx !== -1) skillCategories.value[idx].skills = [...categorySkills[catId]]
+  } catch (e: unknown) {
+    categoryError[catId] = e instanceof Error ? e.message : 'Save failed'
+  } finally {
+    categorySaving[catId] = false
+  }
+}
+
+async function deleteCategory(id: string) {
+  if (!window.confirm('Delete this skill category?')) return  // D-06
+  try {
+    await $fetch(`/api/admin/cv/skills/categories/${id}`, { method: 'DELETE' })
+    const idx = skillCategories.value.findIndex(c => c.id === id)
+    if (idx !== -1) {
+      skillCategories.value.splice(idx, 1)
+      delete categorySkills[id]
+      delete categoryNewSkill[id]
+    }
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Delete failed'
+  }
+}
+
+// D-12: Add new category
+async function submitAddCategory() {
+  const name = newCategoryName.value.trim()
+  if (!name) return
+  addCategorySaving.value = true
+  addCategoryError.value = null
+  try {
+    const nextSortOrder = Math.max(0, ...skillCategories.value.map(c => c.sortOrder)) + 1
+    const created = await $fetch<SkillCategory>('/api/admin/cv/skills/categories', {
+      method: 'POST',
+      body: { name, skills: [], sortOrder: nextSortOrder },
+    })
+    skillCategories.value.push(created)
+    categorySkills[created.id] = []
+    categoryNewSkill[created.id] = ''
+    newCategoryName.value = ''
+    addCategoryOpen.value = false
+  } catch (e: unknown) {
+    addCategoryError.value = e instanceof Error ? e.message : 'Create failed'
+  } finally {
+    addCategorySaving.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="mb-12">
+    <!-- Section header -->
+    <div class="mb-8 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
+      <div>
+        <h2 class="t-h2">CV Manager</h2>
+        <p class="t-label mt-1" style="color: var(--fg-dim)">Manage Experience, Education, and Skills sections</p>
+      </div>
+    </div>
+
+    <!-- Global loading spinner -->
+    <div v-if="loading" class="mb-6 text-sm" style="color: var(--fg-dim)">Loading CV data…</div>
+
+    <!-- Global error banner -->
+    <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+      {{ error }}
+    </div>
+
+    <!-- Tab switcher (D-03) -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--hairline);padding-bottom:16px">
+      <button
+        v-for="tab in (['experience','education','skills'] as const)"
+        :key="tab"
+        @click="activeTab = tab"
+        class="rounded-lg px-4 py-2 text-sm font-medium capitalize transition-all"
+        :style="activeTab === tab
+          ? 'background:var(--overlay);color:var(--fg);border:1px solid var(--hairline)'
+          : 'color:var(--fg-dim);border:1px solid transparent'"
+      >{{ tab === 'skills' ? 'Skills' : tab.charAt(0).toUpperCase() + tab.slice(1) }}</button>
+    </div>
+
+    <!-- Experience tab panel (v-show — state survives tab switches, Pitfall 3) -->
+    <div v-show="activeTab === 'experience'">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="t-h3" style="color: var(--fg)">Experience</h3>
+        <button
+          class="rounded-lg px-4 py-2 text-sm font-medium"
+          style="background: var(--accent); color: var(--bg)"
+          @click="openAddExpModal"
+        >+ Add Experience</button>
+      </div>
+
+      <!-- Experience list rows -->
+      <div v-if="experience.length === 0 && !loading" class="text-sm" style="color: var(--fg-dim)">
+        No experience entries yet. Click Add to create one.
+      </div>
+      <div
+        v-for="item in experience"
+        :key="item.id"
+        class="mb-3 flex items-center justify-between rounded-xl px-4 py-3"
+        style="background: var(--bg-elev); border: 1px solid var(--hairline)"
+      >
+        <div>
+          <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.company }}</div>
+          <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button
+            class="text-sm px-2 py-1 rounded"
+            style="color: var(--fg-dim); border: 1px solid var(--hairline); background: none; cursor: pointer"
+            @click="openEditExpModal(item)"
+            title="Edit"
+          >✎</button>
+          <button
+            class="text-sm px-2 py-1 rounded"
+            style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            :disabled="deletingId === item.id"
+            @click="deleteExp(item.id)"
+            title="Delete"
+          >✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education tab panel (v-show — state survives tab switches) -->
+    <div v-show="activeTab === 'education'">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="t-h3" style="color: var(--fg)">Education</h3>
+        <button
+          class="rounded-lg px-4 py-2 text-sm font-medium"
+          style="background: var(--accent); color: var(--bg)"
+          @click="openAddEduModal"
+        >+ Add Education</button>
+      </div>
+
+      <!-- Education list rows -->
+      <div v-if="education.length === 0 && !loading" class="text-sm" style="color: var(--fg-dim)">
+        No education entries yet. Click Add to create one.
+      </div>
+      <div
+        v-for="item in education"
+        :key="item.id"
+        class="mb-3 flex items-center justify-between rounded-xl px-4 py-3"
+        style="background: var(--bg-elev); border: 1px solid var(--hairline)"
+      >
+        <div>
+          <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.institution }}</div>
+          <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button
+            class="text-sm px-2 py-1 rounded"
+            style="color: var(--fg-dim); border: 1px solid var(--hairline); background: none; cursor: pointer"
+            @click="openEditEduModal(item)"
+            title="Edit"
+          >✎</button>
+          <button
+            class="text-sm px-2 py-1 rounded"
+            style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            :disabled="deletingId === item.id"
+            @click="deleteEdu(item.id)"
+            title="Delete"
+          >✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills tab panel (v-show — state survives tab switches) -->
+    <div v-show="activeTab === 'skills'">
+      <div class="mb-4 flex items-center justify-between">
+        <h3 class="t-h3" style="color: var(--fg)">Skills</h3>
+      </div>
+
+      <!-- Skill category cards grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px;">
+        <div
+          v-for="cat in skillCategories"
+          :key="cat.id"
+          class="rounded-2xl p-6"
+          style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;"
+        >
+          <!-- Card header: category name + delete -->
+          <div class="mb-4 flex items-center justify-between">
+            <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
+            <button
+              style="background: none; border: none; cursor: pointer; color: #ff4d4d; font-size: 14px; padding: 0;"
+              @click="deleteCategory(cat.id)"
+              title="Delete category"
+            >✕</button>
+          </div>
+
+          <!-- Chip list -->
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 32px;">
+            <span
+              v-for="(skill, i) in categorySkills[cat.id]"
+              :key="skill"
+              class="chip"
+              style="display: inline-flex; align-items: center; gap: 4px;"
+            >
+              {{ skill }}
+              <button
+                style="background: none; border: none; cursor: pointer; color: inherit; padding: 0; line-height: 1;"
+                @click="removeSkill(cat.id, i)"
+              >✕</button>
+            </span>
+          </div>
+
+          <!-- New skill input (D-11: Enter to add) -->
+          <div class="mb-4">
+            <input
+              v-model="categoryNewSkill[cat.id]"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
+              placeholder="Add skill… (Enter to add)"
+              @keydown.enter.prevent="addSkill(cat.id)"
+            />
+          </div>
+
+          <!-- Error banner -->
+          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+            {{ categoryError[cat.id] }}
+          </div>
+
+          <!-- Save button (D-13) -->
+          <button
+            :disabled="categorySaving[cat.id]"
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
+            style="background: var(--accent); color: var(--bg); margin-top: auto"
+            :style="categorySaving[cat.id] ? 'opacity: 0.5' : ''"
+            @click="saveCategory(cat.id)"
+          >
+            {{ categorySaving[cat.id] ? 'Saving…' : 'Save' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Category flow (D-12) -->
+      <div v-if="!addCategoryOpen">
+        <button
+          class="rounded-lg px-4 py-2 text-sm font-medium"
+          style="border: 1px solid var(--hairline); color: var(--fg-dim); background: none; cursor: pointer"
+          @click="addCategoryOpen = true"
+        >+ Add Category</button>
+      </div>
+      <div v-else class="rounded-xl p-4" style="background: var(--bg-elev); border: 1px solid var(--hairline); max-width: 400px;">
+        <div class="mb-3">
+          <label class="t-label mb-1 block text-xs" style="color: var(--fg-dim)">Category Name</label>
+          <input
+            v-model="newCategoryName"
+            class="w-full rounded-lg px-3 py-2 text-sm"
+            style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
+            placeholder="e.g. Backend"
+            @keydown.enter.prevent="submitAddCategory"
+          />
+        </div>
+        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+          {{ addCategoryError }}
+        </div>
+        <div style="display:flex;gap:8px">
+          <button
+            class="rounded-lg px-4 py-2 text-sm font-medium"
+            style="color: var(--fg-dim); border: 1px solid var(--hairline); background: none; cursor: pointer"
+            @click="addCategoryOpen = false; newCategoryName = ''; addCategoryError = null"
+          >Cancel</button>
+          <button
+            :disabled="addCategorySaving"
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
+            style="background: var(--accent); color: var(--bg)"
+            :style="addCategorySaving ? 'opacity: 0.5' : ''"
+            @click="submitAddCategory"
+          >{{ addCategorySaving ? 'Creating…' : 'Create' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Experience Modal (v-if — intentional unmount on close) -->
+    <div
+      v-if="expModal.open"
+      style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
+      @click.self="expModal.open = false"
+    >
+      <div class="rounded-2xl p-6" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+        <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ expModal.mode === 'add' ? 'Add Experience' : 'Edit Experience' }}</h3>
+
+        <div class="space-y-4">
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">title</label>
+            <input
+              v-model="expModal.data.title"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Senior Software Engineer"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">company</label>
+            <input
+              v-model="expModal.data.company"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Acme Corp"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
+            <input
+              v-model="expModal.data.location"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Barcelona, ES"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
+            <input
+              v-model="expModal.data.years"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. 2022 — Present"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
+            <textarea
+              v-model="expModal.data.description"
+              rows="4"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none;resize:vertical"
+              placeholder="Brief description of responsibilities…"
+            />
+          </div>
+        </div>
+
+        <!-- Modal error banner -->
+        <div v-if="modalError" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+          {{ modalError }}
+        </div>
+
+        <!-- Modal footer -->
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            class="rounded-lg px-4 py-2 text-sm font-medium"
+            style="color:var(--fg-dim);border:1px solid var(--hairline);background:none;cursor:pointer"
+            @click="expModal.open = false"
+          >Cancel</button>
+          <button
+            :disabled="modalSaving"
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
+            style="background:var(--accent);color:var(--bg)"
+            :style="modalSaving ? 'opacity:0.5' : ''"
+            @click="saveExpModal"
+          >{{ modalSaving ? 'Saving…' : 'Save' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education Modal (v-if — intentional unmount on close) -->
+    <div
+      v-if="eduModal.open"
+      style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
+      @click.self="eduModal.open = false"
+    >
+      <div class="rounded-2xl p-6" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+        <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ eduModal.mode === 'add' ? 'Add Education' : 'Edit Education' }}</h3>
+
+        <div class="space-y-4">
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Title</label>
+            <input
+              v-model="eduModal.data.title"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Bachelor's in Computer Science"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution</label>
+            <input
+              v-model="eduModal.data.institution"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Universitat Politècnica de Catalunya"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
+            <input
+              v-model="eduModal.data.location"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. Barcelona, ES"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
+            <input
+              v-model="eduModal.data.years"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
+              placeholder="e.g. 2018 — 2022"
+            />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
+            <textarea
+              v-model="eduModal.data.description"
+              rows="4"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none;resize:vertical"
+              placeholder="Specialisation or relevant details…"
+            />
+          </div>
+        </div>
+
+        <!-- Modal error banner -->
+        <div v-if="modalError" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+          {{ modalError }}
+        </div>
+
+        <!-- Modal footer -->
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            class="rounded-lg px-4 py-2 text-sm font-medium"
+            style="color:var(--fg-dim);border:1px solid var(--hairline);background:none;cursor:pointer"
+            @click="eduModal.open = false"
+          >Cancel</button>
+          <button
+            :disabled="modalSaving"
+            class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
+            style="background:var(--accent);color:var(--bg)"
+            :style="modalSaving ? 'opacity:0.5' : ''"
+            @click="saveEduModal"
+          >{{ modalSaving ? 'Saving…' : 'Save' }}</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
