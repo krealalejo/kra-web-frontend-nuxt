@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'

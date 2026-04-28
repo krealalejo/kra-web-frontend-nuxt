@@ -19,7 +19,16 @@ export function useMarkdown() {
   }
 
   async function sanitizeMarkdown(text: string): Promise<string> {
-    const html = await marked.parse(text)
+    const renderer = new (marked as any).Renderer()
+    renderer.heading = ({ text, depth }: any) => {
+      const id = text.toLowerCase()
+        .replace(/<[^>]*>?/gm, '') // Strip HTML tags
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+      return `<h${depth} id="${id}">${text}</h${depth}>`
+    }
+    const html = await marked.parse(text, { renderer })
     if (process.server) {
       const { default: sanitizeHtml } = await import('sanitize-html')
       return sanitizeHtml(html, {
@@ -27,11 +36,36 @@ export function useMarkdown() {
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
           img: ['src', 'alt', 'title'],
+          h1: ['id'],
+          h2: ['id'],
+          h3: ['id'],
+          h4: ['id'],
+          h5: ['id'],
+          h6: ['id'],
         },
       })
     }
     return DOMPurify.sanitize(html)
   }
 
-  return { stripMarkdown, sanitizeMarkdown }
+  function extractHeadings(text: string): { title: string; id: string }[] {
+    const headings: { title: string; id: string }[] = []
+    const lines = text.split('\n')
+    for (const line of lines) {
+      const match = line.match(/^##\s+(.+)$/)
+      if (match) {
+        const rawTitle = match[1].trim()
+        const title = stripMarkdown(rawTitle)
+        // Generate a slug similar to what marked might produce
+        const id = title.toLowerCase()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_-]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+        headings.push({ title, id })
+      }
+    }
+    return headings
+  }
+
+  return { stripMarkdown, sanitizeMarkdown, extractHeadings }
 }

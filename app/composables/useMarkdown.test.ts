@@ -2,11 +2,20 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import { useMarkdown } from './useMarkdown'
 
 // Mock marked and dompurify for unit tests
-vi.mock('marked', () => ({
-  marked: {
-    parse: (text: string) => `<p>${text}</p>`,
-  },
-}))
+vi.mock('marked', () => {
+  class Renderer {
+    heading = vi.fn()
+    paragraph = vi.fn((text: string) => text)
+    text = vi.fn((text: string) => text)
+  }
+  return {
+    marked: {
+      parse: vi.fn().mockImplementation((text: string) => `<p>${text}</p>`),
+      Renderer,
+    },
+    Renderer,
+  }
+})
 
 vi.mock('dompurify', () => ({
   default: {
@@ -120,6 +129,36 @@ describe('useMarkdown', () => {
       vi.stubGlobal('process', { server: false })
       const result = await sanitizeMarkdown('hello world')
       expect(typeof result).toBe('string')
+    })
+  })
+
+  describe('extractHeadings', () => {
+    it('extracts level 2 headings', () => {
+      const { extractHeadings } = useMarkdown()
+      const text = '## Heading 1\nSome text\n## Heading 2'
+      const result = extractHeadings(text)
+      expect(result).toHaveLength(2)
+      expect(result[0]).toEqual({ title: 'Heading 1', id: 'heading-1' })
+      expect(result[1]).toEqual({ title: 'Heading 2', id: 'heading-2' })
+    })
+
+    it('ignores other levels', () => {
+      const { extractHeadings } = useMarkdown()
+      const text = '# Level 1\n### Level 3'
+      const result = extractHeadings(text)
+      expect(result).toHaveLength(0)
+    })
+
+    it('slugifies titles with special characters', () => {
+      const { extractHeadings } = useMarkdown()
+      const text = '## Hello World! @2024'
+      const result = extractHeadings(text)
+      expect(result[0].id).toBe('hello-world-2024')
+    })
+
+    it('handles empty string', () => {
+      const { extractHeadings } = useMarkdown()
+      expect(extractHeadings('')).toHaveLength(0)
     })
   })
 })

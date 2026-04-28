@@ -41,9 +41,17 @@ vi.mock('~/composables/useMermaid', () => ({
   useMermaid: () => ({ renderDiagrams: renderDiagramsMock }),
 }))
 
-vi.mock('marked', () => ({
-  marked: { parse: (text: string) => `<p>${text}</p>` },
-}))
+vi.mock('marked', () => {
+  class Renderer {
+    heading = vi.fn()
+    paragraph = vi.fn((text: string) => text)
+    text = vi.fn((text: string) => text)
+  }
+  return {
+    marked: { parse: vi.fn().mockImplementation((text: string) => `<p>${text}</p>`), Renderer },
+    Renderer,
+  }
+})
 
 vi.mock('dompurify', () => ({
   default: { sanitize: (html: string) => html },
