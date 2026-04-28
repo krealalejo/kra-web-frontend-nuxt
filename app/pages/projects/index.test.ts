@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
@@ -200,5 +200,27 @@ describe('pages/projects/index.vue', () => {
     const cards = wrapper.findAll('.proj-card')
     expect(cards).toHaveLength(1)
     expect(cards[0]!.text()).toContain('P2')
+  })
+
+  it('triggers gsap animation when a filter button is clicked', async () => {
+    const { default: gsap } = await import('gsap')
+    const mockProjects = [{ name: 'P1', owner: 'o', fullName: 'o/p1', kind: 'Backend' }]
+    mockFetch.mockResolvedValue(mockProjects)
+    const wrapper = await mountSuspended(ProjectsPage)
+    await flushPromises()
+
+    // Clear mocks after initial load animation
+    vi.mocked(gsap.fromTo).mockClear()
+
+    const buttons = wrapper.findAll('button.chip')
+    const backendButton = buttons.find(b => b.text() === 'backend')
+    await backendButton?.trigger('click')
+    await nextTick()
+
+    expect(gsap.fromTo).toHaveBeenCalledWith(
+      '.proj-card',
+      expect.objectContaining({ opacity: 0 }),
+      expect.objectContaining({ stagger: expect.any(Number) })
+    )
   })
 })
