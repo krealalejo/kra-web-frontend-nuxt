@@ -3,10 +3,8 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import CvPage from './cv.vue'
 
-// Variable to store mock data for useAsyncData
 let mockData: Record<string, any> = {}
 
-// Mock useAsyncData — returns data based on mockData state
 mockNuxtImport('useAsyncData', () => {
   return vi.fn().mockImplementation((key: string) => {
     return { data: ref(mockData[key] || null) }
@@ -39,7 +37,6 @@ describe('pages/cv.vue', () => {
     const text = wrapper.text()
     expect(text).toContain('Summary')
     expect(text).toContain('Elsewhere')
-    // Dynamic sections should not be visible when data is null
     expect(text).not.toContain('Experience')
   })
 })
@@ -100,7 +97,7 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
     }
 
     const wrapper = await mountSuspended(CvPage)
-    
+
     const img = wrapper.find('img[alt="Kevin Real Alejo"]')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toContain('thumbnails/portrait-thumb.webp')

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeAll } from 'vitest'
 
-// Stub Nuxt/H3 server-side auto-imports before module load
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('getCookie', vi.fn())
 
@@ -29,7 +28,6 @@ describe('session.get', () => {
     const getCookieMock = vi.fn().mockReturnValue('some-session-token')
     vi.stubGlobal('getCookie', getCookieMock)
 
-    // Re-import with new mock (module is cached, but handler closes over global getCookie)
     const mod = await import('./session.get')
     const handler = mod.default as Function
     const result = handler({ node: { req: {}, res: {} } })

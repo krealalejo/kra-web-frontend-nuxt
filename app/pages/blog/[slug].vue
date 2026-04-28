@@ -72,7 +72,7 @@ onMounted(() => {
 const thumbUrl = computed(() => {
   if (!post.value?.imageUrl) return null
   const thumbKey = post.value.imageUrl
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${config.public.s3PublicBucketUrl}/${thumbKey}`
 })

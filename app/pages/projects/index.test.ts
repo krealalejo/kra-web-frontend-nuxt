@@ -149,11 +149,9 @@ describe('pages/projects/index.vue', () => {
 
     const wrapper = await mountSuspended(ProjectsPage)
 
-    // We expect skeletons to be visible while pending
     const skeletons = wrapper.findAllComponents({ name: 'SkeletonProjectCard' })
     expect(skeletons.length).toBeGreaterThan(0)
 
-    // Resolve fetch and wait for updates
     resolveFetch([])
     await flushPromises()
 
@@ -192,7 +190,6 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
 
-    // Find "Frontend" button
     const buttons = wrapper.findAll('button.chip')
     const frontendButton = buttons.find(b => b.text() === 'frontend')
     await frontendButton?.trigger('click')
@@ -209,7 +206,6 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
 
-    // Clear mocks after initial load animation
     vi.mocked(gsap.fromTo).mockClear()
 
     const buttons = wrapper.findAll('button.chip')

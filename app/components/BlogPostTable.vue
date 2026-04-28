@@ -14,7 +14,7 @@ const runtimeConfig = useRuntimeConfig()
 
 function getThumbUrl(key: string): string {
   const thumbKey = key
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
 }
@@ -48,15 +48,15 @@ function formatDate(iso: string): string {
           style="border-bottom: 1px solid var(--hairline)"
         >
           <td class="px-6 py-4">
-            <div 
+            <div
               class="w-10 h-10 rounded-lg overflow-hidden flex items-center justify-center"
               style="background: var(--bg-sunken); border: 1px solid var(--hairline)"
             >
-              <img 
-                v-if="post.imageUrl" 
-                :src="getThumbUrl(post.imageUrl)" 
-                class="w-full h-full object-cover" 
-                alt="Thumb" 
+              <img
+                v-if="post.imageUrl"
+                :src="getThumbUrl(post.imageUrl)"
+                class="w-full h-full object-cover"
+                alt="Thumb"
               />
               <Icon v-else name="lucide:image" class="w-4 h-4 opacity-20" />
             </div>

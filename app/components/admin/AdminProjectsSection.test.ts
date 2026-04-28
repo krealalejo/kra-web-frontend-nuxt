@@ -22,33 +22,32 @@ vi.stubGlobal('$fetch', mockFetch)
 describe('components/admin/AdminProjectsSection.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
-    // Default mock behavior to prevent infinite loops or errors in setup
     mockFetch.mockResolvedValue([])
   })
 
   it('renders loading state initially', async () => {
-    mockFetch.mockReturnValue(new Promise(() => {})) // Never resolves
+    mockFetch.mockReturnValue(new Promise(() => {}))
     const wrapper = await mountSuspended(AdminProjectsSection)
     expect(wrapper.text()).toContain('Loading repositories')
   })
 
   it('renders repos and metadata correctly', async () => {
     mockFetch
-      .mockResolvedValueOnce(mockRepos) // First call for repos
-      .mockResolvedValueOnce(mockMetadata) // Second call for metadata repo1
-      .mockRejectedValueOnce(new Error('Not found')) // Third call for metadata repo2
+      .mockResolvedValueOnce(mockRepos)
+      .mockResolvedValueOnce(mockMetadata)
+      .mockRejectedValueOnce(new Error('Not found'))
 
     const wrapper = await mountSuspended(AdminProjectsSection)
     await flushPromises()
 
     expect(wrapper.text()).toContain('owner1/repo1')
     expect(wrapper.text()).toContain('owner2/repo2')
-    expect(wrapper.text()).toContain('Metadata') // Shows for repo1
-    expect(wrapper.text()).toContain('Add metadata') // Shows for repo2
+    expect(wrapper.text()).toContain('Metadata')
+    expect(wrapper.text()).toContain('Add metadata')
   })
 
   it('opens add modal when Add metadata is clicked', async () => {
-    mockFetch.mockResolvedValueOnce([mockRepos[1]]) // Only repo2
+    mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
     const wrapper = await mountSuspended(AdminProjectsSection)
@@ -67,7 +66,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     const wrapper = await mountSuspended(AdminProjectsSection)
     await flushPromises()
 
-    await wrapper.find('button').trigger('click') // Open modal
+    await wrapper.find('button').trigger('click')
 
     const input = wrapper.find('input[placeholder="Add technology…"]')
     await input.setValue('typescript')
@@ -83,17 +82,17 @@ describe('components/admin/AdminProjectsSection.vue', () => {
   it('saves metadata successfully', async () => {
     mockFetch
       .mockResolvedValueOnce([mockRepos[1]])
-      .mockRejectedValueOnce(new Error('Not found')) // Initial metadata check
-      .mockResolvedValueOnce(mockMetadata) // Save call
+      .mockRejectedValueOnce(new Error('Not found'))
+      .mockResolvedValueOnce(mockMetadata)
 
     const wrapper = await mountSuspended(AdminProjectsSection)
     await flushPromises()
 
-    await wrapper.find('button').trigger('click') // Open modal
-    await wrapper.find('button.btn-primary').trigger('click') // Click save
+    await wrapper.find('button').trigger('click')
+    await wrapper.find('button.btn-primary').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).not.toContain('Add project metadata') // Modal closed
+    expect(wrapper.text()).not.toContain('Add project metadata')
   })
 
   it('handles save error', async () => {

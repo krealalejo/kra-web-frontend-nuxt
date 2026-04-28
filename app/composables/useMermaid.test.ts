@@ -124,7 +124,7 @@ describe('useMermaid', () => {
     const { renderDiagrams, reRender } = useMermaid()
     const container = document.createElement('div')
     container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
-    
+
     await renderDiagrams(container)
     vi.clearAllMocks()
 
@@ -138,7 +138,7 @@ describe('useMermaid', () => {
       expect.stringContaining('mermaid-re-'),
       expect.stringContaining('graph TD; A-->B;')
     )
-    
+
     document.documentElement.classList.remove('dark')
   })
 
@@ -147,7 +147,6 @@ describe('useMermaid', () => {
     const container = document.createElement('div')
     const wrapper = document.createElement('div')
     wrapper.className = 'mermaid-diagram'
-    // no data-source
     container.appendChild(wrapper)
 
     await reRender(container)

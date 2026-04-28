@@ -45,7 +45,6 @@ function closeDeleteModal() {
 
 <template>
   <div>
-    <!-- Page header -->
     <div class="mb-12 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
       <div>
         <h1 class="t-h2">Blog Posts</h1>
@@ -61,13 +60,11 @@ function closeDeleteModal() {
       </button>
     </div>
 
-    <!-- Loading state -->
     <div v-if="store.loading" class="flex flex-col items-center justify-center py-20 gap-4">
       <div class="w-8 h-8 rounded-full border-2 border-[var(--hairline)] border-t-[var(--accent)] animate-spin"></div>
       <p class="t-label" style="font-size: 11px">Loading posts…</p>
     </div>
 
-    <!-- Error state -->
     <div
       v-else-if="store.error && !store.loading"
       class="mb-8 rounded-xl p-6 text-sm"
@@ -79,7 +76,6 @@ function closeDeleteModal() {
       </div>
     </div>
 
-    <!-- Empty state -->
     <div
       v-else-if="!store.loading && store.posts.length === 0"
       class="rounded-2xl px-6 py-20 text-center"
@@ -101,7 +97,6 @@ function closeDeleteModal() {
       </button>
     </div>
 
-    <!-- Posts table -->
     <BlogPostTable
       v-else
       :posts="store.posts"
@@ -109,7 +104,6 @@ function closeDeleteModal() {
       @delete="openDeleteModal"
     />
 
-    <!-- Create/Edit form modal -->
     <ClientOnly>
       <BlogPostForm
         :open="showFormModal"
@@ -119,7 +113,6 @@ function closeDeleteModal() {
       />
     </ClientOnly>
 
-    <!-- Delete confirmation modal -->
     <ClientOnly>
       <BlogPostDeleteModal
         :open="showDeleteModal"

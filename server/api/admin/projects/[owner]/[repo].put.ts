@@ -18,7 +18,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  // Allowlist body fields — do not forward arbitrary keys
   const safeBody = {
     ...(body.role !== undefined && { role: body.role }),
     ...(body.year !== undefined && { year: body.year }),

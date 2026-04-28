@@ -18,7 +18,6 @@ const { data: projects, error, pending } = useAsyncData(
   { lazy: true }
 )
 
-// Fetch portrait URL from API (lazy — does not block SSR)
 const { data: profileData } = useAsyncData(
   'home-profile',
   async () => {
@@ -39,7 +38,7 @@ const homePortraitThumbUrl = computed(() => {
   const key = profileData.value?.homePortraitUrl
   if (!key) return null
   const thumbKey = key
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
 })
@@ -81,14 +80,12 @@ onMounted(async () => {
     )
   })
 
-  // Fetch activity cards from API (fail silently on public page)
   try {
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
     activityCards.value = await $fetch<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>(
       `${apiBase}/activity`
     )
   } catch {
-    // Fail silently — no error shown to visitor
   }
 })
 
@@ -106,7 +103,6 @@ watch(pending, (isPending) => {
   }
 })
 
-// Activity cards — fetched client-side (public endpoint, no auth needed)
 const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>([])
 
 function overlineLabel(type: string): string {
@@ -128,7 +124,6 @@ function projectNum(i: number) {
 
 <template>
   <div ref="heroRef">
-    <!-- Hero -->
     <section class="home-hero">
       <div class="shell">
         <div class="hero-grid">
@@ -154,14 +149,12 @@ function projectNum(i: number) {
             <div class="hero-portrait">
               <span class="corner tl" /><span class="corner tr" />
               <span class="corner bl" /><span class="corner br" />
-              <!-- Real portrait when available -->
               <img
                 v-if="homePortraitThumbUrl"
                 :src="homePortraitThumbUrl"
                 alt="Kevin Real Alejo"
                 style="width:100%;height:100%;object-fit:cover;display:block;"
               />
-              <!-- Placeholder when no portrait configured -->
               <div v-else class="ph-center">
                 <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
                   <circle cx="22" cy="17" r="7" />
@@ -180,7 +173,6 @@ function projectNum(i: number) {
       </div>
     </section>
 
-    <!-- Marquee -->
     <div class="kra-marquee">
       <div class="kra-marquee-track">
         <span
@@ -191,7 +183,6 @@ function projectNum(i: number) {
       </div>
     </div>
 
-    <!-- Projects section -->
     <section class="kra-section">
       <div class="shell">
         <div class="section-head reveal-scroll">
@@ -227,7 +218,6 @@ function projectNum(i: number) {
           </template>
         </div>
 
-        <!-- Error / empty state -->
         <div v-if="error" role="alert" style="padding:32px 16px;color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;">
           API unavailable — set NUXT_PUBLIC_API_BASE_URL to load projects.
         </div>
@@ -244,7 +234,6 @@ function projectNum(i: number) {
       </div>
     </section>
 
-    <!-- GitHub Activity section -->
     <section class="kra-section" style="padding-top:40px;">
       <div class="shell">
         <div class="section-head reveal-scroll">

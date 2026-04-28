@@ -87,7 +87,6 @@ const onLeave = (el: Element, done: () => void) => {
             <template #fallback><span style="width:36px;height:36px;display:inline-block" /></template>
           </ClientOnly>
 
-          <!-- Mobile hamburger -->
           <button
             class="kra-theme-btn"
             style="display:none"

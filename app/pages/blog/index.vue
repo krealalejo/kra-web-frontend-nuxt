@@ -20,7 +20,7 @@ function postNum(i: number) { return String(i + 1).padStart(2, '0') }
 function getThumbUrl(post: BlogPostDto) {
   if (!post.imageUrl) return null
   const thumbKey = post.imageUrl
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${config.public.s3PublicBucketUrl}/${thumbKey}`
 }

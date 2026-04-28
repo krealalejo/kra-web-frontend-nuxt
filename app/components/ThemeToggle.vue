@@ -16,7 +16,6 @@ onMounted(() => {
     @click="toggle($event)"
   >
     <ClientOnly>
-      <!-- Sun icon -->
       <svg
         v-if="isDark"
         xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +32,6 @@ onMounted(() => {
           d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364-.707.707M6.343 17.657l-.707.707M17.657 17.657l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"
         />
       </svg>
-      <!-- Moon icon -->
       <svg
         v-else
         xmlns="http://www.w3.org/2000/svg"

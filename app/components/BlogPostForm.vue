@@ -21,7 +21,6 @@ const { fields: references, push: addReference, remove: removeReference } = useF
 const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
-// Image upload state
 const imageFile = ref<File | null>(null)
 const imageUploading = ref(false)
 const thumbReady = ref(false)
@@ -31,9 +30,8 @@ const runtimeConfig = useRuntimeConfig()
 
 const thumbUrl = computed(() => {
   if (!imageUrl.value) return null
-  // Derive thumbnail key: images/abc.jpg -> thumbnails/abc-thumb.webp
   const thumbKey = imageUrl.value
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
 })
@@ -49,13 +47,11 @@ async function handleImageUpload(event: Event) {
   formError.value = null
 
   try {
-    // Step 1: Get presigned URL
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
       method: 'POST',
       body: { filename: file.name, contentType: file.type },
     })
 
-    // Step 2: PUT file to S3
     await $fetch(uploadUrl, {
       method: 'PUT',
       headers: { 'Content-Type': file.type },
@@ -64,7 +60,6 @@ async function handleImageUpload(event: Event) {
 
     imageUrl.value = s3Key
 
-    // Step 3: Poll for thumbnail
     let attempts = 0
     isThumbnailPolling.value = true
     const poll = setInterval(async () => {
@@ -90,7 +85,6 @@ async function handleImageUpload(event: Event) {
       }
     }, 2000)
 
-    // Cleanup interval if component is unmounted
     onUnmounted(() => clearInterval(poll))
   } catch (e: unknown) {
     formError.value = e instanceof Error ? e.message : 'Image upload failed'
@@ -139,17 +133,17 @@ const onSubmit = handleSubmit(async (values) => {
   formError.value = null
   try {
     if (isEditMode.value && props.post) {
-      await store.updatePost(props.post.slug, { 
-        title: values.title, 
-        content: values.content, 
+      await store.updatePost(props.post.slug, {
+        title: values.title,
+        content: values.content,
         references: values.references ?? [],
-        imageUrl: values.imageUrl 
+        imageUrl: values.imageUrl
       })
     } else {
-      await store.createPost({ 
-        slug: values.slug, 
-        title: values.title, 
-        content: values.content, 
+      await store.createPost({
+        slug: values.slug,
+        title: values.title,
+        content: values.content,
         references: values.references ?? [],
         imageUrl: values.imageUrl
       })
@@ -164,11 +158,10 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
   <Dialog :open="open" class="relative z-50" @close="emit('close')">
-    <!-- Backdrop -->
     <div class="fixed inset-0 backdrop-blur-md" style="background:color-mix(in srgb, var(--bg) 60%, transparent)" aria-hidden="true" />
 
     <div class="fixed inset-0 flex items-start justify-center p-4 overflow-y-auto">
-      <DialogPanel 
+      <DialogPanel
         class="w-full max-w-6xl rounded-2xl p-8 my-8 transition-all"
         style="background:var(--bg-elev); border: 1px solid var(--hairline); box-shadow: 0 40px 100px rgba(0,0,0,0.4)"
       >
@@ -199,7 +192,6 @@ const onSubmit = handleSubmit(async (values) => {
 
         <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
           <div class="grid grid-cols-2 gap-6">
-            <!-- Slug -->
             <div class="flex flex-col gap-2">
               <label for="post-slug" class="t-label" style="font-size: 10px">Slug</label>
               <input
@@ -215,7 +207,6 @@ const onSubmit = handleSubmit(async (values) => {
               <span v-if="slugError" class="text-[10px] text-red-400 font-mono">{{ slugError }}</span>
             </div>
 
-            <!-- Title -->
             <div class="flex flex-col gap-2">
               <label for="post-title" class="t-label" style="font-size: 10px">Title</label>
               <input
@@ -230,7 +221,6 @@ const onSubmit = handleSubmit(async (values) => {
             </div>
           </div>
 
-          <!-- Content split-pane -->
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
               <label class="t-label" style="font-size: 10px">Content (Markdown)</label>
@@ -254,12 +244,11 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="contentError" class="text-[10px] text-red-400 font-mono">{{ contentError }}</span>
           </div>
 
-          <!-- Image Upload -->
           <div class="flex flex-col gap-3 p-6 rounded-xl" style="background: var(--overlay); border: 1px solid var(--hairline)">
             <label class="t-label" style="font-size: 10px">Cover Image</label>
             <div class="flex items-center gap-6">
-              <div 
-                v-if="thumbReady && thumbUrl" 
+              <div
+                v-if="thumbReady && thumbUrl"
                 class="relative h-24 w-24 rounded-lg overflow-hidden group"
                 style="border: 1px solid var(--hairline)"
               >
@@ -273,15 +262,15 @@ const onSubmit = handleSubmit(async (values) => {
                   <Icon name="lucide:trash-2" class="w-5 h-5 text-red-400" />
                 </button>
               </div>
-              <div 
-                v-else-if="imageUrl && !thumbReady" 
+              <div
+                v-else-if="imageUrl && !thumbReady"
                 class="h-24 w-24 rounded-lg flex flex-col items-center justify-center gap-2"
                 style="background: var(--bg-sunken); border: 1px dashed var(--hairline)"
               >
                 <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin" style="color: var(--accent)" />
                 <span class="text-[8px] uppercase tracking-tighter opacity-50">Processing</span>
               </div>
-              
+
               <div class="flex-1">
                 <input
                   type="file"
@@ -290,7 +279,7 @@ const onSubmit = handleSubmit(async (values) => {
                   accept="image/*"
                   @change="handleImageUpload"
                 />
-                <label 
+                <label
                   for="image-upload"
                   class="btn btn-ghost inline-flex items-center gap-2 cursor-pointer"
                   :class="{ 'opacity-50 pointer-events-none': imageUploading || isThumbnailPolling }"
@@ -306,7 +295,6 @@ const onSubmit = handleSubmit(async (values) => {
             </div>
           </div>
 
-          <!-- References -->
           <div class="flex flex-col gap-3 p-6 rounded-xl" style="background: var(--overlay); border: 1px solid var(--hairline)">
             <div class="flex items-center justify-between">
               <label class="t-label" style="font-size: 10px">References & Links</label>
@@ -353,7 +341,6 @@ const onSubmit = handleSubmit(async (values) => {
             </p>
           </div>
 
-          <!-- Footer buttons -->
           <div class="flex justify-end gap-3 pt-4" style="border-top: 1px solid var(--hairline)">
             <button
               type="button"

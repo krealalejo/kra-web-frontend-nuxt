@@ -113,12 +113,10 @@ describe('pages/admin/index.vue', () => {
     const wrapper = await mountSuspended(AdminIndexPage)
 
     const form = wrapper.findComponent({ name: 'BlogPostForm' })
-    // Simulate opening
     const createBtn = wrapper.findAll('button').find(b => b.text().includes('Create Post'))
     if (createBtn) await createBtn.trigger('click')
     expect(form.props('open')).toBe(true)
 
-    // Simulate closing via emit
     await form.vm.$emit('close')
     expect(form.props('open')).toBe(false)
     expect(form.props('post')).toBeNull()

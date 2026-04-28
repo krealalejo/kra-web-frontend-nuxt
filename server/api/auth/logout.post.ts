@@ -8,7 +8,6 @@ export default defineEventHandler(async (event) => {
     path: '/',
   })
 
-  // Clear the non-httpOnly email cookie (options must match setCookie in callback.get.ts)
   deleteCookie(event, 'kra_user', {
     httpOnly: false,
     secure: process.env.NODE_ENV === 'production',

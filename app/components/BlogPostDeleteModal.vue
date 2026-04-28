@@ -36,7 +36,7 @@ async function confirmDelete() {
   <Dialog :open="open" class="relative z-50" @close="emit('close')">
     <div class="fixed inset-0 backdrop-blur-md" style="background:color-mix(in srgb, var(--bg) 60%, transparent)" aria-hidden="true" />
     <div class="fixed inset-0 flex items-center justify-center p-4">
-      <DialogPanel 
+      <DialogPanel
         class="w-full max-w-md rounded-2xl p-8 transition-all"
         style="background:var(--bg-elev); border: 1px solid var(--hairline); box-shadow: 0 40px 100px rgba(0,0,0,0.4)"
       >

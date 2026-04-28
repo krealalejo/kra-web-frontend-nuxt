@@ -183,7 +183,7 @@ describe('pages/blog/[slug].vue', () => {
     })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    
+
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toContain('thumbnails/header-thumb.webp')

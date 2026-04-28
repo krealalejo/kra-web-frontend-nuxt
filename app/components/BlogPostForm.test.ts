@@ -70,9 +70,9 @@ describe('components/BlogPostForm.vue', () => {
         }
       }
     })
-    
+
     await wrapper.find('form').trigger('submit.prevent')
-    
+
     await vi.waitFor(() => {
       expect(wrapper.text()).toContain('Title required')
     })
@@ -118,15 +118,12 @@ describe('components/BlogPostForm.vue', () => {
       }
     })
 
-    // Initially should show the image (mocked thumbUrl logic in component handles this)
     expect(wrapper.find('img').exists()).toBe(true)
 
-    // Click remove button
     const removeBtn = wrapper.find('button[title="Remove image"]')
     expect(removeBtn.exists()).toBe(true)
     await removeBtn.trigger('click')
 
-    // Image should be gone
     expect(wrapper.find('img').exists()).toBe(false)
   })
 
@@ -199,21 +196,16 @@ describe('components/BlogPostForm.vue', () => {
       }
     })
 
-    // Initially 0 references in mock
     expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
 
-    // Click add
     const addBtn = wrapper.find('button[type="button"].t-label')
     await addBtn.trigger('click')
 
-    // Should have one reference row
     expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(1)
 
-    // Click remove
     const removeBtn = wrapper.find('button.text-red-400')
     await removeBtn.trigger('click')
 
-    // Should be empty again
     expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
   })
 })

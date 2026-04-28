@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { useMarkdown } from './useMarkdown'
 
-// Mock marked and dompurify for unit tests
 vi.mock('marked', () => {
   class Renderer {
     heading = vi.fn()
@@ -119,8 +118,6 @@ describe('useMarkdown', () => {
       vi.stubGlobal('process', { server: true })
       const result = await sanitizeMarkdown('hello <script>alert("xss")</script> world')
       expect(typeof result).toBe('string')
-      // Our mock returns the input as is, but in a real scenario it would be sanitized.
-      // Since we mock sanitize-html, we just verify it's called.
     })
 
     it('uses DOMPurify on client', async () => {

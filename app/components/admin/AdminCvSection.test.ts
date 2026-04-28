@@ -91,13 +91,11 @@ describe('AdminCvSection', () => {
     const wrapper = await mountSuspended(AdminCvSection)
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
     await addBtn!.trigger('click')
-    // Modal heading should be visible
     expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(true)
 
     const cancelBtn = wrapper.findAll('button').find(b => b.text() === 'Cancel')
     await cancelBtn!.trigger('click')
     await nextTick()
-    // Modal heading gone (tab button "+ Add Experience" still exists but not modal h3)
     expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(false)
   })
 

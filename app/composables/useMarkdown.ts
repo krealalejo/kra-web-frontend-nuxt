@@ -36,7 +36,7 @@ export function useMarkdown() {
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
           img: ['src', 'alt', 'title'],
-          '*': ['class', 'id'], // Allow classes and ids for styling and Mermaid
+          '*': ['class', 'id'],
         },
       })
     }
@@ -51,7 +51,6 @@ export function useMarkdown() {
       if (match) {
         const rawTitle = match[1].trim()
         const title = stripMarkdown(rawTitle)
-        // Generate a slug similar to what marked might produce
         const id = title.toLowerCase()
           .replace(/[^\w\s-]/g, '')
           .replace(/[\s_-]+/g, '-')

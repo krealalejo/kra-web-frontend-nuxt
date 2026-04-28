@@ -18,7 +18,7 @@ export function useMermaid() {
         const { svg } = await mermaid.render(id, diagram)
         const wrapper = document.createElement('div')
         wrapper.className = 'mermaid-diagram my-4 overflow-x-auto'
-        wrapper.dataset.source = diagram // Store original code for re-renders
+        wrapper.dataset.source = diagram
         wrapper.innerHTML = svg
         pre.replaceWith(wrapper)
       } catch (e) {
@@ -34,7 +34,6 @@ export function useMermaid() {
 
     const { default: mermaid } = await import('mermaid')
     const isDark = document.documentElement.classList.contains('dark')
-    // We must re-initialize for the theme change to take effect in render()
     mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' })
 
     let counter = 0

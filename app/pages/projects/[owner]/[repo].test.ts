@@ -52,7 +52,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
   })
 
   it('renders loading state initially', async () => {
-    mockFetch.mockReturnValue(new Promise(() => {})) // Never resolves
+    mockFetch.mockReturnValue(new Promise(() => {}))
     const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
@@ -66,7 +66,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
       route: '/projects/owner/repo'
     })
     await flushPromises()
-    
+
     expect(wrapper.find('h1').text()).toContain('owner/repo')
     expect(wrapper.text()).toContain('Test repository')
     expect(wrapper.find('a[href="https://github.com/owner/repo"]').exists()).toBe(true)
@@ -78,7 +78,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
       route: '/projects/owner/repo'
     })
     await flushPromises()
-    
+
     expect(wrapper.text()).toContain('vue')
     expect(wrapper.text()).toContain('nuxt')
     expect(wrapper.text()).toContain('spring-boot')
@@ -123,7 +123,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
       route: '/projects/owner/repo'
     })
     await flushPromises()
-    
+
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Repository not found')
   })
@@ -134,7 +134,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
       route: '/projects/owner/repo'
     })
     await flushPromises()
-    
+
     expect(wrapper.text()).toContain('Missing NUXT_PUBLIC_API_BASE_URL')
   })
 
@@ -144,7 +144,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
       route: '/projects/owner/repo'
     })
     await flushPromises()
-    
+
     expect(wrapper.text()).toContain('README')
     expect(wrapper.find('div.prose').exists()).toBe(true)
   })

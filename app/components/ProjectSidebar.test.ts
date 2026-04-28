@@ -19,7 +19,7 @@ describe('components/ProjectSidebar.vue', () => {
       props: { headings }
     })
     const links = wrapper.findAll('.toc li a')
-    expect(links).toHaveLength(3) // README + 2 headings
+    expect(links).toHaveLength(3)
     expect(links[1].text()).toBe('Introduction')
     expect(links[1].attributes('href')).toBe('#intro')
   })

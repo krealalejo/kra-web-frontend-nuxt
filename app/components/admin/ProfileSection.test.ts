@@ -18,7 +18,7 @@ describe('ProfileSection', () => {
 
   it('renders both portrait previews when data is available', async () => {
     const wrapper = await mountSuspended(ProfileSection)
-    
+
     const imgs = wrapper.findAll('img')
     expect(imgs.length).toBe(2)
     expect(imgs[0].attributes('src')).toContain('thumbnails/home-thumb.webp')
@@ -28,7 +28,7 @@ describe('ProfileSection', () => {
   it('renders placeholders when data is null', async () => {
     mockFetch.mockResolvedValue({ homePortraitUrl: null, cvPortraitUrl: null })
     const wrapper = await mountSuspended(ProfileSection)
-    
+
     expect(wrapper.findAll('img').length).toBe(0)
     expect(wrapper.text()).toContain('No portrait')
   })
@@ -37,7 +37,7 @@ describe('ProfileSection', () => {
     const error = new Error('Fetch failed')
     ;(error as any).response = { status: 500 }
     mockFetch.mockRejectedValue(error)
-    
+
     const wrapper = await mountSuspended(ProfileSection)
     expect(wrapper.text()).toContain('Failed to load current portraits')
   })
@@ -46,7 +46,7 @@ describe('ProfileSection', () => {
     const error = new Error('Not found')
     ;(error as any).response = { status: 404 }
     mockFetch.mockRejectedValue(error)
-    
+
     const wrapper = await mountSuspended(ProfileSection)
     expect(wrapper.text()).not.toContain('Failed to load current portraits')
   })
@@ -54,10 +54,10 @@ describe('ProfileSection', () => {
   it('validates file type on upload', async () => {
     const wrapper = await mountSuspended(ProfileSection)
     const input = wrapper.find('input[type="file"]')
-    
+
     const file = new File([''], 'test.pdf', { type: 'application/pdf' })
     Object.defineProperty(input.element, 'files', { value: [file] })
-    
+
     await input.trigger('change')
     expect(wrapper.text()).toContain('Only JPEG, PNG, or WebP images are allowed')
   })
@@ -65,11 +65,11 @@ describe('ProfileSection', () => {
   it('validates file size on upload', async () => {
     const wrapper = await mountSuspended(ProfileSection)
     const input = wrapper.find('input[type="file"]')
-    
+
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
-    Object.defineProperty(file, 'size', { value: 6 * 1024 * 1024 }) // 6MB
+    Object.defineProperty(file, 'size', { value: 6 * 1024 * 1024 })
     Object.defineProperty(input.element, 'files', { value: [file] })
-    
+
     await input.trigger('change')
     expect(wrapper.text()).toContain('Image must be smaller than 5 MB')
   })
@@ -77,10 +77,10 @@ describe('ProfileSection', () => {
   it('performs full upload flow for home portrait', async () => {
     const wrapper = await mountSuspended(ProfileSection)
     const input = wrapper.find('input[type="file"]')
-    
+
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
     Object.defineProperty(input.element, 'files', { value: [file] })
-    
+
     mockFetch.mockImplementation((url) => {
       if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/new-home.jpg' })
       if (url === 's3://url') return Promise.resolve({})
@@ -88,19 +88,17 @@ describe('ProfileSection', () => {
       if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
       return Promise.resolve({})
     })
-    
+
     await input.trigger('change')
-    
-    // Check for processing state
+
     expect(wrapper.text()).toContain('Processing')
-    
-    // Advance timers to trigger the polling interval
+
     vi.advanceTimersByTime(2000)
-    
+
     await nextTick()
     await nextTick()
     await nextTick()
-    
+
     const img = wrapper.find('img[alt="Home portrait"]')
     expect(img.attributes('src')).toContain('thumbnails/new-home-thumb.webp')
     vi.useRealTimers()
@@ -108,11 +106,11 @@ describe('ProfileSection', () => {
 
   it('performs full upload flow for CV portrait', async () => {
     const wrapper = await mountSuspended(ProfileSection)
-    const input = wrapper.findAll('input[type="file"]')[1] // CV input
-    
+    const input = wrapper.findAll('input[type="file"]')[1]
+
     const file = new File([''], 'test-cv.jpg', { type: 'image/jpeg' })
     Object.defineProperty(input.element, 'files', { value: [file] })
-    
+
     mockFetch.mockImplementation((url) => {
       if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://cv-url', s3Key: 'images/new-cv.jpg' })
       if (url === 's3://cv-url') return Promise.resolve({})
@@ -120,17 +118,17 @@ describe('ProfileSection', () => {
       if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
       return Promise.resolve({})
     })
-    
+
     await input.trigger('change')
-    
+
     expect(wrapper.text()).toContain('Processing')
-    
+
     vi.advanceTimersByTime(2000)
-    
+
     await nextTick()
     await nextTick()
     await nextTick()
-    
+
     const img = wrapper.find('img[alt="CV portrait"]')
     expect(img.attributes('src')).toContain('thumbnails/new-cv-thumb.webp')
     vi.useRealTimers()
@@ -139,10 +137,10 @@ describe('ProfileSection', () => {
   it('handles upload error', async () => {
     const wrapper = await mountSuspended(ProfileSection)
     const input = wrapper.find('input[type="file"]')
-    
+
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
     Object.defineProperty(input.element, 'files', { value: [file] })
-    
+
     mockFetch.mockRejectedValue(new Error('Network error during upload'))
     await input.trigger('change')
     expect(wrapper.text()).toContain('Network error during upload')
@@ -150,28 +148,24 @@ describe('ProfileSection', () => {
 
   it('handles portrait deletion', async () => {
     const wrapper = await mountSuspended(ProfileSection)
-    
-    // Check initial state
+
     expect(wrapper.findAll('img').length).toBe(2)
-    
-    // Find delete button for Home portrait
+
     const deleteBtn = wrapper.find('button[title="Remove portrait"]')
     expect(deleteBtn.exists()).toBe(true)
-    
-    mockFetch.mockResolvedValue({}) // Successful PUT
-    
+
+    mockFetch.mockResolvedValue({})
+
     await deleteBtn.trigger('click')
-    
-    // Verify API call (should include both to avoid partial overwrite)
+
     expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
       method: 'PUT',
-      body: { 
+      body: {
         homePortraitUrl: null,
-        cvPortraitUrl: 'images/cv.jpg' // Preserved existing value from beforeEach
+        cvPortraitUrl: 'images/cv.jpg'
       }
     }))
-    
-    // Verify UI update
+
     await nextTick()
     expect(wrapper.find('img[alt="Home portrait"]').exists()).toBe(false)
   })

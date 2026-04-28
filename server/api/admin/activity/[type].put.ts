@@ -16,7 +16,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  // Only forward known activity card fields — prevents pass-through of unexpected properties
   const safeBody = {
     ...(body.title !== undefined && { title: body.title }),
     ...(body.description !== undefined && { description: body.description }),

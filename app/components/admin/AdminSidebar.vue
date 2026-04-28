@@ -46,8 +46,8 @@ function isLinkActive(href: string) {
         :key="item.name"
         :to="item.href"
         class="group flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200"
-        :style="isLinkActive(item.href) 
-          ? { background: 'var(--overlay)', color: 'var(--fg)', boxShadow: 'inset 0 0 0 1px var(--hairline)' } 
+        :style="isLinkActive(item.href)
+          ? { background: 'var(--overlay)', color: 'var(--fg)', boxShadow: 'inset 0 0 0 1px var(--hairline)' }
           : { color: 'var(--fg-dim)' }"
       >
         <Icon
@@ -59,7 +59,6 @@ function isLinkActive(href: string) {
       </NuxtLink>
     </nav>
 
-    <!-- User Profile Section -->
     <div class="p-4 space-y-4" style="border-top: 1px solid var(--hairline)">
       <div class="flex items-center gap-3 px-2">
         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--bg)] font-bold text-xs">

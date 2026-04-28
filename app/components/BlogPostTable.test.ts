@@ -34,7 +34,6 @@ describe('components/BlogPostTable.vue', () => {
     const wrapper = await mountSuspended(BlogPostTable, {
       props: { posts: [mockPosts[0]] }
     })
-    // 01 Jan 2023 or 01 Jan, 2023 depending on locale, but let's check for Jan 2023
     expect(wrapper.text()).toContain('2023')
     expect(wrapper.text()).toContain('Jan')
   })

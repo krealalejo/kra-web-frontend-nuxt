@@ -5,12 +5,12 @@ export function useGsapHeroAnimation() {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll('.gsap-hero-item').length === 0) return
-    gsap.from('.gsap-hero-item', { 
-      opacity: 0, 
-      y: 10, 
-      duration: 0.5, 
-      ease: 'power2.out', 
-      stagger: 0.1 
+    gsap.from('.gsap-hero-item', {
+      opacity: 0,
+      y: 10,
+      duration: 0.5,
+      ease: 'power2.out',
+      stagger: 0.1
     })
   })
 }
@@ -19,11 +19,11 @@ export function useGsapCardStagger(selector: string = 'li') {
   onMounted(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll(selector).length === 0) return
-    gsap.from(selector, { 
-      opacity: 0, 
-      y: 10, 
-      duration: 0.5, 
-      ease: 'power2.out', 
+    gsap.from(selector, {
+      opacity: 0,
+      y: 10,
+      duration: 0.5,
+      ease: 'power2.out',
       stagger: 0.1,
       delay: 0.2
     })

@@ -23,7 +23,7 @@ const onBeforeEnter = (el: Element) => {
 const onEnter = (el: Element, done: () => void) => {
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
-  
+
   if (overlay) {
     gsap.to(overlay, { opacity: 1, duration: 0.3, ease: 'power2.out' })
   }
@@ -37,7 +37,7 @@ const onEnter = (el: Element, done: () => void) => {
 const onLeave = (el: Element, done: () => void) => {
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
-  
+
   if (overlay) {
     gsap.to(overlay, { opacity: 0, duration: 0.3, ease: 'power2.in' })
   }

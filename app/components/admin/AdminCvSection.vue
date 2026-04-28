@@ -1,7 +1,5 @@
 <script setup lang="ts">
-// No Pinia store — direct $fetch pattern per D-16
 
-// --- TypeScript interfaces ---
 interface ExperienceEntry {
   id: string; title: string; company: string; location: string
   years: string; description: string; sortOrder: number
@@ -14,27 +12,21 @@ interface SkillCategory {
   id: string; name: string; skills: string[]; sortOrder: number
 }
 
-// --- Tab state (D-03) ---
 const activeTab = ref<'experience' | 'education' | 'skills' | 'pdf'>('experience')
 
-// --- Data refs (D-16: direct $fetch, no Pinia) ---
 const experience = ref<ExperienceEntry[]>([])
 const education = ref<EducationEntry[]>([])
 const skillCategories = ref<SkillCategory[]>([])
 
-// --- Loading/error state ---
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-// --- Per-operation saving/error state ---
 const deletingId = ref<string | null>(null)
 const deletingCategoryId = ref<string | null>(null)
 
-// Per-category saving state for Skills tab
 const categorySaving = reactive<Record<string, boolean>>({})
 const categoryError = reactive<Record<string, string | null>>({})
 
-// --- Experience modal (D-04) ---
 const expModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
@@ -43,7 +35,6 @@ const expModal = reactive({
   error: null as string | null,
 })
 
-// --- Education modal (D-04) ---
 const eduModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
@@ -52,23 +43,18 @@ const eduModal = reactive({
   error: null as string | null,
 })
 
-// --- Skills: per-category local chip state ---
-// Each category has local skills array (editable copy) and newSkill input
 const categorySkills = reactive<Record<string, string[]>>({})
 const categoryNewSkill = reactive<Record<string, string>>({})
 
-// --- Add Category state (D-12) ---
 const addCategoryOpen = ref(false)
 const newCategoryName = ref('')
 const addCategorySaving = ref(false)
 const addCategoryError = ref<string | null>(null)
 
-// --- onMounted: fetch all three CV sections ---
 onMounted(async () => {
   loading.value = true
   error.value = null
   try {
-    // Route reads through BFF so auth middleware covers reads as well as writes
     const [exp, edu, skills] = await Promise.all([
       $fetch<ExperienceEntry[]>('/api/admin/cv/experience'),
       $fetch<EducationEntry[]>('/api/admin/cv/education'),
@@ -77,7 +63,6 @@ onMounted(async () => {
     experience.value = exp
     education.value = edu
     skillCategories.value = skills
-    // Initialize per-category local state
     for (const cat of skills) {
       categorySkills[cat.id] = [...cat.skills]
       categoryNewSkill[cat.id] = ''
@@ -89,7 +74,6 @@ onMounted(async () => {
   }
 })
 
-// === EXPERIENCE CRUD ===
 
 function openAddExpModal() {
   expModal.mode = 'add'
@@ -110,7 +94,6 @@ async function saveExpModal() {
   expModal.error = null
   try {
     if (expModal.mode === 'add') {
-      // D-07: auto-compute sortOrder
       const nextSortOrder = Math.max(0, ...experience.value.map(i => i.sortOrder)) + 1
       const created = await $fetch<ExperienceEntry>('/api/admin/cv/experience', {
         method: 'POST',
@@ -118,7 +101,6 @@ async function saveExpModal() {
       })
       experience.value.push(created)
     } else {
-      // D-08: PUT does not send sortOrder
       const updated = await $fetch<ExperienceEntry>(`/api/admin/cv/experience/${expModal.data.id}`, {
         method: 'PUT',
         body: {
@@ -141,7 +123,7 @@ async function saveExpModal() {
 }
 
 async function deleteExp(id: string) {
-  if (import.meta.client && !window.confirm('Delete this experience entry?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this experience entry?')) return
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/experience/${id}`, { method: 'DELETE' })
@@ -154,7 +136,6 @@ async function deleteExp(id: string) {
   }
 }
 
-// === EDUCATION CRUD ===
 
 function openAddEduModal() {
   eduModal.mode = 'add'
@@ -204,7 +185,7 @@ async function saveEduModal() {
 }
 
 async function deleteEdu(id: string) {
-  if (import.meta.client && !window.confirm('Delete this education entry?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this education entry?')) return
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/education/${id}`, { method: 'DELETE' })
@@ -217,7 +198,6 @@ async function deleteEdu(id: string) {
   }
 }
 
-// === SKILL CATEGORIES CRUD ===
 
 function addSkill(catId: string) {
   const trimmed = (categoryNewSkill[catId] ?? '').trim()
@@ -237,12 +217,10 @@ async function saveCategory(catId: string) {
   categorySaving[catId] = true
   categoryError[catId] = null
   try {
-    // D-13: Save button per card — PUT /cv/skills/categories/{id}
     await $fetch(`/api/admin/cv/skills/categories/${catId}`, {
       method: 'PUT',
       body: { skills: categorySkills[catId] },
     })
-    // Update local skillCategories ref
     const idx = skillCategories.value.findIndex(c => c.id === catId)
     if (idx !== -1) skillCategories.value[idx].skills = [...categorySkills[catId]]
   } catch (e: unknown) {
@@ -253,7 +231,7 @@ async function saveCategory(catId: string) {
 }
 
 async function deleteCategory(id: string) {
-  if (import.meta.client && !window.confirm('Delete this skill category?')) return  // D-06
+  if (import.meta.client && !window.confirm('Delete this skill category?')) return
   deletingCategoryId.value = id
   try {
     await $fetch(`/api/admin/cv/skills/categories/${id}`, { method: 'DELETE' })
@@ -270,7 +248,6 @@ async function deleteCategory(id: string) {
   }
 }
 
-// === CV PDF UPLOAD ===
 
 const runtimeConfig = useRuntimeConfig()
 const cvPdfKey = ref<string | null>(null)
@@ -290,7 +267,6 @@ onMounted(async () => {
     )
     cvPdfKey.value = profile.cvPdfUrl ?? null
   } catch {
-    // profile not configured yet — ok
   }
 })
 
@@ -345,7 +321,6 @@ async function removePdf() {
   }
 }
 
-// D-12: Add new category
 async function submitAddCategory() {
   const name = newCategoryName.value.trim()
   if (!name) return
@@ -372,7 +347,6 @@ async function submitAddCategory() {
 
 <template>
   <div class="mb-12">
-    <!-- Section header -->
     <div class="mb-8 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
       <div>
         <h2 class="t-h2">CV Manager</h2>
@@ -380,15 +354,12 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- Global loading spinner -->
     <div v-if="loading" class="mb-6 text-sm" style="color: var(--fg-dim)">Loading CV data…</div>
 
-    <!-- Global error banner -->
     <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
       {{ error }}
     </div>
 
-    <!-- Tab switcher (D-03) -->
     <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--hairline);padding-bottom:16px">
       <button
         v-for="tab in (['experience','education','skills','pdf'] as const)"
@@ -401,7 +372,6 @@ async function submitAddCategory() {
       >{{ tab === 'skills' ? 'Skills' : tab === 'pdf' ? 'CV PDF' : tab.charAt(0).toUpperCase() + tab.slice(1) }}</button>
     </div>
 
-    <!-- Experience tab panel (v-show — state survives tab switches, Pitfall 3) -->
     <div v-show="activeTab === 'experience'">
       <div class="mb-4 flex items-center justify-between">
         <h3 class="t-h3" style="color: var(--fg)">Experience</h3>
@@ -412,7 +382,6 @@ async function submitAddCategory() {
         >+ Add Experience</button>
       </div>
 
-      <!-- Experience list rows -->
       <div v-if="experience.length === 0 && !loading" class="text-sm" style="color: var(--fg-dim)">
         No experience entries yet. Click Add to create one.
       </div>
@@ -444,7 +413,6 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- Education tab panel (v-show — state survives tab switches) -->
     <div v-show="activeTab === 'education'">
       <div class="mb-4 flex items-center justify-between">
         <h3 class="t-h3" style="color: var(--fg)">Education</h3>
@@ -455,7 +423,6 @@ async function submitAddCategory() {
         >+ Add Education</button>
       </div>
 
-      <!-- Education list rows -->
       <div v-if="education.length === 0 && !loading" class="text-sm" style="color: var(--fg-dim)">
         No education entries yet. Click Add to create one.
       </div>
@@ -487,13 +454,11 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- Skills tab panel (v-show — state survives tab switches) -->
     <div v-show="activeTab === 'skills'">
       <div class="mb-4 flex items-center justify-between">
         <h3 class="t-h3" style="color: var(--fg)">Skills</h3>
       </div>
 
-      <!-- Skill category cards grid -->
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px;">
         <div
           v-for="cat in skillCategories"
@@ -501,7 +466,6 @@ async function submitAddCategory() {
           class="rounded-2xl p-6"
           style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;"
         >
-          <!-- Card header: category name + delete -->
           <div class="mb-4 flex items-center justify-between">
             <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
             <button
@@ -512,7 +476,6 @@ async function submitAddCategory() {
             >✕</button>
           </div>
 
-          <!-- Chip list -->
           <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; min-height: 32px;">
             <span
               v-for="(skill, i) in categorySkills[cat.id]"
@@ -528,7 +491,6 @@ async function submitAddCategory() {
             </span>
           </div>
 
-          <!-- New skill input (D-11: Enter to add) -->
           <div class="mb-4">
             <input
               v-model="categoryNewSkill[cat.id]"
@@ -539,12 +501,10 @@ async function submitAddCategory() {
             />
           </div>
 
-          <!-- Error banner -->
           <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
             {{ categoryError[cat.id] }}
           </div>
 
-          <!-- Save button (D-13) -->
           <button
             :disabled="categorySaving[cat.id]"
             class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
@@ -557,7 +517,6 @@ async function submitAddCategory() {
         </div>
       </div>
 
-      <!-- Add Category flow (D-12) -->
       <div v-if="!addCategoryOpen">
         <button
           class="rounded-lg px-4 py-2 text-sm font-medium"
@@ -596,7 +555,6 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- CV PDF tab panel (v-if: file input must not exist in DOM when other tabs are active) -->
     <div v-if="activeTab === 'pdf'">
       <div class="mb-4">
         <h3 class="t-h3" style="color: var(--fg)">CV PDF</h3>
@@ -604,7 +562,6 @@ async function submitAddCategory() {
       </div>
 
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); max-width: 480px;">
-        <!-- Current file status -->
         <div class="mb-4">
           <div class="t-overline mb-2" style="color: var(--fg-dim)">Current file</div>
           <div v-if="cvPdfKey" class="flex items-center justify-between rounded-lg px-3 py-2" style="background: var(--bg); border: 1px solid var(--hairline)">
@@ -620,7 +577,6 @@ async function submitAddCategory() {
           <div v-else class="text-xs" style="color: var(--fg-faint)">No PDF uploaded yet.</div>
         </div>
 
-        <!-- Upload -->
         <label class="btn btn-primary" style="cursor: pointer; display: inline-block;">
           <span v-if="cvPdfUploading">Uploading…</span>
           <span v-else>{{ cvPdfKey ? 'Replace PDF' : 'Upload PDF' }}</span>
@@ -632,7 +588,6 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- Experience Modal (v-if — intentional unmount on close) -->
     <div
       v-if="expModal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
@@ -690,12 +645,10 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <!-- Modal error banner -->
         <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
           {{ expModal.error }}
         </div>
 
-        <!-- Modal footer -->
         <div class="mt-6 flex justify-end gap-3">
           <button
             class="rounded-lg px-4 py-2 text-sm font-medium"
@@ -713,7 +666,6 @@ async function submitAddCategory() {
       </div>
     </div>
 
-    <!-- Education Modal (v-if — intentional unmount on close) -->
     <div
       v-if="eduModal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
@@ -771,12 +723,10 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <!-- Modal error banner -->
         <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
           {{ eduModal.error }}
         </div>
 
-        <!-- Modal footer -->
         <div class="mt-6 flex justify-end gap-3">
           <button
             class="rounded-lg px-4 py-2 text-sm font-medium"

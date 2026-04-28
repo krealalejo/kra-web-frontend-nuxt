@@ -8,7 +8,6 @@ const { mockNavigate } = vi.hoisted(() => ({
 
 mockNuxtImport('navigateTo', () => mockNavigate)
 
-// Global mock for $fetch
 vi.stubGlobal('$fetch', vi.fn().mockResolvedValue({}))
 
 describe('components/admin/AdminSidebar.vue', () => {
@@ -46,7 +45,6 @@ describe('components/admin/AdminSidebar.vue', () => {
     const logoutBtn = wrapper.find('button')
     await logoutBtn.trigger('click')
 
-    // Wait for async logout to complete
     await vi.waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', { method: 'POST' })
       expect(mockNavigate).toHaveBeenCalledWith('/admin/login')

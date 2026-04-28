@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// No Pinia store — direct $fetch pattern
 import type { PortfolioRepoDto } from '~/types/portfolio'
 
 interface ProjectMetadataResponse {
@@ -10,15 +9,12 @@ interface ProjectMetadataResponse {
   stack: string[] | null
 }
 
-// Repo list state
 const repos = ref<PortfolioRepoDto[]>([])
 const loading = ref(false)
 const pageError = ref<string | null>(null)
 
-// Metadata map: key = "owner/repo", value = metadata (null if not yet loaded or absent)
 const metadataMap = ref<Record<string, ProjectMetadataResponse | null>>({})
 
-// Modal state
 const modal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
@@ -29,7 +25,6 @@ const modal = reactive({
   error: null as string | null,
 })
 
-// Chip editor state (separate from modal.data to allow v-model binding)
 const newStackItem = ref('')
 
 function addStackItem() {
@@ -40,7 +35,6 @@ function addStackItem() {
   newStackItem.value = ''
 }
 
-// Load repos on mount from existing BFF
 onMounted(async () => {
   loading.value = true
   pageError.value = null
@@ -48,7 +42,6 @@ onMounted(async () => {
     const config = useRuntimeConfig()
     const apiBase = typeof config.public.apiBase === 'string' ? config.public.apiBase.replace(/\/$/, '') : ''
     repos.value = await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-    // Load metadata for all repos concurrently
     await Promise.all(
       repos.value.map(async (r) => {
         try {
@@ -126,7 +119,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
 
 <template>
   <div>
-    <!-- Section header -->
     <div class="mb-8 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
       <div>
         <h2 class="t-h2">Projects</h2>
@@ -134,22 +126,18 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
       </div>
     </div>
 
-    <!-- Loading state -->
     <div v-if="loading" class="mb-6 text-sm" style="color: var(--fg-dim); font-family: var(--font-mono); font-size: 11px">
       Loading repositories…
     </div>
 
-    <!-- Error state -->
     <div v-if="pageError" class="mb-6 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
       {{ pageError }}
     </div>
 
-    <!-- Empty state -->
     <div v-if="!loading && !pageError && repos.length === 0" class="text-sm" style="color: var(--fg-dim)">
       No repositories found.
     </div>
 
-    <!-- Repo list -->
     <div
       v-for="repo in repos"
       :key="`${repo.owner}/${repo.name}`"
@@ -186,7 +174,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
       </div>
     </div>
 
-    <!-- Modal overlay -->
     <div
       v-if="modal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
@@ -200,7 +187,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           {{ modal.mode === 'add' ? 'Add project metadata' : 'Edit project metadata' }}
         </h3>
 
-        <!-- Role field -->
         <div style="margin-bottom:16px">
           <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">ROLE</label>
           <input
@@ -210,7 +196,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           />
         </div>
 
-        <!-- Year field -->
         <div style="margin-bottom:16px">
           <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">YEAR</label>
           <input
@@ -220,7 +205,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           />
         </div>
 
-        <!-- Kind select -->
         <div style="margin-bottom:16px">
           <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">KIND</label>
           <select
@@ -232,7 +216,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           </select>
         </div>
 
-        <!-- Main Branch field -->
         <div style="margin-bottom:16px">
           <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">MAIN BRANCH</label>
           <input
@@ -242,7 +225,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           />
         </div>
 
-        <!-- Stack chip editor -->
         <div style="margin-bottom:16px">
           <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">STACK</label>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:32px">
@@ -268,7 +250,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           />
         </div>
 
-        <!-- Error banner -->
         <div
           v-if="modal.error"
           class="mt-4 rounded px-3 py-2 text-xs"
@@ -277,7 +258,6 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
           {{ modal.error }}
         </div>
 
-        <!-- Footer -->
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:28px;padding-top:20px;border-top:1px solid var(--hairline)">
           <button class="btn btn-ghost" @click="modal.open = false">Discard changes</button>
           <button

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Stub only defineNuxtRouteMiddleware to extract the inner function
 vi.stubGlobal('defineNuxtRouteMiddleware', (fn: Function) => fn)
 
 describe('middleware/auth', () => {

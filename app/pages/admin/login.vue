@@ -29,8 +29,8 @@ function signIn() {
 
 <template>
   <div class="flex min-h-[60vh] items-center justify-center">
-    <div 
-      class="w-full max-w-sm rounded-xl p-8" 
+    <div
+      class="w-full max-w-sm rounded-xl p-8"
       style="background:var(--bg-elev); border: 1px solid var(--hairline); box-shadow: 0 20px 40px rgba(0,0,0,0.2)"
     >
       <div class="mb-8 text-center">
@@ -57,7 +57,7 @@ function signIn() {
       >
         Sign In with Cognito
       </button>
-      
+
       <div class="mt-8 text-center">
         <NuxtLink to="/" class="t-label hover:text-[var(--accent)] transition-colors" style="font-size: 10px; cursor: pointer">
           ← Back to Portfolio

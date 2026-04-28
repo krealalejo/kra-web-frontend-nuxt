@@ -58,7 +58,6 @@ export default defineEventHandler(async (event) => {
     const decoded = JSON.parse(Buffer.from(payloadB64, 'base64').toString('utf-8'))
     emailValue = decoded.email || decoded['cognito:username'] || 'admin'
   } catch {
-    // malformed JWT — fall back to 'admin', do not crash the callback
   }
 
   setCookie(event, 'kra_user', emailValue, {

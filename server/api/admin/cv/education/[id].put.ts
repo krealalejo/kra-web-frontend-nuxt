@@ -13,7 +13,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  // sortOrder intentionally excluded — PUT preserves existing sortOrder per D-08
   const safeBody = {
     ...(body.title !== undefined && { title: body.title }),
     ...(body.institution !== undefined && { institution: body.institution }),

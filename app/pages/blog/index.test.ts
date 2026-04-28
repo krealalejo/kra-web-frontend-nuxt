@@ -41,10 +41,8 @@ vi.mock('~/composables/useGsapAnimations', () => ({
 
 import BlogIndexPage from './index.vue'
 
-// Cleanup helper to avoid data leakage between tests
 const clearData = () => {
   try {
-    // @ts-ignore
     const nuxtApp = window.useNuxtApp?.()
     if (nuxtApp) {
       nuxtApp.payload.data = {}
@@ -132,13 +130,13 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockReturnValue(fetchPromise)
 
     const wrapper = await mountSuspended(BlogIndexPage)
-    
+
     const skeletons = wrapper.findAllComponents({ name: 'SkeletonBlogRow' })
     expect(skeletons.length).toBeGreaterThan(0)
-    
+
     resolveFetch([])
     await flushPromises()
-    
+
     expect(wrapper.findAllComponents({ name: 'SkeletonBlogRow' }).length).toBe(0)
   })
 
@@ -157,7 +155,7 @@ describe('pages/blog/index.vue', () => {
     }])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    
+
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toContain('thumbnails/post-1-thumb.webp')
@@ -170,7 +168,7 @@ describe('pages/blog/index.vue', () => {
     }])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    
+
     expect(wrapper.text()).toContain('invalid-date')
   })
 })

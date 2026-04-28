@@ -20,10 +20,8 @@ describe('components/ThemeToggle.vue', () => {
 
   it('renders correctly when light mode is active', async () => {
     const wrapper = await mountSuspended(ThemeToggle)
-    // Initially not mounted in some vitest envs until next tick, or it might be mounted immediately
-    // Wait for onMounted
     await nextTick()
-    
+
     expect(wrapper.attributes('aria-label')).toBe('Switch to dark mode')
     expect(wrapper.find('svg')).toBeDefined()
   })
@@ -32,20 +30,18 @@ describe('components/ThemeToggle.vue', () => {
     mockIsDark.value = true
     const wrapper = await mountSuspended(ThemeToggle)
     await nextTick()
-    
+
     expect(wrapper.attributes('aria-label')).toBe('Switch to light mode')
   })
 
   it('calls toggle function when clicked', async () => {
     const wrapper = await mountSuspended(ThemeToggle)
     await wrapper.trigger('click')
-    
+
     expect(mockToggle).toHaveBeenCalled()
   })
 
   it('shows fallback during SSR/hydration', async () => {
-    // This is hard to test perfectly with mountSuspended as it usually handles ClientOnly
-    // but we can check if it exists
     const wrapper = await mountSuspended(ThemeToggle)
     expect(wrapper.find('button').exists()).toBe(true)
   })

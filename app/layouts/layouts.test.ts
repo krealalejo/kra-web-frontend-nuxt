@@ -41,7 +41,6 @@ describe('default layout', () => {
   it('has computed position sticky', async () => {
     const wrapper = await mountSuspended(DefaultLayout)
     const header = wrapper.find('header')
-    // In happy-dom/vitest, we might need to check the style object if it's not in classes
     expect(header.attributes('class')).toContain('sticky')
   })
 
@@ -159,7 +158,6 @@ describe('admin layout', () => {
     const wrapper = await mountSuspended(AdminLayout, {
       slots: { default: '<p>Admin content</p>' },
     })
-    // Search in the whole wrapper since user info is in Sidebar
     expect(wrapper.text()).toContain('admin@example.com')
     const logout = wrapper
       .findAll('button')

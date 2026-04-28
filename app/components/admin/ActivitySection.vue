@@ -2,7 +2,6 @@
 import { useActivityStore } from '~/stores/activity'
 
 const store = useActivityStore()
-// Per-card local loading and error state
 const saving = reactive<Record<string, boolean>>({
   SHIPPING: false,
   READING: false,
@@ -14,7 +13,6 @@ const errors = reactive<Record<string, string | null>>({
   PLAYING: null
 })
 
-// Per-card local state
 const shippingTitle = ref('')
 const shippingDescription = ref('')
 
@@ -24,7 +22,6 @@ const readingDescription = ref('')
 const playingTags = ref<string[]>([])
 const newTag = ref('')
 
-// Fetch current values on mount via store
 onMounted(async () => {
   try {
     await store.fetchCards()
@@ -40,7 +37,6 @@ onMounted(async () => {
       }
     }
   } catch {
-    // Global error for initial fetch
     errors.SHIPPING = store.error ?? 'Failed to load activity cards'
   }
 })
@@ -76,7 +72,6 @@ function removeTag(index: number) {
 
 <template>
   <div class="mb-12">
-    <!-- Section header -->
     <div class="mb-8 flex items-center justify-between pb-6" style="border-bottom: 1px solid var(--hairline)">
       <div>
         <h2 class="t-h2">Activity Cards</h2>
@@ -84,12 +79,9 @@ function removeTag(index: number) {
       </div>
     </div>
 
-    <!-- Error banners (will show below headers if they exist) -->
 
-    <!-- Three card panels -->
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px;">
 
-      <!-- SHIPPING -->
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;">
         <div class="t-overline mb-4" style="color: var(--fg-dim)">SHIPPING</div>
         <div class="mb-4 space-y-3">
@@ -113,7 +105,6 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <!-- Error message for this card -->
         <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.SHIPPING }}
         </div>
@@ -129,7 +120,6 @@ function removeTag(index: number) {
         </button>
       </div>
 
-      <!-- READING -->
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;">
         <div class="t-overline mb-4" style="color: var(--fg-dim)">READING</div>
         <div class="mb-4 space-y-3">
@@ -153,7 +143,6 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <!-- Error message for this card -->
         <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.READING }}
         </div>
@@ -169,7 +158,6 @@ function removeTag(index: number) {
         </button>
       </div>
 
-      <!-- PLAYING (chip tag editor) -->
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;">
         <div class="t-overline mb-4" style="color: var(--fg-dim)">PLAYING</div>
         <div class="mb-4">
@@ -196,7 +184,6 @@ function removeTag(index: number) {
             @keydown.enter.prevent="addTag"
           />
         </div>
-        <!-- Error message for this card -->
         <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.PLAYING }}
         </div>

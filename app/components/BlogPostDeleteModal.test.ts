@@ -30,7 +30,7 @@ describe('components/BlogPostDeleteModal.vue', () => {
   it('calls deletePost on confirm', async () => {
     const store = useBlogStore()
     const spy = vi.spyOn(store, 'deletePost').mockImplementation(async () => {})
-    
+
     const wrapper = await mountSuspended(BlogPostDeleteModal, {
       props: { open: true, post: mockPost },
       global: {

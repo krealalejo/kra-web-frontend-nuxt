@@ -13,7 +13,6 @@ useSeoMeta({
 
 const config = useRuntimeConfig()
 
-// Fetch portrait URL from API
 const { data: profileData } = useAsyncData(
   'cv-profile',
   async () => {
@@ -36,7 +35,6 @@ const cvPdfDownloadUrl = computed(() => {
   return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${key}`
 })
 
-// --- CV data interfaces ---
 interface ExperienceEntry {
   id: string; title: string; company: string; location: string
   years: string; description: string; sortOrder: number
@@ -49,7 +47,6 @@ interface SkillCategory {
   id: string; name: string; skills: string[]; sortOrder: number
 }
 
-// --- CV data fetches (D-14: three separate useAsyncData, lazy:true) ---
 const { data: experienceData } = useAsyncData(
   'cv-experience',
   async () => {
@@ -96,7 +93,7 @@ const cvPortraitThumbUrl = computed(() => {
   const key = profileData.value?.cvPortraitUrl
   if (!key) return null
   const thumbKey = key
-    .replace(/^images\//, 'thumbnails/')
+    .replace(/^images\
     .replace(/\.[^.]+$/, '-thumb.webp')
   return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
 })
@@ -125,14 +122,12 @@ onMounted(() => {
         <div class="hero-portrait" style="aspect-ratio:3/4;">
           <span class="corner tl" /><span class="corner tr" />
           <span class="corner bl" /><span class="corner br" />
-          <!-- Real portrait when available -->
           <img
             v-if="cvPortraitThumbUrl"
             :src="cvPortraitThumbUrl"
             alt="Kevin Real Alejo"
             style="width:100%;height:100%;object-fit:cover;display:block;"
           />
-          <!-- Placeholder when no portrait configured -->
           <div v-else class="ph-center">
             <svg width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
               <circle cx="22" cy="17" r="7" />

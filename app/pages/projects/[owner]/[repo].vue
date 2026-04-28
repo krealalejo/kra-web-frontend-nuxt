@@ -53,7 +53,7 @@ const { data: metadata } = useAsyncData<ProjectMetadataResponse | null>(
     const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
     return await $fetch<ProjectMetadataResponse>(
       `${apiBase}/projects/metadata/${encodeURIComponent(owner.value)}/${encodeURIComponent(repo.value)}`
-    ).catch(() => null) // never throw — D-14 guarantees 200; network can still fail
+    ).catch(() => null)
   },
   { watch: [owner, repo], lazy: true }
 )
@@ -128,7 +128,6 @@ watch(pending, async (isPending) => {
 onMounted(async () => {
   if (!pending.value && detail.value && !error.value) {
     animateIn()
-    // Trigger renderDiagrams once if already loaded
     if (readmeRef.value && sanitizedReadme.value) {
       await nextTick()
       renderDiagrams(readmeRef.value)

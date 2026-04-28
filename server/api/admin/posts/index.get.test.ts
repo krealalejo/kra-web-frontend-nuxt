@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
 
-// Stub Nuxt/H3 server-side auto-imports before module load
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({

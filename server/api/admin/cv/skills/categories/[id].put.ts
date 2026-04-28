@@ -19,8 +19,6 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  // sortOrder intentionally excluded — PUT preserves existing sortOrder per D-08
-  // skills list fully replaced when non-null (backend patch semantics from Phase 26)
   const safeBody = {
     ...(body.name !== undefined && { name: body.name }),
     ...(body.skills !== undefined && { skills: body.skills }),

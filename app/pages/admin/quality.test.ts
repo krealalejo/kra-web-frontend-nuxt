@@ -12,7 +12,7 @@ describe('pages/admin/quality.vue', () => {
     const wrapper = await mountSuspended(QualityPage)
     const cards = wrapper.findAll('.flex.flex-col.gap-6')
     expect(cards).toHaveLength(3)
-    
+
     expect(cards[0]!.find('h2').text()).toBe('kra-api')
     expect(cards[1]!.find('h2').text()).toBe('kra-web-frontend-nuxt')
     expect(cards[2]!.find('h2').text()).toBe('kra-lambdas')

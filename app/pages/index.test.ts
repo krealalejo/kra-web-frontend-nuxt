@@ -63,8 +63,7 @@ describe('pages/index.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })))
-    
-    // Default implementation returns safe empty values to avoid breaking components
+
     mockFetch.mockImplementation((url: string) => {
       if (typeof url !== 'string') return Promise.resolve([])
       if (url.includes('/portfolio/repos')) return Promise.resolve([])
@@ -119,13 +118,13 @@ describe('pages/index.vue', () => {
     })
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    
+
     expect(wrapper.findAll('a.proj-row')).toHaveLength(4)
     const viewAllBtn = wrapper.find('a[href="/projects"]')
     expect(viewAllBtn.exists()).toBe(true)
     expect(viewAllBtn.text()).toContain('All projects')
   })
-  
+
   it('prioritizes projects with "featured" topic even if they are older', async () => {
     const repos = [
       { fullName: 'owner/recent', name: 'recent', description: 'desc', owner: 'owner', topics: [], updatedAt: '2026-04-20T10:00:00Z' },
@@ -136,10 +135,10 @@ describe('pages/index.vue', () => {
       if (typeof url === 'string' && url.includes('/portfolio/repos')) return Promise.resolve(repos)
       return Promise.resolve({ totalContributions: 0, weeks: [] })
     })
-    
+
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
-    
+
     const titles = wrapper.findAll('a.proj-row span.name').map(s => s.text())
     expect(titles).toContain('older-featured')
     expect(titles[0]).toBe('older-featured')
@@ -166,7 +165,6 @@ describe('pages/index.vue', () => {
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    // The component might not show a specific hint yet, but triggering the branch covers L46
   })
 
   it('renders topics dot when repo has topics', async () => {
@@ -250,13 +248,13 @@ describe('pages/index.vue', () => {
     mockFetch.mockReturnValue(fetchPromise)
 
     const wrapper = await mountSuspended(IndexPage)
-    
+
     const skeletons = wrapper.findAllComponents({ name: 'SkeletonProjectRow' })
     expect(skeletons.length).toBeGreaterThan(0)
-    
+
     resolveFetch([])
     await flushPromises()
-    
+
     expect(wrapper.findAllComponents({ name: 'SkeletonProjectRow' }).length).toBe(0)
   })
 })
