@@ -153,4 +153,21 @@ describe('useMermaid', () => {
     await reRender(container)
     expect(mermaidRenderMock).not.toHaveBeenCalled()
   })
+
+  it('reRender handles rendering errors gracefully', async () => {
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+    mermaidRenderMock.mockRejectedValueOnce(new Error('Mermaid re-render error'))
+
+    const { reRender } = useMermaid()
+    const container = document.createElement('div')
+    const wrapper = document.createElement('div')
+    wrapper.className = 'mermaid-diagram'
+    wrapper.dataset.source = 'graph TD; A-->B;'
+    container.appendChild(wrapper)
+
+    await reRender(container)
+
+    expect(consoleSpy).toHaveBeenCalledWith('[useMermaid] re-render error', expect.any(Error))
+    consoleSpy.mockRestore()
+  })
 })
