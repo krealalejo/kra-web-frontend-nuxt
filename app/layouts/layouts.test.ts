@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
+import { flushPromises } from '@vue/test-utils'
 
 vi.mock('~/composables/useGsapAnimations', () => ({
   useGsapNavAnimation: vi.fn(),
@@ -79,20 +80,18 @@ describe('default layout', () => {
     const button = wrapper.find('header button[aria-expanded]')
 
     expect(button.attributes('aria-expanded')).toBe('false')
-    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(false)
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(false)
 
     await button.trigger('click')
     expect(button.attributes('aria-expanded')).toBe('true')
-    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(true)
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(true)
 
-    const mobileLinks = wrapper.findAll('.mobile-nav-link')
-    expect(mobileLinks.length).toBe(5)
-    expect(mobileLinks[0]!.classes()).toContain('text-center')
-    expect(mobileLinks[0]!.classes()).toContain('rounded-xl')
+    const sheetLinks = wrapper.findAll('.nav-sheet-link')
+    expect(sheetLinks.length).toBe(5)
 
     await button.trigger('click')
     expect(button.attributes('aria-expanded')).toBe('false')
-    expect(wrapper.find('.sm\\:hidden.overflow-hidden').exists()).toBe(false)
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(false)
   })
 })
 
@@ -172,5 +171,39 @@ describe('admin layout', () => {
       slots: { default: '<p>Admin content</p>' },
     })
     expect(wrapper.find('aside').exists()).toBe(true)
+  })
+
+  it('closes mobile menu when overlay is clicked after route change', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+      route: '/admin',
+    })
+
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    await nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+
+    await wrapper.find('.mobile-overlay').trigger('click')
+    await nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+  })
+})
+
+describe('default layout — route watcher', () => {
+  it('closes mobile menu when route changes', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+      route: '/',
+    })
+
+    const button = wrapper.find('header button[aria-expanded]')
+    await button.trigger('click')
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(true)
+
+    await (wrapper.vm.$router as any).push('/blog')
+    await flushPromises()
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(false)
   })
 })
