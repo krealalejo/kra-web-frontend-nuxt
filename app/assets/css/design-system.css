@@ -136,6 +136,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   text-transform: uppercase;
   color: var(--fg-muted);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .t-label {
@@ -815,6 +816,7 @@ em, .emph {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg-muted);
+  text-decoration: none;
 }
 .page-head .overline .bar {
   width: 32px; height: 1px; background: var(--fg-muted);
