@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted, watch, nextTick } from 'vue'
 import type { BlogPostDto } from '~/types/blog'
 import gsap from 'gsap'
 
@@ -25,13 +26,18 @@ function getThumbUrl(post: BlogPostDto) {
 onMounted(() => {
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
-  gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08 })
+  
+  if (gsap.utils.toArray('.blog-row').length > 0) {
+    gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08 })
+  }
 })
 
 watch(pending, (isPending) => {
   if (!isPending) {
     nextTick(() => {
-      gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
+      if (gsap.utils.toArray('.blog-row').length > 0) {
+        gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
+      }
     })
   }
 })

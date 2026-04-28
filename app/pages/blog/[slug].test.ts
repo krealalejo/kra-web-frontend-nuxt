@@ -33,7 +33,15 @@ mockNuxtImport('useAsyncData', () => {
 })
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), set: vi.fn() },
+  default: { 
+    from: vi.fn(), 
+    to: vi.fn(), 
+    fromTo: vi.fn(), 
+    set: vi.fn(),
+    utils: {
+      toArray: vi.fn((val) => (typeof val === 'string' ? [val] : val))
+    }
+  },
 }))
 
 const renderDiagramsMock = vi.fn()

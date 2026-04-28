@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import gsap from 'gsap'
 import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
@@ -40,20 +41,27 @@ onMounted(() => {
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
-  gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.3, stagger: 0.1 })
+  
+  if (gsap.utils.toArray('.proj-card').length > 0) {
+    gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.3, stagger: 0.1 })
+  }
 })
 
 watch(pending, (isPending) => {
   if (!isPending) {
     nextTick(() => {
-      gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 })
+      if (gsap.utils.toArray('.proj-card').length > 0) {
+        gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 })
+      }
     })
   }
 })
 
 watch(filter, () => {
   nextTick(() => {
-    gsap.fromTo('.proj-card', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out' })
+    if (gsap.utils.toArray('.proj-card').length > 0) {
+      gsap.fromTo('.proj-card', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out' })
+    }
   })
 })
 
