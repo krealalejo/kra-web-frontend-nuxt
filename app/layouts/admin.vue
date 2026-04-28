@@ -88,14 +88,6 @@ const onLeave = (el: Element, done: () => void) => {
 
           <div class="flex items-center gap-3 md:gap-4">
             <ThemeToggle />
-            <template v-if="!isAuthenticated">
-              <NuxtLink
-                to="/"
-                class="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
-              >
-                Back to site
-              </NuxtLink>
-            </template>
           </div>
         </div>
       </header>

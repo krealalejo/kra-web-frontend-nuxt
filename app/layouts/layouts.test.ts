@@ -139,7 +139,6 @@ describe('admin layout', () => {
     expect(wrapper.find('aside').exists()).toBe(false)
     expect(wrapper.find('header').exists()).toBe(true)
     expect(wrapper.find('header').text()).toContain('KRA Admin')
-    expect(wrapper.find('header').text()).toContain('Back to site')
     expect(wrapper.text()).toContain('Login content')
   })
 
