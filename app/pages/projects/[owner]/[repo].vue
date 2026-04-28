@@ -223,9 +223,3 @@ onMounted(async () => {
   </div>
 </template>
 
-<style scoped>
-@media (max-width: 800px) {
-  .pd-body { grid-template-columns: 1fr !important; }
-  .pd-sidebar { position: static !important; }
-}
-</style>

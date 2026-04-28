@@ -3,11 +3,17 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { ref } from 'vue'
 import CvPage from './cv.vue'
 
+const mockFetch = vi.fn().mockRejectedValue(new Error('Network error'))
+vi.stubGlobal('$fetch', mockFetch)
+
 let mockData: Record<string, any> = {}
 
 mockNuxtImport('useAsyncData', () => {
-  return vi.fn().mockImplementation((key: string) => {
-    return { data: ref(mockData[key] || null) }
+  return vi.fn().mockImplementation((key: string | (() => string), factory: () => Promise<any>) => {
+    const resolvedKey = typeof key === 'function' ? key() : key
+    const data = ref(mockData[resolvedKey] !== undefined ? mockData[resolvedKey] : null)
+    factory().catch(() => {})
+    return { data }
   })
 })
 

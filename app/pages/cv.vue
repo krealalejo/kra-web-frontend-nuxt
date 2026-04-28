@@ -26,8 +26,8 @@ const { data: profileData } = useAsyncData(
       return null
     }
   },
-  { lazy: true }
 )
+
 
 const cvPdfDownloadUrl = computed(() => {
   const key = profileData.value?.cvPdfUrl
@@ -58,8 +58,8 @@ const { data: experienceData } = useAsyncData(
       return [] as ExperienceEntry[]
     }
   },
-  { lazy: true }
 )
+
 
 const { data: educationData } = useAsyncData(
   'cv-education',
@@ -72,8 +72,8 @@ const { data: educationData } = useAsyncData(
       return [] as EducationEntry[]
     }
   },
-  { lazy: true }
 )
+
 
 const { data: skillsData } = useAsyncData(
   'cv-skills',
@@ -86,8 +86,8 @@ const { data: skillsData } = useAsyncData(
       return [] as SkillCategory[]
     }
   },
-  { lazy: true }
 )
+
 
 const { getThumbUrl } = useS3()
 const cvPortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.cvPortraitUrl))

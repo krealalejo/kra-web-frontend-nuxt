@@ -2,6 +2,7 @@
 import { onMounted, watch, nextTick } from 'vue'
 import type { BlogPostDto } from '~/types/blog'
 import gsap from 'gsap'
+import { useMarkdown } from '~/composables/useMarkdown'
 
 const config = useRuntimeConfig()
 
@@ -9,7 +10,7 @@ const { data: posts, error, pending } = useAsyncData('blog-list', async () => {
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<BlogPostDto[]>(`${apiBase}/posts`)
-}, { lazy: true })
+})
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -21,6 +22,13 @@ function postNum(i: number) { return String(i + 1).padStart(2, '0') }
 const { getThumbUrl: generateThumbUrl } = useS3()
 function getThumbUrl(post: BlogPostDto) {
   return generateThumbUrl(post.imageUrl)
+}
+
+const { stripMarkdown } = useMarkdown()
+
+function excerpt(content: string | null | undefined): string {
+  const plain = stripMarkdown(content ?? '')
+  return plain.length > 140 ? `${plain.slice(0, 140)}…` : plain
 }
 
 onMounted(() => {
@@ -77,11 +85,13 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
         >
           <span class="num">{{ postNum(i) }}</span>
           <span class="date">{{ formatDate(post.createdAt) }}</span>
-          <img v-if="post.imageUrl" :src="getThumbUrl(post)!" :alt="post.title" class="post-thumb" />
+          <div class="blog-thumb-wrap">
+            <img v-if="post.imageUrl" :src="getThumbUrl(post)!" :alt="post.title" class="blog-thumb" />
+          </div>
           <div>
             <h2 class="title">{{ post.title }}</h2>
             <p style="font-size:14px;color:var(--fg-muted);margin-top:6px;max-width:60ch;">
-              {{ post.content?.slice(0, 140) }}{{ (post.content?.length ?? 0) > 140 ? '…' : '' }}
+              {{ excerpt(post.content) }}
             </p>
           </div>
           <div style="display:flex;align-items:center;gap:16px;">

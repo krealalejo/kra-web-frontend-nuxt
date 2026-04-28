@@ -23,27 +23,15 @@ const navItems = [
   { path: '/cv', label: 'CV' },
 ]
 
-const mounted = ref(false)
 onMounted(() => {
-  mounted.value = true
   gsap.from('.kra-nav-logo, .kra-nav-link', {
     opacity: 0, y: -8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
   })
 })
 
-const onBeforeEnter = (el: Element) => {
-  gsap.set(el, { height: 0, opacity: 0 })
-}
-const onEnter = (el: Element, done: () => void) => {
-  gsap.to(el, { height: 'auto', opacity: 1, duration: 0.3, ease: 'power2.out', onComplete: done })
-  gsap.fromTo(el.querySelectorAll('.mobile-nav-link'),
-    { y: 15, opacity: 0 },
-    { y: 0, opacity: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out', delay: 0.1 }
-  )
-}
-const onLeave = (el: Element, done: () => void) => {
-  gsap.to(el, { height: 0, opacity: 0, duration: 0.25, ease: 'power2.in', onComplete: done })
-}
+watch(isMobileMenuOpen, (open) => {
+  document.body.style.overflow = open ? 'hidden' : ''
+})
 </script>
 
 <template>
@@ -56,13 +44,13 @@ const onLeave = (el: Element, done: () => void) => {
           <span class="kra-nav-logo-mark">/ Kevin Real Alejo</span>
         </NuxtLink>
 
+        <!-- Desktop nav links -->
         <nav class="kra-nav-links">
           <NuxtLink
             v-for="item in navItems"
             :key="item.path"
             :to="item.path"
             class="kra-nav-link"
-            :class="{ 'kra-nav-link--always': true }"
           >
             {{ item.label }}
           </NuxtLink>
@@ -86,40 +74,78 @@ const onLeave = (el: Element, done: () => void) => {
             </button>
             <template #fallback><span style="width:36px;height:36px;display:inline-block" /></template>
           </ClientOnly>
+        </nav>
 
+        <!-- Mobile cluster: theme toggle + hamburger -->
+        <div class="nav-mobile-cluster">
+          <ClientOnly>
+            <button
+              class="kra-theme-btn"
+              :aria-label="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+              @click="toggle($event)"
+            >
+              <svg v-if="isDark" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </button>
+            <template #fallback><span style="width:36px;height:36px;display:inline-block" /></template>
+          </ClientOnly>
           <button
-            class="kra-theme-btn"
-            style="display:none"
+            :class="['nav-burger', { open: isMobileMenuOpen }]"
             :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
             :aria-expanded="isMobileMenuOpen.toString()"
             @click="isMobileMenuOpen = !isMobileMenuOpen"
           >
-            <svg v-if="!isMobileMenuOpen" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
-            </svg>
-            <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <span /><span /><span />
+          </button>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Mobile fullscreen sheet -->
+    <div :class="['nav-sheet', { open: isMobileMenuOpen }]" :aria-hidden="!isMobileMenuOpen">
+      <div class="shell">
+        <div class="nav-sheet-header">
+          <div class="nav-sheet-overline t-overline">
+            <span style="width:24px;height:1px;background:var(--fg-muted);display:inline-block" />
+            Menu
+          </div>
+          <button
+            class="nav-sheet-close"
+            aria-label="Close menu"
+            @click="isMobileMenuOpen = false"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
-        </nav>
-      </div>
-
-      <Transition @before-enter="onBeforeEnter" @enter="onEnter" @leave="onLeave">
-        <div v-if="isMobileMenuOpen" class="sm:hidden overflow-hidden shell">
-          <nav style="display:flex;flex-direction:column;gap:4px;padding:16px 0;">
-            <NuxtLink
-              v-for="item in navItems"
-              :key="item.path"
-              :to="item.path"
-              class="mobile-nav-link kra-nav-link text-center rounded-xl"
-              style="padding:12px 14px;"
-            >
-              {{ item.label }}
-            </NuxtLink>
-          </nav>
         </div>
-      </Transition>
-    </header>
+        <div class="nav-sheet-list">
+          <NuxtLink
+            v-for="(item, i) in navItems"
+            :key="item.path"
+            :to="item.path"
+            class="nav-sheet-link"
+            :style="{ '--i': i }"
+          >
+            <span class="num">§0{{ i + 1 }}</span>
+            <span class="label">{{ item.label }}</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="arrow"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+          </NuxtLink>
+        </div>
+        <div class="nav-sheet-foot t-label">
+          <span>Madrid · ES</span>
+          <span>hi@krealejo.dev</span>
+        </div>
+      </div>
+    </div>
 
     <main>
       <slot />
@@ -161,10 +187,6 @@ const onLeave = (el: Element, done: () => void) => {
 </template>
 
 <style scoped>
-@media (max-width: 640px) {
-  .kra-nav-link { display: none !important; }
-  .kra-nav-link:last-of-type { display: none; }
-  button[aria-label="Open menu"],
-  button[aria-label="Close menu"] { display: inline-flex !important; }
-}
+/* NuxtLink inside nav-sheet gets the right display */
+.nav-sheet-link { display: grid; }
 </style>

@@ -66,4 +66,52 @@ describe('components/BlogPostDeleteModal.vue', () => {
     if (cancelBtn) await cancelBtn.trigger('click')
     expect(wrapper.emitted('close')).toBeDefined()
   })
+
+  it('clears deleteError when modal is closed (open goes false)', async () => {
+    const store = useBlogStore()
+    vi.spyOn(store, 'deletePost').mockRejectedValue(new Error('Server error'))
+
+    const wrapper = await mountSuspended(BlogPostDeleteModal, {
+      props: { open: true, post: mockPost },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    const deleteBtn = wrapper.findAll('button').find(b => b.text().includes('Delete'))
+    if (deleteBtn) await deleteBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Server error')
+
+    await wrapper.setProps({ open: false })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).not.toContain('Server error')
+  })
+
+  it('shows error when deletePost throws', async () => {
+    const store = useBlogStore()
+    vi.spyOn(store, 'deletePost').mockRejectedValue(new Error('Delete failed'))
+
+    const wrapper = await mountSuspended(BlogPostDeleteModal, {
+      props: { open: true, post: mockPost },
+      global: {
+        stubs: {
+          Dialog: { template: '<div><slot /></div>' },
+          DialogPanel: { template: '<div><slot /></div>' },
+          DialogTitle: { template: '<div><slot /></div>' },
+        }
+      }
+    })
+
+    const deleteBtn = wrapper.findAll('button').find(b => b.text().includes('Delete'))
+    if (deleteBtn) await deleteBtn.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Delete failed')
+    expect(wrapper.emitted('deleted')).toBeUndefined()
+  })
 })

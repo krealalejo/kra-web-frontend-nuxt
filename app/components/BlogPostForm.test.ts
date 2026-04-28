@@ -209,3 +209,78 @@ describe('components/BlogPostForm.vue', () => {
     expect(wrapper.findAll('input[placeholder="Label (e.g. Source)"]').length).toBe(0)
   })
 })
+
+describe('BlogPostForm — image upload', () => {
+  const dialogStubs = {
+    Dialog: { template: '<div><slot /></div>' },
+    DialogPanel: { template: '<div><slot /></div>' },
+    DialogTitle: { template: '<div><slot /></div>' },
+  }
+
+  it('handles image upload successfully', async () => {
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch
+      .mockResolvedValueOnce({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'images/photo.jpg' })
+      .mockResolvedValueOnce({})
+      .mockResolvedValue({ ready: true })
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs }
+    })
+
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await wrapper.vm.$nextTick()
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/upload', expect.objectContaining({ method: 'POST' }))
+  })
+
+  it('shows error when image upload fails', async () => {
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch.mockRejectedValue(new Error('Upload failed'))
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs }
+    })
+
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await wrapper.vm.$nextTick()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.text()).toContain('Upload failed')
+  })
+
+  it('clears poll on unmount', async () => {
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch
+      .mockResolvedValueOnce({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'images/photo.jpg' })
+      .mockResolvedValueOnce({})
+      .mockResolvedValue({ ready: false })
+
+    vi.useFakeTimers()
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs }
+    })
+
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await wrapper.vm.$nextTick()
+
+    wrapper.unmount()
+    vi.useRealTimers()
+  })
+})
