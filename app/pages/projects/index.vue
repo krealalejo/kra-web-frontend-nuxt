@@ -17,21 +17,19 @@ const kinds = ['all', 'frontend', 'backend', 'serverless']
 const filtered = computed(() => {
   if (!projects?.value) return []
   if (filter.value === 'all') return projects.value
-  return projects.value.filter(r => r.topics?.includes(filter.value))
+  return projects.value.filter(r => r.kind?.toLowerCase() === filter.value.toLowerCase())
 })
 
 function projectGlyph(repo: PortfolioRepoDto) {
-  if (repo.topics?.includes('backend')) return 'α'
-  if (repo.topics?.includes('frontend')) return 'w'
-  if (repo.topics?.includes('serverless')) return 'λ'
+  const k = repo.kind?.toLowerCase()
+  if (k === 'backend') return 'α'
+  if (k === 'frontend') return 'w'
+  if (k === 'serverless') return 'λ'
   return repo.name[0]?.toUpperCase() ?? '◇'
 }
 
 function projectKind(repo: PortfolioRepoDto) {
-  if (repo.topics?.includes('backend')) return 'Backend'
-  if (repo.topics?.includes('frontend')) return 'Frontend'
-  if (repo.topics?.includes('serverless')) return 'Serverless'
-  return 'Code'
+  return repo.kind || 'Code'
 }
 
 function projectYear(repo: PortfolioRepoDto) {

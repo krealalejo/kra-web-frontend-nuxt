@@ -8,6 +8,7 @@ export interface PortfolioRepoDto {
   topics: string[]
   stargazersCount: number
   updatedAt: string
+  kind?: string | null
   defaultBranch?: string | null
   readmeExcerpt?: string | null
 }

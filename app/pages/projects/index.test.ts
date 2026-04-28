@@ -148,38 +148,57 @@ describe('pages/projects/index.vue', () => {
     mockFetch.mockReturnValue(fetchPromise)
 
     const wrapper = await mountSuspended(ProjectsPage)
-    
+
     // We expect skeletons to be visible while pending
     const skeletons = wrapper.findAllComponents({ name: 'SkeletonProjectCard' })
     expect(skeletons.length).toBeGreaterThan(0)
-    
+
     // Resolve fetch and wait for updates
     resolveFetch([])
     await flushPromises()
-    
+
     expect(wrapper.findAllComponents({ name: 'SkeletonProjectCard' }).length).toBe(0)
   })
 
   it('correctly identifies project kinds and glyphs', async () => {
     const mockProjects = [
-      { name: 'P1', owner: 'o', fullName: 'o/p1', topics: ['backend'], updatedAt: '2024-01-01T00:00:00Z' },
-      { name: 'P2', owner: 'o', fullName: 'o/p2', topics: ['frontend'], updatedAt: '2024-01-01T00:00:00Z' },
-      { name: 'P3', owner: 'o', fullName: 'o/p3', topics: ['serverless'], updatedAt: '2024-01-01T00:00:00Z' },
-      { name: 'P4', owner: 'o', fullName: 'o/p4', topics: ['other'], updatedAt: '2024-01-01T00:00:00Z' }
+      { name: 'P1', owner: 'o', fullName: 'o/p1', kind: 'Backend', updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P2', owner: 'o', fullName: 'o/p2', kind: 'Frontend', updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P3', owner: 'o', fullName: 'o/p3', kind: 'Serverless', updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P4', owner: 'o', fullName: 'o/p4', kind: null, updatedAt: '2024-01-01T00:00:00Z' }
     ]
     mockFetch.mockResolvedValue(mockProjects)
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
 
     const cards = wrapper.findAll('.proj-card')
-    expect(cards[0].text()).toContain('Backend')
-    expect(cards[1].text()).toContain('Frontend')
-    expect(cards[2].text()).toContain('Serverless')
-    expect(cards[3].text()).toContain('Code')
-    
-    expect(cards[0].find('.glyph').text()).toBe('α')
-    expect(cards[1].find('.glyph').text()).toBe('w')
-    expect(cards[2].find('.glyph').text()).toBe('λ')
-    expect(cards[3].find('.glyph').text()).toBe('P')
+    expect(cards[0]!.text()).toContain('Backend')
+    expect(cards[1]!.text()).toContain('Frontend')
+    expect(cards[2]!.text()).toContain('Serverless')
+    expect(cards[3]!.text()).toContain('Code')
+
+    expect(cards[0]!.find('.glyph').text()).toBe('α')
+    expect(cards[1]!.find('.glyph').text()).toBe('w')
+    expect(cards[2]!.find('.glyph').text()).toBe('λ')
+    expect(cards[3]!.find('.glyph').text()).toBe('P')
+  })
+
+  it('filters projects by kind when a filter button is clicked', async () => {
+    const mockProjects = [
+      { name: 'P1', owner: 'o', fullName: 'o/p1', kind: 'Backend', updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P2', owner: 'o', fullName: 'o/p2', kind: 'Frontend', updatedAt: '2024-01-01T00:00:00Z' }
+    ]
+    mockFetch.mockResolvedValue(mockProjects)
+    const wrapper = await mountSuspended(ProjectsPage)
+    await flushPromises()
+
+    // Find "Frontend" button
+    const buttons = wrapper.findAll('button.chip')
+    const frontendButton = buttons.find(b => b.text() === 'frontend')
+    await frontendButton?.trigger('click')
+
+    const cards = wrapper.findAll('.proj-card')
+    expect(cards).toHaveLength(1)
+    expect(cards[0]!.text()).toContain('P2')
   })
 })
