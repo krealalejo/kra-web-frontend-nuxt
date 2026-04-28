@@ -36,16 +36,11 @@ export function useMarkdown() {
         allowedAttributes: {
           ...sanitizeHtml.defaults.allowedAttributes,
           img: ['src', 'alt', 'title'],
-          h1: ['id'],
-          h2: ['id'],
-          h3: ['id'],
-          h4: ['id'],
-          h5: ['id'],
-          h6: ['id'],
+          '*': ['class', 'id'], // Allow classes and ids for styling and Mermaid
         },
       })
     }
-    return DOMPurify.sanitize(html)
+    return DOMPurify.sanitize(html, { ADD_ATTR: ['class', 'id'] })
   }
 
   function extractHeadings(text: string): { title: string; id: string }[] {

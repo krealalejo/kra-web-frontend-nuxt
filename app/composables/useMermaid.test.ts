@@ -104,10 +104,8 @@ describe('useMermaid', () => {
     consoleSpy.mockRestore()
   })
 
-  it('initializes with dark theme if prefers-color-scheme is dark', async () => {
-    vi.stubGlobal('matchMedia', vi.fn((query) => ({
-      matches: query === '(prefers-color-scheme: dark)'
-    })))
+  it('initializes with dark theme if document has dark class', async () => {
+    document.documentElement.classList.add('dark')
 
     const { renderDiagrams } = useMermaid()
     const container = document.createElement('div')
@@ -118,5 +116,41 @@ describe('useMermaid', () => {
     expect(mermaidInitializeMock).toHaveBeenCalledWith(expect.objectContaining({
       theme: 'dark'
     }))
+
+    document.documentElement.classList.remove('dark')
+  })
+
+  it('reRender re-processes diagrams using stored source', async () => {
+    const { renderDiagrams, reRender } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    
+    await renderDiagrams(container)
+    vi.clearAllMocks()
+
+    document.documentElement.classList.add('dark')
+    await reRender(container)
+
+    expect(mermaidInitializeMock).toHaveBeenCalledWith(expect.objectContaining({
+      theme: 'dark'
+    }))
+    expect(mermaidRenderMock).toHaveBeenCalledWith(
+      expect.stringContaining('mermaid-re-'),
+      expect.stringContaining('graph TD; A-->B;')
+    )
+    
+    document.documentElement.classList.remove('dark')
+  })
+
+  it('reRender handles missing data-source gracefully', async () => {
+    const { reRender } = useMermaid()
+    const container = document.createElement('div')
+    const wrapper = document.createElement('div')
+    wrapper.className = 'mermaid-diagram'
+    // no data-source
+    container.appendChild(wrapper)
+
+    await reRender(container)
+    expect(mermaidRenderMock).not.toHaveBeenCalled()
   })
 })
