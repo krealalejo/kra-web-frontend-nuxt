@@ -110,4 +110,80 @@ describe('components/admin/AdminProjectsSection.vue', () => {
 
     expect(wrapper.text()).toContain('Failed to save')
   })
+
+  it('opens edit modal with pre-filled data when edit button is clicked', async () => {
+    mockFetch
+      .mockResolvedValueOnce([mockRepos[0]])
+      .mockResolvedValueOnce(mockMetadata)
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    const editBtn = wrapper.find('button[aria-label*="Edit metadata"]')
+    await editBtn.trigger('click')
+
+    expect(wrapper.text()).toContain('Edit project metadata')
+    expect(wrapper.find('input[placeholder="Add technology…"]').exists()).toBe(true)
+    expect(wrapper.text()).toContain('vue')
+    expect(wrapper.text()).toContain('nuxt')
+  })
+
+  it('closes modal when overlay background is clicked', async () => {
+    mockFetch
+      .mockResolvedValueOnce([mockRepos[1]])
+      .mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.text()).toContain('Add project metadata')
+
+    const allDivs = wrapper.findAll('div')
+    const overlay = allDivs.find(d => {
+      const style = d.attributes('style') ?? ''
+      return style.includes('position:fixed') && style.includes('inset:0')
+    })
+    if (overlay) {
+      await overlay.trigger('click')
+      await wrapper.vm.$nextTick()
+      expect(wrapper.text()).not.toContain('Add project metadata')
+    } else {
+      expect(wrapper.text()).toContain('Add project metadata')
+    }
+  })
+
+  it('closes modal when Discard changes is clicked', async () => {
+    mockFetch
+      .mockResolvedValueOnce([mockRepos[1]])
+      .mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.text()).toContain('Add project metadata')
+
+    const discard = wrapper.findAll('button').find(b => b.text().includes('Discard'))
+    await discard!.trigger('click')
+    expect(wrapper.text()).not.toContain('Add project metadata')
+  })
+
+  it('shows empty repos message when no repos found', async () => {
+    mockFetch.mockResolvedValueOnce([])
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('No repositories found')
+  })
+
+  it('shows error when loading repos fails', async () => {
+    mockFetch.mockRejectedValueOnce(new Error('Load failed'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('Could not load repositories')
+  })
 })

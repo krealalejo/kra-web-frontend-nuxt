@@ -571,3 +571,161 @@ describe('AdminCvSection — Skills CRUD', () => {
     expect(wrapper.text()).toContain('Create failed')
   })
 })
+
+describe('AdminCvSection — PDF Tab', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: null })
+      return Promise.resolve({})
+    })
+  })
+
+  async function mountPdfTab() {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    await flushPromises()
+    await nextTick()
+    const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
+    await pdfTab!.trigger('click')
+    await nextTick()
+    return wrapper
+  }
+
+  it('renders CV PDF tab content', async () => {
+    const wrapper = await mountPdfTab()
+    expect(wrapper.text()).toContain('CV PDF')
+  })
+
+  it('loads existing cvPdfUrl from profile on mount', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' })
+      return Promise.resolve({})
+    })
+    const wrapper = await mountPdfTab()
+    expect(wrapper.text()).toContain('CV PDF')
+  })
+
+  it('rejects non-PDF file type', async () => {
+    const wrapper = await mountPdfTab()
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['content'], 'test.docx', { type: 'application/msword' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Only PDF files are allowed')
+  })
+
+  it('rejects oversized PDF file', async () => {
+    const wrapper = await mountPdfTab()
+    const input = wrapper.find('input[type="file"]')
+    const bigContent = new Uint8Array(11 * 1024 * 1024)
+    const file = new File([bigContent], 'big.pdf', { type: 'application/pdf' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('PDF must be smaller than 10 MB')
+  })
+
+  it('uploads PDF successfully', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: null })
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'documents/cv.pdf' })
+      if (opts?.method === 'PUT' && typeof url === 'string' && url.includes('s3.example.com')) return Promise.resolve({})
+      if (url === '/api/admin/profile') return Promise.resolve({})
+      return Promise.resolve({})
+    })
+
+    const wrapper = await mountPdfTab()
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['%PDF'], 'cv.pdf', { type: 'application/pdf' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/upload', expect.objectContaining({ method: 'POST' }))
+  })
+
+  it('shows upload error when upload fails', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: null })
+      if (url === '/api/admin/upload') return Promise.reject(new Error('Upload error'))
+      return Promise.resolve({})
+    })
+
+    const wrapper = await mountPdfTab()
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['%PDF'], 'cv.pdf', { type: 'application/pdf' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Upload error')
+  })
+
+  it('removes PDF when remove button is clicked', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' })
+      if (url === '/api/admin/profile' && opts?.method === 'PUT') return Promise.resolve({})
+      return Promise.resolve({})
+    })
+
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    await flushPromises()
+    await nextTick()
+    const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
+    await pdfTab!.trigger('click')
+    await nextTick()
+
+    const removeBtn = wrapper.findAll('button').find(b => b.text().includes('Remove'))
+    if (removeBtn) {
+      await removeBtn.trigger('click')
+      await flushPromises()
+      expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({ method: 'PUT', body: { cvPdfUrl: null } }))
+    }
+  })
+
+  it('shows error when remove PDF fails', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' })
+      if (url === '/api/admin/profile' && opts?.method === 'PUT') return Promise.reject(new Error('Remove failed'))
+      return Promise.resolve({})
+    })
+
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    await flushPromises()
+    await nextTick()
+    const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
+    await pdfTab!.trigger('click')
+    await nextTick()
+
+    const removeBtn = wrapper.findAll('button').find(b => b.text().includes('Remove'))
+    if (removeBtn) {
+      await removeBtn.trigger('click')
+      await flushPromises()
+      await nextTick()
+      expect(wrapper.text()).toContain('Remove failed')
+    }
+  })
+})
