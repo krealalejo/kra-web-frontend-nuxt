@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const thumbKey = key
-    .replace(/^images\
+    .replace(/^images\//, 'thumbnails/')
     .replace(/\.[^.]+$/, '-thumb.webp')
 
   const s3BucketUrl = config.s3BucketUrl
