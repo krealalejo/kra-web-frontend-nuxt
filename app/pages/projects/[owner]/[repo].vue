@@ -38,6 +38,26 @@ const { data: detail, pending, error } = useAsyncData(
   { watch: [owner, repo], lazy: true }
 )
 
+interface ProjectMetadataResponse {
+  role: string | null
+  year: string | null
+  kind: string | null
+  mainBranch: string | null
+  stack: string[] | null
+}
+
+const { data: metadata } = useAsyncData<ProjectMetadataResponse | null>(
+  () => `project-metadata-${owner.value}-${repo.value}`,
+  async () => {
+    const raw = config.public.apiBase
+    const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
+    return await $fetch<ProjectMetadataResponse>(
+      `${apiBase}/projects/metadata/${encodeURIComponent(owner.value)}/${encodeURIComponent(repo.value)}`
+    ).catch(() => null) // never throw — D-14 guarantees 200; network can still fail
+  },
+  { watch: [owner, repo], lazy: true }
+)
+
 const { isMissingApiBase } = useApiError(error)
 
 const isNotFound = computed(() => {
@@ -45,13 +65,15 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === 'NOT_FOUND'
 })
 
-const { sanitizeMarkdown } = useMarkdown()
+const { sanitizeMarkdown, extractHeadings } = useMarkdown()
 const { renderDiagrams } = useMermaid()
 const readmeRef = ref<HTMLElement | null>(null)
 const sanitizedReadme = ref<string>('')
+const headings = ref<{ title: string; id: string }[]>([])
 
 watch(() => detail.value?.readmeExcerpt, async (val) => {
   sanitizedReadme.value = val ? await sanitizeMarkdown(val) : ''
+  headings.value = val ? extractHeadings(val) : []
 }, { immediate: true })
 
 useSeoMeta({
@@ -134,7 +156,7 @@ onMounted(async () => {
           </p>
 
           <div class="pd-meta-row">
-            <span>{{ projectKind(detail) }}</span>
+            <span>{{ metadata?.kind || projectKind(detail) }}</span>
             <span class="dot" />
             <span class="star">★ {{ detail.stargazersCount }}</span>
             <span class="dot" />
@@ -162,39 +184,23 @@ onMounted(async () => {
 
         <div class="pd-body">
           <div v-if="detail.readmeExcerpt" class="pd-content">
-            <h2>README</h2>
+            <h2 id="readme">README</h2>
             <div ref="readmeRef" class="prose" v-html="sanitizedReadme" />
           </div>
           <div v-else class="pd-content">
             <p style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;">No README available.</p>
           </div>
 
-          <aside class="pd-sidebar">
-            <h5>Details</h5>
-            <div style="display:flex;flex-direction:column;gap:14px;margin-top:14px;">
-              <div>
-                <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px;">Owner</div>
-                <div style="font-size:14px;color:var(--fg);">{{ detail.owner }}</div>
-              </div>
-              <div>
-                <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px;">Stars</div>
-                <div style="font-size:14px;color:var(--fg);">{{ detail.stargazersCount }}</div>
-              </div>
-              <div v-if="detail.defaultBranch">
-                <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px;">Default branch</div>
-                <div style="font-size:14px;color:var(--fg);font-family:var(--font-mono);">{{ detail.defaultBranch }}</div>
-              </div>
-              <div>
-                <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px;">Last updated</div>
-                <div style="font-size:14px;color:var(--fg);">{{ new Date(detail.updatedAt).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' }) }}</div>
-              </div>
-              <div v-if="detail.htmlUrl" style="margin-top:8px;">
-                <a :href="detail.htmlUrl" target="_blank" rel="noopener noreferrer" class="btn btn-ghost" style="width:100%;justify-content:center;display:flex;">
-                  View on GitHub ↗
-                </a>
-              </div>
-            </div>
-          </aside>
+          <ProjectSidebar
+            v-if="metadata && (metadata.role || metadata.year || metadata.kind || metadata.mainBranch || metadata.stack?.length)"
+            :role="metadata.role"
+            :year="metadata.year"
+            :kind="metadata.kind"
+            :main-branch="metadata.mainBranch"
+            :stack="metadata.stack"
+            :stars="detail.stargazersCount"
+            :headings="headings"
+          />
         </div>
       </section>
     </template>
