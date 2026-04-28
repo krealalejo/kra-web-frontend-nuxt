@@ -1310,7 +1310,7 @@ em, .emph {
 /* ========== Project Detail ========== */
 
 .pd-head {
-  padding: 56px 0 40px;
+  padding: 64px 0 48px;
   border-bottom: 1px solid var(--hairline);
   margin-bottom: 56px;
 }
@@ -1329,15 +1329,18 @@ em, .emph {
 .pd-breadcrumb:hover { color: var(--accent); }
 .pd-meta-row {
   display: flex;
-  gap: 28px;
-  margin-top: 24px;
+  gap: 24px;
+  margin-bottom: 28px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--fg-muted);
   align-items: center;
   flex-wrap: wrap;
+}
+.pd-meta-row span:not(.dot):not(.star) {
+  color: var(--fg-dim);
 }
 .pd-meta-row .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--fg-muted); }
 .pd-meta-row .star { color: var(--accent); }
@@ -1357,6 +1360,7 @@ em, .emph {
   margin: 56px 0 20px;
   line-height: 1.05;
   font-weight: 500;
+  color: var(--fg);
 }
 .pd-content h2:first-child { margin-top: 0; }
 .pd-content h3 {
@@ -1364,6 +1368,7 @@ em, .emph {
   font-size: 22px;
   margin: 32px 0 14px;
   font-weight: 500;
+  color: var(--fg);
 }
 .pd-content p {
   font-size: 16px;
@@ -1433,11 +1438,120 @@ em, .emph {
   border: 1px solid var(--hairline);
   padding: 20px 24px;
   border-radius: 4px;
-  overflow-x: auto;
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
   margin: 24px 0;
+}
+
+/* ========== Markdown / Prose Content ========== */
+
+.prose, .markdown-content {
+  color: var(--fg-dim);
+  font-size: 16px;
+  line-height: 1.62;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4,
+.markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4 {
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.prose h1, .markdown-content h1 { font-size: clamp(32px, 4vw, 48px); margin: 64px 0 24px; line-height: 1.05; }
+.prose h2, .markdown-content h2 { font-size: clamp(26px, 3vw, 36px); margin: 48px 0 18px; line-height: 1.1; }
+.prose h3, .markdown-content h3 { font-size: clamp(20px, 2.2vw, 24px); margin: 32px 0 14px; line-height: 1.2; }
+
+.prose p, .markdown-content p { margin-bottom: 20px; max-width: 68ch; }
+
+.prose a, .markdown-content a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--hairline-strong);
+  transition: text-decoration-color 0.2s var(--ease-out);
+}
+.prose a:hover, .markdown-content a:hover {
+  text-decoration-color: var(--accent);
+}
+
+.prose code, .markdown-content code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  background: var(--bg-elev);
+  border: 1px solid var(--hairline-strong);
+  border-radius: 4px;
+  color: var(--fg);
+}
+
+.prose pre, .markdown-content pre {
+  background: var(--bg-sunken);
+  border: 1px solid var(--hairline);
+  padding: 24px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 32px 0;
+}
+.prose pre code, .markdown-content pre code {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+}
+
+.prose ul, .prose ol, .markdown-content ul, .markdown-content ol {
+  margin: 24px 0;
+  padding-left: 24px;
+  color: var(--fg-dim);
+}
+.prose li, .markdown-content li { margin-bottom: 8px; }
+
+.prose blockquote, .markdown-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+  margin: 32px 0;
+  font-style: italic;
+  color: var(--fg-dim);
+}
+
+.prose hr, .markdown-content hr {
+  border: 0;
+  height: 1px;
+  background: var(--hairline);
+  margin: 48px 0;
+}
+
+.prose table, .markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 32px 0;
+  font-size: 14px;
+}
+.prose th, .markdown-content th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid var(--hairline-strong);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.prose td, .markdown-content td {
+  padding: 12px;
+  border-bottom: 1px solid var(--hairline);
+  color: var(--fg-dim);
+}
+
+.prose img, .markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 32px 0;
 }
 
 .pd-sidebar {
@@ -1516,7 +1630,7 @@ em, .emph {
   border-radius: 999px;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--fg-muted);
+  color: var(--fg-dim);
 }
 .pd-sidebar .stack-chip::before {
   content: "";

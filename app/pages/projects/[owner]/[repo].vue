@@ -66,15 +66,30 @@ const isNotFound = computed(() => {
 })
 
 const { sanitizeMarkdown, extractHeadings } = useMarkdown()
-const { renderDiagrams } = useMermaid()
+const { renderDiagrams, reRender } = useMermaid()
+const { isDark } = useTheme()
 const readmeRef = ref<HTMLElement | null>(null)
 const sanitizedReadme = ref<string>('')
 const headings = ref<{ title: string; id: string }[]>([])
+
+watch(isDark, async () => {
+  if (readmeRef.value) {
+    await nextTick()
+    reRender(readmeRef.value)
+  }
+})
 
 watch(() => detail.value?.readmeExcerpt, async (val) => {
   sanitizedReadme.value = val ? await sanitizeMarkdown(val) : ''
   headings.value = val ? extractHeadings(val) : []
 }, { immediate: true })
+
+watch(sanitizedReadme, async (val) => {
+  if (val && readmeRef.value) {
+    await nextTick()
+    renderDiagrams(readmeRef.value)
+  }
+})
 
 useSeoMeta({
   title: computed(() => {
@@ -107,16 +122,17 @@ function animateIn() {
 watch(pending, async (isPending) => {
   if (!isPending && detail.value && !error.value) {
     animateIn()
-    await nextTick()
-    if (readmeRef.value) renderDiagrams(readmeRef.value)
   }
 })
 
 onMounted(async () => {
   if (!pending.value && detail.value && !error.value) {
     animateIn()
-    await nextTick()
-    if (readmeRef.value) renderDiagrams(readmeRef.value)
+    // Trigger renderDiagrams once if already loaded
+    if (readmeRef.value && sanitizedReadme.value) {
+      await nextTick()
+      renderDiagrams(readmeRef.value)
+    }
   }
 })
 </script>
@@ -148,13 +164,6 @@ onMounted(async () => {
             All projects
           </NuxtLink>
 
-          <h1 style="font-family:var(--font-display);font-size:clamp(40px,6vw,80px);line-height:0.97;letter-spacing:-0.03em;font-weight:500;margin-bottom:16px;">
-            {{ detail.fullName }}
-          </h1>
-          <p style="font-size:18px;color:var(--fg-dim);max-width:60ch;margin-bottom:20px;">
-            {{ detail.description || '—' }}
-          </p>
-
           <div class="pd-meta-row">
             <span>{{ metadata?.kind || projectKind(detail) }}</span>
             <span class="dot" />
@@ -177,15 +186,23 @@ onMounted(async () => {
             </a>
           </div>
 
-          <div v-if="detail.topics?.length" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:20px;">
+          <h1 class="t-h1" style="margin-bottom:16px;">
+            {{ detail.fullName }}
+          </h1>
+
+          <p class="t-body-lg" style="margin-bottom:20px;">
+            {{ detail.description || '—' }}
+          </p>
+
+          <div v-if="detail.topics?.length" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;">
             <span v-for="t in detail.topics" :key="t" class="chip" style="font-size:10px;">{{ t }}</span>
           </div>
         </div>
 
         <div class="pd-body">
           <div v-if="detail.readmeExcerpt" class="pd-content">
-            <h2 id="readme">README</h2>
-            <div ref="readmeRef" class="prose" v-html="sanitizedReadme" />
+            <h2 id="readme" class="t-h2" style="margin-top:0; margin-bottom: 40px; color: var(--fg);">README</h2>
+            <div ref="readmeRef" class="markdown-content prose dark:prose-invert" v-html="sanitizedReadme" />
           </div>
           <div v-else class="pd-content">
             <p style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;">No README available.</p>
