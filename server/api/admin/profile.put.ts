@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
   const safeBody = {
     ...(body.homePortraitUrl !== undefined && { homePortraitUrl: body.homePortraitUrl }),
     ...(body.cvPortraitUrl !== undefined && { cvPortraitUrl: body.cvPortraitUrl }),
+    ...(body.cvPdfUrl !== undefined && { cvPdfUrl: body.cvPdfUrl }),
   }
 
   const response = await $fetch(`${config.apiBase}/config/profile`, {

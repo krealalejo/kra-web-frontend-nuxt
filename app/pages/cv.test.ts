@@ -112,4 +112,19 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
     expect(wrapper.find('img').exists()).toBe(false)
     expect(wrapper.text()).toContain('portrait.jpg')
   })
+
+  it('shows download CV button when cvPdfUrl is set', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null, cvPdfUrl: 'documents/my-cv.pdf' }
+    const wrapper = await mountSuspended(CvPage)
+    const downloadLink = wrapper.findAll('a').find(a => a.text().includes('Download CV'))
+    expect(downloadLink).toBeDefined()
+    expect(downloadLink!.attributes('download')).toBeDefined()
+  })
+
+  it('hides download CV button when cvPdfUrl is null', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null, cvPdfUrl: null }
+    const wrapper = await mountSuspended(CvPage)
+    const downloadLink = wrapper.findAll('a').find(a => a.text().includes('Download CV'))
+    expect(downloadLink).toBeUndefined()
+  })
 })

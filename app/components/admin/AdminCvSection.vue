@@ -15,7 +15,7 @@ interface SkillCategory {
 }
 
 // --- Tab state (D-03) ---
-const activeTab = ref<'experience' | 'education' | 'skills'>('experience')
+const activeTab = ref<'experience' | 'education' | 'skills' | 'pdf'>('experience')
 
 // --- Data refs (D-16: direct $fetch, no Pinia) ---
 const experience = ref<ExperienceEntry[]>([])
@@ -270,6 +270,81 @@ async function deleteCategory(id: string) {
   }
 }
 
+// === CV PDF UPLOAD ===
+
+const runtimeConfig = useRuntimeConfig()
+const cvPdfKey = ref<string | null>(null)
+const cvPdfUploading = ref(false)
+const cvPdfError = ref<string | null>(null)
+const cvPdfSuccess = ref(false)
+
+const cvPdfUrl = computed(() => {
+  if (!cvPdfKey.value) return null
+  return `${(runtimeConfig.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${cvPdfKey.value}`
+})
+
+onMounted(async () => {
+  try {
+    const profile = await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null; cvPdfUrl: string | null }>(
+      `${runtimeConfig.public.apiBase}/config/profile`
+    )
+    cvPdfKey.value = profile.cvPdfUrl ?? null
+  } catch {
+    // profile not configured yet — ok
+  }
+})
+
+async function handlePdfUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  if (file.type !== 'application/pdf') {
+    cvPdfError.value = 'Only PDF files are allowed'
+    return
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    cvPdfError.value = 'PDF must be smaller than 10 MB'
+    return
+  }
+  cvPdfUploading.value = true
+  cvPdfError.value = null
+  cvPdfSuccess.value = false
+  try {
+    const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
+      method: 'POST',
+      body: { filename: file.name, contentType: 'application/pdf' },
+    })
+    await $fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/pdf' },
+      body: file,
+    })
+    await $fetch('/api/admin/profile', {
+      method: 'PUT',
+      body: { cvPdfUrl: s3Key },
+    })
+    cvPdfKey.value = s3Key
+    cvPdfSuccess.value = true
+  } catch (e: unknown) {
+    cvPdfError.value = e instanceof Error ? e.message : 'Upload failed'
+  } finally {
+    cvPdfUploading.value = false
+  }
+}
+
+async function removePdf() {
+  cvPdfError.value = null
+  cvPdfSuccess.value = false
+  try {
+    await $fetch('/api/admin/profile', {
+      method: 'PUT',
+      body: { cvPdfUrl: null },
+    })
+    cvPdfKey.value = null
+  } catch (e: unknown) {
+    cvPdfError.value = e instanceof Error ? e.message : 'Removal failed'
+  }
+}
+
 // D-12: Add new category
 async function submitAddCategory() {
   const name = newCategoryName.value.trim()
@@ -316,14 +391,14 @@ async function submitAddCategory() {
     <!-- Tab switcher (D-03) -->
     <div style="display:flex;gap:8px;margin-bottom:24px;border-bottom:1px solid var(--hairline);padding-bottom:16px">
       <button
-        v-for="tab in (['experience','education','skills'] as const)"
+        v-for="tab in (['experience','education','skills','pdf'] as const)"
         :key="tab"
         @click="activeTab = tab"
         class="rounded-lg px-4 py-2 text-sm font-medium capitalize transition-all"
         :style="activeTab === tab
           ? 'background:var(--overlay);color:var(--fg);border:1px solid var(--hairline)'
           : 'color:var(--fg-dim);border:1px solid transparent'"
-      >{{ tab === 'skills' ? 'Skills' : tab.charAt(0).toUpperCase() + tab.slice(1) }}</button>
+      >{{ tab === 'skills' ? 'Skills' : tab === 'pdf' ? 'CV PDF' : tab.charAt(0).toUpperCase() + tab.slice(1) }}</button>
     </div>
 
     <!-- Experience tab panel (v-show — state survives tab switches, Pitfall 3) -->
@@ -518,6 +593,42 @@ async function submitAddCategory() {
             @click="submitAddCategory"
           >{{ addCategorySaving ? 'Creating…' : 'Create' }}</button>
         </div>
+      </div>
+    </div>
+
+    <!-- CV PDF tab panel (v-if: file input must not exist in DOM when other tabs are active) -->
+    <div v-if="activeTab === 'pdf'">
+      <div class="mb-4">
+        <h3 class="t-h3" style="color: var(--fg)">CV PDF</h3>
+        <p class="text-xs mt-1" style="color: var(--fg-dim)">Upload a PDF version of your CV. Visitors can download it from the CV page.</p>
+      </div>
+
+      <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); max-width: 480px;">
+        <!-- Current file status -->
+        <div class="mb-4">
+          <div class="t-overline mb-2" style="color: var(--fg-dim)">Current file</div>
+          <div v-if="cvPdfKey" class="flex items-center justify-between rounded-lg px-3 py-2" style="background: var(--bg); border: 1px solid var(--hairline)">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <Icon name="lucide:file-text" class="w-4 h-4" style="color: var(--accent)" />
+              <span class="text-xs" style="color: var(--fg); font-family: var(--font-mono)">{{ cvPdfKey.split('/').pop() }}</span>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <a :href="cvPdfUrl!" target="_blank" rel="noopener" class="text-xs px-2 py-1 rounded" style="color: var(--accent); border: 1px solid var(--hairline); background: none; text-decoration: none">Preview ↗</a>
+              <button class="text-xs px-2 py-1 rounded" style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer" @click="removePdf">Remove</button>
+            </div>
+          </div>
+          <div v-else class="text-xs" style="color: var(--fg-faint)">No PDF uploaded yet.</div>
+        </div>
+
+        <!-- Upload -->
+        <label class="btn btn-primary" style="cursor: pointer; display: inline-block;">
+          <span v-if="cvPdfUploading">Uploading…</span>
+          <span v-else>{{ cvPdfKey ? 'Replace PDF' : 'Upload PDF' }}</span>
+          <input type="file" accept="application/pdf" class="sr-only" :disabled="cvPdfUploading" @change="handlePdfUpload" />
+        </label>
+
+        <p v-if="cvPdfSuccess" class="mt-3 text-xs" style="color: #4caf50">PDF uploaded successfully.</p>
+        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #ff4d4d">{{ cvPdfError }}</p>
       </div>
     </div>
 

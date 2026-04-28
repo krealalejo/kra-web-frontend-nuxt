@@ -60,6 +60,14 @@ describe('AdminCvSection', () => {
     expect(wrapper.text()).toContain('Skills')
   })
 
+  it('renders CV PDF tab when clicked', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
+    await pdfTab!.trigger('click')
+    expect(wrapper.text()).toContain('CV PDF')
+  })
+
   it('opens add experience modal', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
     const wrapper = await mountSuspended(AdminCvSection)

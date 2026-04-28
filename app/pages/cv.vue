@@ -20,7 +20,7 @@ const { data: profileData } = useAsyncData(
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
     if (!apiBase) return null
     try {
-      return await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null }>(
+      return await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null; cvPdfUrl: string | null }>(
         `${apiBase}/config/profile`
       )
     } catch {
@@ -29,6 +29,12 @@ const { data: profileData } = useAsyncData(
   },
   { lazy: true }
 )
+
+const cvPdfDownloadUrl = computed(() => {
+  const key = profileData.value?.cvPdfUrl
+  if (!key) return null
+  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${key}`
+})
 
 // --- CV data interfaces ---
 interface ExperienceEntry {
@@ -112,6 +118,7 @@ onMounted(() => {
         <div class="actions">
           <NuxtLink to="/contact" class="btn">Contact me</NuxtLink>
           <a href="https://github.com/krealalejo" target="_blank" rel="noopener" class="btn btn-ghost">GitHub ↗</a>
+          <a v-if="cvPdfDownloadUrl" :href="cvPdfDownloadUrl" download class="btn btn-ghost">Download CV ↓</a>
         </div>
       </div>
       <div class="cv-photo-wrap">
