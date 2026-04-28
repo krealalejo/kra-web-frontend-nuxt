@@ -4,13 +4,14 @@ import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 
 mockNuxtImport('useAsyncData', () => {
-  return (_key: string, factory: () => Promise<any>, options?: any) => {
+  return (key: string | (() => string), factory: () => Promise<any>, options?: any) => {
+    if (typeof key === 'function') key()
     const data = ref(null)
     const pending = ref(!options?.lazy)
     const error = ref(null)
     const status = ref('idle')
 
-    const promise = factory().then(res => {
+    factory().then(res => {
       data.value = res
       pending.value = false
       status.value = 'success'

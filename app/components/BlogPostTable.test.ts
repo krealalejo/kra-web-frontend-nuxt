@@ -55,4 +55,21 @@ describe('components/BlogPostTable.vue', () => {
     if (deleteBtn) await deleteBtn.trigger('click')
     expect(wrapper.emitted('delete')).toEqual([[mockPosts[0]]])
   })
+
+  it('renders thumbnail when post has imageUrl', async () => {
+    const postWithImage = { ...mockPosts[0], imageUrl: 'images/cover.jpg' }
+    const wrapper = await mountSuspended(BlogPostTable, {
+      props: { posts: [postWithImage] }
+    })
+    const img = wrapper.find('img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('thumbnails/cover-thumb.webp')
+  })
+
+  it('renders empty state when posts array is empty', async () => {
+    const wrapper = await mountSuspended(BlogPostTable, {
+      props: { posts: [] }
+    })
+    expect(wrapper.findAll('tbody tr').length).toBe(0)
+  })
 })

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DOMPurify from 'dompurify'
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'
 import { useApiError } from '~/composables/useApiError'
