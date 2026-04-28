@@ -9,6 +9,7 @@ vi.stubGlobal('$fetch', mockFetch)
 describe('ProfileSection', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useFakeTimers()
     mockFetch.mockResolvedValue({
       homePortraitUrl: 'images/home.jpg',
       cvPortraitUrl: 'images/cv.jpg'
@@ -84,17 +85,25 @@ describe('ProfileSection', () => {
       if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/new-home.jpg' })
       if (url === 's3://url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
+      if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
       return Promise.resolve({})
     })
     
     await input.trigger('change')
     
-    // Check if thumbnail updated (need a few ticks for reactive changes)
+    // Check for processing state
+    expect(wrapper.text()).toContain('Processing')
+    
+    // Advance timers to trigger the polling interval
+    vi.advanceTimersByTime(2000)
+    
+    await nextTick()
     await nextTick()
     await nextTick()
     
     const img = wrapper.find('img[alt="Home portrait"]')
     expect(img.attributes('src')).toContain('thumbnails/new-home-thumb.webp')
+    vi.useRealTimers()
   })
 
   it('performs full upload flow for CV portrait', async () => {
@@ -108,16 +117,23 @@ describe('ProfileSection', () => {
       if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://cv-url', s3Key: 'images/new-cv.jpg' })
       if (url === 's3://cv-url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
+      if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
       return Promise.resolve({})
     })
     
     await input.trigger('change')
     
+    expect(wrapper.text()).toContain('Processing')
+    
+    vi.advanceTimersByTime(2000)
+    
+    await nextTick()
     await nextTick()
     await nextTick()
     
     const img = wrapper.find('img[alt="CV portrait"]')
     expect(img.attributes('src')).toContain('thumbnails/new-cv-thumb.webp')
+    vi.useRealTimers()
   })
 
   it('handles upload error', async () => {
@@ -128,8 +144,35 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
     
     mockFetch.mockRejectedValue(new Error('Network error during upload'))
-    
     await input.trigger('change')
     expect(wrapper.text()).toContain('Network error during upload')
+  })
+
+  it('handles portrait deletion', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    
+    // Check initial state
+    expect(wrapper.findAll('img').length).toBe(2)
+    
+    // Find delete button for Home portrait
+    const deleteBtn = wrapper.find('button[title="Remove portrait"]')
+    expect(deleteBtn.exists()).toBe(true)
+    
+    mockFetch.mockResolvedValue({}) // Successful PUT
+    
+    await deleteBtn.trigger('click')
+    
+    // Verify API call (should include both to avoid partial overwrite)
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
+      method: 'PUT',
+      body: { 
+        homePortraitUrl: null,
+        cvPortraitUrl: 'images/cv.jpg' // Preserved existing value from beforeEach
+      }
+    }))
+    
+    // Verify UI update
+    await nextTick()
+    expect(wrapper.find('img[alt="Home portrait"]').exists()).toBe(false)
   })
 })

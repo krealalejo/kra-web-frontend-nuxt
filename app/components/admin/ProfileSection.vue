@@ -6,11 +6,15 @@ const runtimeConfig = useRuntimeConfig()
 // Home portrait state
 const homePortraitKey = ref<string | null>(null)
 const homePortraitUploading = ref(false)
+const homeThumbReady = ref(false)
+const isHomeThumbPolling = ref(false)
 const homePortraitError = ref<string | null>(null)
 
 // CV portrait state
 const cvPortraitKey = ref<string | null>(null)
 const cvPortraitUploading = ref(false)
+const cvThumbReady = ref(false)
+const isCvThumbPolling = ref(false)
 const cvPortraitError = ref<string | null>(null)
 
 // Computed thumbnail URLs (derive from S3 key — same pattern as BlogPostForm)
@@ -37,7 +41,9 @@ onMounted(async () => {
       `${runtimeConfig.public.apiBase}/config/profile`
     )
     homePortraitKey.value = profile.homePortraitUrl ?? null
+    homeThumbReady.value = !!profile.homePortraitUrl
     cvPortraitKey.value = profile.cvPortraitUrl ?? null
+    cvThumbReady.value = !!profile.cvPortraitUrl
   } catch (e: unknown) {
     // A 404 means no portraits are configured yet — safe to ignore.
     // Any other error (auth failure, network error, etc.) surfaces to the admin.
@@ -57,7 +63,9 @@ async function uploadPortrait(
   portraitType: 'home' | 'cv',
   uploadingRef: Ref<boolean>,
   errorRef: Ref<string | null>,
-  keyRef: Ref<string | null>
+  keyRef: Ref<string | null>,
+  readyRef: Ref<boolean>,
+  pollingRef: Ref<boolean>
 ) {
   if (!ALLOWED_TYPES.includes(file.type)) {
     errorRef.value = 'Only JPEG, PNG, or WebP images are allowed'
@@ -85,10 +93,11 @@ async function uploadPortrait(
       body: file,
     })
 
-    // Step 3: Persist the S3 key in AppConfig
-    const payload = portraitType === 'home'
-      ? { homePortraitUrl: s3Key }
-      : { cvPortraitUrl: s3Key }
+    // Step 3: Persist the S3 key in AppConfig (include both to avoid partial update overwrite)
+    const payload = {
+      homePortraitUrl: portraitType === 'home' ? s3Key : homePortraitKey.value,
+      cvPortraitUrl: portraitType === 'cv' ? s3Key : cvPortraitKey.value
+    }
 
     await $fetch('/api/admin/profile', {
       method: 'PUT',
@@ -96,6 +105,35 @@ async function uploadPortrait(
     })
 
     keyRef.value = s3Key
+    
+    // Step 4: Poll for thumbnail (consistent with BlogPostForm pattern)
+    let attempts = 0
+    pollingRef.value = true
+    const poll = setInterval(async () => {
+      attempts++
+      try {
+        const { ready } = await $fetch<{ ready: boolean }>(
+          `/api/admin/image-status?key=${encodeURIComponent(s3Key)}`
+        )
+        if (ready) {
+          readyRef.value = true
+          pollingRef.value = false
+          clearInterval(poll)
+        } else if (attempts >= 15) {
+          clearInterval(poll)
+          pollingRef.value = false
+          errorRef.value = 'Image uploaded but thumbnail is still generating.'
+        }
+      } catch {
+        if (attempts >= 15) {
+          pollingRef.value = false
+          clearInterval(poll)
+        }
+      }
+    }, 2000)
+
+    // Cleanup interval if component is unmounted
+    onUnmounted(() => clearInterval(poll))
   } catch (e: unknown) {
     errorRef.value = e instanceof Error ? e.message : 'Upload failed'
   } finally {
@@ -106,13 +144,48 @@ async function uploadPortrait(
 function handleHomeUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  uploadPortrait(file, 'home', homePortraitUploading, homePortraitError, homePortraitKey)
+  homeThumbReady.value = false // Reset ready state on new upload
+  uploadPortrait(file, 'home', homePortraitUploading, homePortraitError, homePortraitKey, homeThumbReady, isHomeThumbPolling)
 }
 
 function handleCvUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
-  uploadPortrait(file, 'cv', cvPortraitUploading, cvPortraitError, cvPortraitKey)
+  cvThumbReady.value = false // Reset ready state on new upload
+  uploadPortrait(file, 'cv', cvPortraitUploading, cvPortraitError, cvPortraitKey, cvThumbReady, isCvThumbPolling)
+}
+
+async function removePortrait(
+  portraitType: 'home' | 'cv',
+  keyRef: Ref<string | null>,
+  errorRef: Ref<string | null>,
+  readyRef: Ref<boolean>
+) {
+  errorRef.value = null
+  try {
+    const payload = {
+      homePortraitUrl: portraitType === 'home' ? null : homePortraitKey.value,
+      cvPortraitUrl: portraitType === 'cv' ? null : cvPortraitKey.value
+    }
+
+    await $fetch('/api/admin/profile', {
+      method: 'PUT',
+      body: payload,
+    })
+
+    keyRef.value = null
+    readyRef.value = false
+  } catch (e: unknown) {
+    errorRef.value = e instanceof Error ? e.message : 'Removal failed'
+  }
+}
+
+function handleRemoveHome() {
+  removePortrait('home', homePortraitKey, homePortraitError, homeThumbReady)
+}
+
+function handleRemoveCv() {
+  removePortrait('cv', cvPortraitKey, cvPortraitError, cvThumbReady)
 }
 </script>
 
@@ -131,15 +204,29 @@ function handleCvUpload(event: Event) {
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline)">
         <div class="t-overline mb-4">Home Portrait</div>
         <!-- Preview -->
-        <div class="mb-4" style="aspect-ratio: 3/4; max-width: 180px; overflow: hidden; border-radius: 8px; background: var(--overlay);">
-          <img v-if="homeThumbUrl" :src="homeThumbUrl" alt="Home portrait" style="width:100%;height:100%;object-fit:cover;" />
+        <div class="mb-4 relative group" style="aspect-ratio: 3/4; max-width: 180px; overflow: hidden; border-radius: 8px; background: var(--overlay);">
+          <img v-if="homeThumbUrl && homeThumbReady" :src="homeThumbUrl" alt="Home portrait" style="width:100%;height:100%;object-fit:cover;" />
+          <div v-else-if="(homePortraitKey && !homeThumbReady) || isHomeThumbPolling" class="flex flex-col items-center justify-center h-full gap-2" style="background: var(--bg-sunken); border: 1px dashed var(--hairline)">
+            <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin" style="color: var(--accent)" />
+            <span class="text-[8px] uppercase tracking-tighter opacity-50">Processing</span>
+          </div>
           <div v-else class="flex items-center justify-center h-full" style="color: var(--fg-faint); font-size: 12px; font-family: var(--font-mono);">No portrait</div>
+          
+          <button
+            v-if="homePortraitKey && homeThumbReady"
+            type="button"
+            title="Remove portrait"
+            class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+            @click="handleRemoveHome"
+          >
+            <Icon name="lucide:trash-2" class="w-6 h-6 text-red-400" />
+          </button>
         </div>
         <!-- Upload button -->
         <label class="btn btn-primary" style="cursor: pointer;">
           <span v-if="homePortraitUploading">Uploading…</span>
           <span v-else>Upload Home Portrait</span>
-          <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="homePortraitUploading" @change="handleHomeUpload" />
+          <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="homePortraitUploading || isHomeThumbPolling" @change="handleHomeUpload" />
         </label>
         <p v-if="homePortraitError" class="mt-2 text-sm" style="color: #ff4d4d">{{ homePortraitError }}</p>
       </div>
@@ -148,15 +235,29 @@ function handleCvUpload(event: Event) {
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline)">
         <div class="t-overline mb-4">CV Portrait</div>
         <!-- Preview -->
-        <div class="mb-4" style="aspect-ratio: 3/4; max-width: 180px; overflow: hidden; border-radius: 8px; background: var(--overlay);">
-          <img v-if="cvThumbUrl" :src="cvThumbUrl" alt="CV portrait" style="width:100%;height:100%;object-fit:cover;" />
+        <div class="mb-4 relative group" style="aspect-ratio: 3/4; max-width: 180px; overflow: hidden; border-radius: 8px; background: var(--overlay);">
+          <img v-if="cvThumbUrl && cvThumbReady" :src="cvThumbUrl" alt="CV portrait" style="width:100%;height:100%;object-fit:cover;" />
+          <div v-else-if="(cvPortraitKey && !cvThumbReady) || isCvThumbPolling" class="flex flex-col items-center justify-center h-full gap-2" style="background: var(--bg-sunken); border: 1px dashed var(--hairline)">
+            <Icon name="lucide:loader-2" class="w-5 h-5 animate-spin" style="color: var(--accent)" />
+            <span class="text-[8px] uppercase tracking-tighter opacity-50">Processing</span>
+          </div>
           <div v-else class="flex items-center justify-center h-full" style="color: var(--fg-faint); font-size: 12px; font-family: var(--font-mono);">No portrait</div>
+
+          <button
+            v-if="cvPortraitKey && cvThumbReady"
+            type="button"
+            title="Remove portrait"
+            class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity"
+            @click="handleRemoveCv"
+          >
+            <Icon name="lucide:trash-2" class="w-6 h-6 text-red-400" />
+          </button>
         </div>
         <!-- Upload button -->
         <label class="btn btn-primary" style="cursor: pointer;">
           <span v-if="cvPortraitUploading">Uploading…</span>
           <span v-else>Upload CV Portrait</span>
-          <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="cvPortraitUploading" @change="handleCvUpload" />
+          <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="cvPortraitUploading || isCvThumbPolling" @change="handleCvUpload" />
         </label>
         <p v-if="cvPortraitError" class="mt-2 text-sm" style="color: #ff4d4d">{{ cvPortraitError }}</p>
       </div>
