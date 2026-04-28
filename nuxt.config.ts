@@ -13,7 +13,6 @@ export default defineNuxtConfig({
         '@vue/devtools-core',
         '@vue/devtools-kit',
         'gsap',
-        'mermaid',
         'marked',
         'dompurify',
         'sanitize-html',
