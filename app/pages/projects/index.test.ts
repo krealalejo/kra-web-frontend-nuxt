@@ -7,10 +7,10 @@ const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
 vi.mock('gsap', () => ({
-  default: { 
-    from: vi.fn(), 
-    to: vi.fn(), 
-    fromTo: vi.fn(), 
+  default: {
+    from: vi.fn().mockReturnValue(Promise.resolve()),
+    to: vi.fn().mockReturnValue(Promise.resolve()),
+    fromTo: vi.fn().mockReturnValue(Promise.resolve()),
     set: vi.fn(),
     utils: {
       toArray: vi.fn((val) => (typeof val === 'string' ? [val] : val))
@@ -202,6 +202,10 @@ describe('pages/projects/index.vue', () => {
     const frontendButton = buttons.find(b => b.text() === 'frontend')
     await frontendButton?.trigger('click')
 
+    await flushPromises()
+    await nextTick()
+    await flushPromises()
+
     const cards = wrapper.findAll('.proj-card')
     expect(cards).toHaveLength(1)
     expect(cards[0]!.text()).toContain('P2')
@@ -219,12 +223,21 @@ describe('pages/projects/index.vue', () => {
     const buttons = wrapper.findAll('button.chip')
     const backendButton = buttons.find(b => b.text() === 'backend')
     await backendButton?.trigger('click')
-    await nextTick()
 
-    expect(gsap.fromTo).toHaveBeenCalledWith(
-      '.proj-card',
-      expect.objectContaining({ opacity: 0 }),
-      expect.objectContaining({ stagger: expect.any(Number) })
+    await flushPromises()
+    await nextTick()
+    await flushPromises()
+    await nextTick()
+    await flushPromises()
+
+    expect(gsap.to).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ opacity: 0, scale: 0.92 })
+    )
+
+    expect(gsap.to).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ opacity: 1, scale: 1, y: 0 })
     )
   })
 })

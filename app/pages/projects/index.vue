@@ -13,6 +13,15 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
 }, { lazy: true })
 
+const displayProjects = ref<PortfolioRepoDto[]>([])
+const isAnimating = ref(false)
+
+watch(projects, (val) => {
+  if (val && !displayProjects.value.length) {
+    displayProjects.value = val
+  }
+}, { immediate: true })
+
 const kinds = ['all', 'frontend', 'backend', 'serverless']
 
 const filtered = computed(() => {
@@ -37,6 +46,56 @@ function projectYear(repo: PortfolioRepoDto) {
   return new Date(repo.updatedAt).getFullYear()
 }
 
+async function applyFilter(k: string) {
+  if (filter.value === k || isAnimating.value) return
+  
+  isAnimating.value = true
+  
+  const cards = gsap.utils.toArray('.proj-card')
+  if (cards.length > 0) {
+    await gsap.to(cards, {
+      opacity: 0,
+      scale: 0.92,
+      y: 15,
+      stagger: {
+        each: 0.04,
+        from: 'start'
+      },
+      duration: 0.35,
+      ease: 'power2.in'
+    })
+  }
+
+  filter.value = k
+  displayProjects.value = projects.value ? (
+    k === 'all' 
+      ? projects.value 
+      : projects.value.filter(r => r.kind?.toLowerCase() === k.toLowerCase())
+  ) : []
+  
+  await nextTick()
+  
+  const newCards = gsap.utils.toArray('.proj-card')
+  if (newCards.length > 0) {
+    gsap.set(newCards, { opacity: 0, scale: 1.05, y: -15 })
+    
+    await gsap.to(newCards, {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      stagger: {
+        each: 0.07,
+        from: 'start'
+      },
+      duration: 0.6,
+      ease: 'back.out(1.2)',
+      clearProps: 'all'
+    })
+  }
+  
+  isAnimating.value = false
+}
+
 onMounted(() => {
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
@@ -55,14 +114,6 @@ watch(pending, (isPending) => {
       }
     })
   }
-})
-
-watch(filter, () => {
-  nextTick(() => {
-    if (gsap.utils.toArray('.proj-card').length > 0) {
-      gsap.fromTo('.proj-card', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out' })
-    }
-  })
 })
 
 const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
@@ -90,9 +141,9 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
               color: filter === k ? 'var(--bg)' : 'var(--fg-dim)',
               borderColor: filter === k ? 'var(--fg)' : 'var(--hairline-strong)',
             }"
-            @click="filter = k"
+            @click="applyFilter(k)"
           >{{ k }}</button>
-          <span style="margin-left:auto;" class="t-label">{{ filtered.length }} of {{ projects?.length ?? 0 }}</span>
+          <span style="margin-left:auto;" class="t-label">{{ displayProjects.length }} of {{ projects?.length ?? 0 }}</span>
         </div>
       </div>
     </header>
@@ -112,7 +163,7 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
 
       <div v-else class="proj-grid">
         <NuxtLink
-          v-for="(repo, i) in filtered"
+          v-for="(repo, i) in displayProjects"
           :key="repo.fullName"
           :to="`/projects/${repo.owner}/${repo.name}`"
           class="proj-card"
