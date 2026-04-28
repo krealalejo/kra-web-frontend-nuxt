@@ -27,14 +27,9 @@ const thumbReady = ref(false)
 const isThumbnailPolling = ref(false)
 
 const runtimeConfig = useRuntimeConfig()
+const { getThumbUrl } = useS3()
 
-const thumbUrl = computed(() => {
-  if (!imageUrl.value) return null
-  const thumbKey = imageUrl.value
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
-})
+const thumbUrl = computed(() => getThumbUrl(imageUrl.value))
 
 async function handleImageUpload(event: Event) {
   const input = event.target as HTMLInputElement

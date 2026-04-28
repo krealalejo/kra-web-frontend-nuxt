@@ -15,21 +15,9 @@ const cvThumbReady = ref(false)
 const isCvThumbPolling = ref(false)
 const cvPortraitError = ref<string | null>(null)
 
-const homeThumbUrl = computed(() => {
-  if (!homePortraitKey.value) return null
-  const thumbKey = homePortraitKey.value
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
-})
-
-const cvThumbUrl = computed(() => {
-  if (!cvPortraitKey.value) return null
-  const thumbKey = cvPortraitKey.value
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
-})
+const { getThumbUrl } = useS3()
+const homeThumbUrl = computed(() => getThumbUrl(homePortraitKey.value))
+const cvThumbUrl = computed(() => getThumbUrl(cvPortraitKey.value))
 
 onMounted(async () => {
   try {

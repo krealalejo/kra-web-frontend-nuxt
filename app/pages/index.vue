@@ -34,14 +34,8 @@ const { data: profileData } = useAsyncData(
   { lazy: true }
 )
 
-const homePortraitThumbUrl = computed(() => {
-  const key = profileData.value?.homePortraitUrl
-  if (!key) return null
-  const thumbKey = key
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
-})
+const { getThumbUrl } = useS3()
+const homePortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.homePortraitUrl))
 
 const featuredProjects = computed(() => {
   if (!projects?.value) return []

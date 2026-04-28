@@ -11,12 +11,10 @@ const emit = defineEmits<{
 }>()
 
 const runtimeConfig = useRuntimeConfig()
+const { getThumbUrl: generateThumbUrl } = useS3()
 
 function getThumbUrl(key: string): string {
-  const thumbKey = key
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${runtimeConfig.public.s3PublicBucketUrl}/${thumbKey}`
+  return generateThumbUrl(key) || ''
 }
 
 function formatDate(iso: string): string {

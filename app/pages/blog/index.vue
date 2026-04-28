@@ -17,12 +17,9 @@ function formatDate(iso: string) {
 }
 
 function postNum(i: number) { return String(i + 1).padStart(2, '0') }
+const { getThumbUrl: generateThumbUrl } = useS3()
 function getThumbUrl(post: BlogPostDto) {
-  if (!post.imageUrl) return null
-  const thumbKey = post.imageUrl
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
+  return generateThumbUrl(post.imageUrl)
 }
 
 onMounted(() => {

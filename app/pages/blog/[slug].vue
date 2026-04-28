@@ -69,13 +69,8 @@ onMounted(() => {
   gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
 })
 
-const thumbUrl = computed(() => {
-  if (!post.value?.imageUrl) return null
-  const thumbKey = post.value.imageUrl
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${config.public.s3PublicBucketUrl}/${thumbKey}`
-})
+const { getThumbUrl } = useS3()
+const thumbUrl = computed(() => getThumbUrl(post.value?.imageUrl))
 
 function formatDate(iso: string) {
   try {

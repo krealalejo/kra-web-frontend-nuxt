@@ -89,14 +89,8 @@ const { data: skillsData } = useAsyncData(
   { lazy: true }
 )
 
-const cvPortraitThumbUrl = computed(() => {
-  const key = profileData.value?.cvPortraitUrl
-  if (!key) return null
-  const thumbKey = key
-    .replace(/^images\
-    .replace(/\.[^.]+$/, '-thumb.webp')
-  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${thumbKey}`
-})
+const { getThumbUrl } = useS3()
+const cvPortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.cvPortraitUrl))
 
 onMounted(() => {
   gsap.fromTo('.cv-head h1',  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
