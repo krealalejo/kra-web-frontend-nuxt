@@ -8,14 +8,20 @@ const currentYear = format(new Date(), 'yyyy')
 
 const config = useRuntimeConfig()
 
+useSeoMeta({
+  title: 'Kevin Real Alejo · Full-stack Engineer',
+  description: 'Portfolio of Kevin Real Alejo — full-stack engineer specialising in Spring Boot, AWS, and Nuxt.',
+  ogTitle: 'Kevin Real Alejo · Full-stack Engineer',
+  ogDescription: 'Full-stack engineer specialising in Spring Boot, AWS, and Nuxt. Based in Barcelona.',
+})
+
 const { data: projects, error, pending } = useAsyncData(
   'home-portfolio-repos',
   async () => {
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
     if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-  },
-  { lazy: true }
+  }
 )
 
 const { data: profileData } = useAsyncData(
@@ -30,8 +36,7 @@ const { data: profileData } = useAsyncData(
     } catch {
       return null
     }
-  },
-  { lazy: true }
+  }
 )
 
 const { getThumbUrl } = useS3()
@@ -99,7 +104,7 @@ watch(pending, (isPending) => {
       }
     })
   }
-})
+}, { immediate: true })
 
 const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>([])
 
@@ -126,7 +131,7 @@ function projectNum(i: number) {
       <div class="shell">
         <div class="hero-grid">
           <div class="hero-left">
-            <h1 class="t-display display-name" style="white-space:nowrap;margin-bottom:28px;">Kevin Real Alejo</h1>
+            <h1 class="t-display display-name" style="margin-bottom:28px;">Kevin Real Alejo</h1>
             <div class="hero-role">
               <span class="emph">Full-stack engineer</span> — shipping calm,<br> reliable software for the cloud.
             </div>
@@ -239,12 +244,9 @@ function projectNum(i: number) {
           <h2>Open source <em>activity</em></h2>
           <span class="sub">Live from GitHub API</span>
         </div>
-        <div
-          class="reveal-scroll"
-          style="display:grid;grid-template-columns:1.4fr 1fr;gap:40px;align-items:stretch;"
-        >
+        <div class="activity-layout reveal-scroll">
           <AppGithubContributions />
-          <div style="display:flex;flex-direction:column;gap:16px;">
+          <div class="activity-list">
             <template v-for="card in activityCards" :key="card.type">
               <div
                 v-if="card.type !== 'PLAYING'
@@ -272,9 +274,23 @@ function projectNum(i: number) {
 </template>
 
 <style scoped>
+.activity-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  align-items: stretch;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 @media (max-width: 1000px) {
-  div[style*="grid-template-columns:1.4fr"] {
-    grid-template-columns: 1fr !important;
+  .activity-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
 }
 </style>
