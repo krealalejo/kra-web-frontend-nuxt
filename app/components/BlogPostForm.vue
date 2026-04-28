@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
 import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
@@ -25,6 +26,11 @@ const imageFile = ref<File | null>(null)
 const imageUploading = ref(false)
 const thumbReady = ref(false)
 const isThumbnailPolling = ref(false)
+let poll: ReturnType<typeof setInterval> | null = null
+
+onUnmounted(() => {
+  if (poll) clearInterval(poll)
+})
 
 const runtimeConfig = useRuntimeConfig()
 const { getThumbUrl } = useS3()
@@ -57,7 +63,7 @@ async function handleImageUpload(event: Event) {
 
     let attempts = 0
     isThumbnailPolling.value = true
-    const poll = setInterval(async () => {
+    poll = setInterval(async () => {
       attempts++
       try {
         const { ready } = await $fetch<{ ready: boolean }>(
@@ -66,21 +72,19 @@ async function handleImageUpload(event: Event) {
         if (ready) {
           thumbReady.value = true
           isThumbnailPolling.value = false
-          clearInterval(poll)
+          if (poll) clearInterval(poll)
         } else if (attempts >= 15) {
-          clearInterval(poll)
+          if (poll) clearInterval(poll)
           isThumbnailPolling.value = false
           formError.value = 'Image uploaded but thumbnail is still generating.'
         }
       } catch {
         if (attempts >= 15) {
           isThumbnailPolling.value = false
-          clearInterval(poll)
+          if (poll) clearInterval(poll)
         }
       }
     }, 2000)
-
-    onUnmounted(() => clearInterval(poll))
   } catch (e: unknown) {
     formError.value = e instanceof Error ? e.message : 'Image upload failed'
   } finally {

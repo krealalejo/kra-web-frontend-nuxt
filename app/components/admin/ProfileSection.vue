@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
 
 const runtimeConfig = useRuntimeConfig()
@@ -19,6 +20,14 @@ const { getThumbUrl } = useS3()
 const homeThumbUrl = computed(() => getThumbUrl(homePortraitKey.value))
 const cvThumbUrl = computed(() => getThumbUrl(cvPortraitKey.value))
 
+let homePoll: ReturnType<typeof setInterval> | null = null
+let cvPoll: ReturnType<typeof setInterval> | null = null
+
+onUnmounted(() => {
+  if (homePoll) clearInterval(homePoll)
+  if (cvPoll) clearInterval(cvPoll)
+})
+
 onMounted(async () => {
   try {
     const profile = await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null }>(
@@ -29,7 +38,8 @@ onMounted(async () => {
     cvPortraitKey.value = profile.cvPortraitUrl ?? null
     cvThumbReady.value = !!profile.cvPortraitUrl
   } catch (e: unknown) {
-    const status = (e as any)?.response?.status ?? (e as any)?.statusCode
+    const error = e as { response?: { status?: number }; statusCode?: number }
+    const status = error.response?.status ?? error.statusCode
     if (status !== 404) {
       homePortraitError.value = 'Failed to load current portraits'
     }
@@ -86,7 +96,7 @@ async function uploadPortrait(
 
     let attempts = 0
     pollingRef.value = true
-    const poll = setInterval(async () => {
+    const currentPoll = setInterval(async () => {
       attempts++
       try {
         const { ready } = await $fetch<{ ready: boolean }>(
@@ -95,21 +105,22 @@ async function uploadPortrait(
         if (ready) {
           readyRef.value = true
           pollingRef.value = false
-          clearInterval(poll)
+          clearInterval(currentPoll)
         } else if (attempts >= 15) {
-          clearInterval(poll)
+          clearInterval(currentPoll)
           pollingRef.value = false
           errorRef.value = 'Image uploaded but thumbnail is still generating.'
         }
       } catch {
         if (attempts >= 15) {
           pollingRef.value = false
-          clearInterval(poll)
+          clearInterval(currentPoll)
         }
       }
     }, 2000)
 
-    onUnmounted(() => clearInterval(poll))
+    if (portraitType === 'home') homePoll = currentPoll
+    else cvPoll = currentPoll
   } catch (e: unknown) {
     errorRef.value = e instanceof Error ? e.message : 'Upload failed'
   } finally {
