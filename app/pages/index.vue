@@ -70,7 +70,7 @@ onMounted(async () => {
     gsap.fromTo(el,
       { opacity: 0, y: 32 },
       { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 88%' } }
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
     )
   })
 
@@ -86,13 +86,17 @@ onMounted(async () => {
 watch(pending, (isPending) => {
   if (!isPending) {
     nextTick(() => {
-      gsap.utils.toArray<HTMLElement>('.proj-row').forEach((el, i) => {
-        gsap.fromTo(el,
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.7, delay: i * 0.06,
-            scrollTrigger: { trigger: el, start: 'top 92%' } }
-        )
-      })
+      const rows = gsap.utils.toArray<HTMLElement>('.proj-row')
+      if (rows.length > 0) {
+        ScrollTrigger.batch(rows, {
+          onEnter: batch => gsap.fromTo(batch,
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.7, stagger: 0.06, overwrite: true }
+          ),
+          start: 'top 92%',
+          once: true
+        })
+      }
     })
   }
 })

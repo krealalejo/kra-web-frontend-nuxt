@@ -11,16 +11,15 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-}, { lazy: true })
+}, { lazy: false })
 
-const displayProjects = ref<PortfolioRepoDto[]>([])
+const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)
 
-watch(projects, (val) => {
-  if (val && !displayProjects.value.length) {
-    displayProjects.value = val
-  }
-}, { immediate: true })
+const displayProjects = computed(() => {
+  if (isAnimating.value) return frozenProjects.value
+  return filtered.value
+})
 
 const kinds = ['all', 'frontend', 'backend', 'serverless']
 
@@ -50,6 +49,7 @@ async function applyFilter(k: string) {
   if (filter.value === k || isAnimating.value) return
   
   isAnimating.value = true
+  frozenProjects.value = [...displayProjects.value]
   
   const cards = gsap.utils.toArray('.proj-card')
   if (cards.length > 0) {
@@ -67,11 +67,7 @@ async function applyFilter(k: string) {
   }
 
   filter.value = k
-  displayProjects.value = projects.value ? (
-    k === 'all' 
-      ? projects.value 
-      : projects.value.filter(r => r.kind?.toLowerCase() === k.toLowerCase())
-  ) : []
+  frozenProjects.value = filtered.value
   
   await nextTick()
   
