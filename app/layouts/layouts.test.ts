@@ -191,6 +191,128 @@ describe('admin layout', () => {
   })
 })
 
+describe('admin layout — mobile sidebar click closes menu', () => {
+  beforeEach(() => {
+    mockCookieValue.value = null
+  })
+
+  it('closes mobile menu when AdminSidebar is clicked', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    await nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+
+    
+    const sidebarAside = wrapper.find('.mobile-sidebar aside')
+    await sidebarAside.trigger('click')
+    await nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+  })
+})
+
+describe('admin layout — GSAP transition hooks', () => {
+  beforeEach(() => {
+    mockCookieValue.value = null
+  })
+
+  it('fires GSAP hooks when mobile menu transitions in', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    const { default: gsap } = await import('gsap') as any
+    vi.mocked(gsap.set).mockClear()
+    vi.mocked(gsap.to).mockClear()
+
+    vi.useFakeTimers()
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    vi.runAllTimers()
+    await nextTick()
+    vi.useRealTimers()
+
+    
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+  })
+
+  it('fires GSAP hooks when mobile menu transitions out', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    vi.useFakeTimers()
+    const hamburger = wrapper.find('header button')
+    await hamburger.trigger('click')
+    vi.runAllTimers()
+    await nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+
+    const { default: gsap } = await import('gsap') as any
+    vi.mocked(gsap.to).mockClear()
+
+    await wrapper.find('.mobile-overlay').trigger('click')
+    vi.runAllTimers()
+    await nextTick()
+    vi.useRealTimers()
+
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+  })
+})
+
+describe('admin layout — GSAP hook functions (direct)', () => {
+  beforeEach(() => {
+    mockCookieValue.value = null
+  })
+
+  it('covers onBeforeEnter, onEnter, onLeave via setupState', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    const vm = wrapper.vm as any
+    const { onBeforeEnter, onEnter, onLeave } = vm.$.setupState
+
+    const el = document.createElement('div')
+    const sidebar = document.createElement('div')
+    sidebar.className = 'mobile-sidebar'
+    const overlay = document.createElement('div')
+    overlay.className = 'mobile-overlay'
+    el.appendChild(sidebar)
+    el.appendChild(overlay)
+
+    const done = vi.fn()
+
+    
+    onBeforeEnter(el)
+
+    
+    onEnter(el, done)
+
+    
+    const elNoSidebar = document.createElement('div')
+    onEnter(elNoSidebar, done)
+
+    
+    onLeave(el, done)
+
+    
+    onLeave(elNoSidebar, done)
+
+    
+    onBeforeEnter(elNoSidebar)
+
+    expect(done).toHaveBeenCalled()
+  })
+})
+
 describe('default layout — route watcher', () => {
   it('closes mobile menu when route changes', async () => {
     const wrapper = await mountSuspended(DefaultLayout, {

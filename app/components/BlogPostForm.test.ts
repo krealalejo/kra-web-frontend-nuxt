@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import BlogPostForm from './BlogPostForm.vue'
 import { useBlogStore, type BlogPost } from '~/stores/blog'
 
@@ -282,5 +284,149 @@ describe('BlogPostForm — image upload', () => {
 
     wrapper.unmount()
     vi.useRealTimers()
+  })
+})
+
+describe('BlogPostForm — thumbnail polling timer', () => {
+  const dialogStubs = {
+    Dialog: { template: '<div><slot /></div>' },
+    DialogPanel: { template: '<div><slot /></div>' },
+    DialogTitle: { template: '<div><slot /></div>' },
+  }
+
+  async function triggerUpload(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+  }
+
+  it('sets thumbReady when poll returns ready:true', async () => {
+    vi.useFakeTimers()
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch
+      .mockResolvedValueOnce({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'images/photo.jpg' })
+      .mockResolvedValueOnce({})
+      .mockResolvedValue({ ready: true })
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await triggerUpload(wrapper)
+    vi.advanceTimersByTime(2000)
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.find('img').exists()).toBe(true)
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('shows error message after 15 polls with ready:false', async () => {
+    vi.useFakeTimers()
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch
+      .mockResolvedValueOnce({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'images/photo.jpg' })
+      .mockResolvedValueOnce({})
+      .mockResolvedValue({ ready: false })
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await triggerUpload(wrapper)
+    for (let i = 0; i < 15; i++) {
+      vi.advanceTimersByTime(2000)
+      await flushPromises()
+    }
+    await nextTick()
+
+    expect(wrapper.text()).toContain('thumbnail is still generating')
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+
+  it('stops polling silently after 15 fetch errors', async () => {
+    vi.useFakeTimers()
+    const mockFetch = vi.fn()
+    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch
+      .mockResolvedValueOnce({ uploadUrl: 'https://s3.example.com/upload', s3Key: 'images/photo.jpg' })
+      .mockResolvedValueOnce({})
+      .mockRejectedValue(new Error('Network error'))
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await triggerUpload(wrapper)
+    for (let i = 0; i < 15; i++) {
+      vi.advanceTimersByTime(2000)
+      await flushPromises()
+    }
+    await nextTick()
+
+    
+    const uploadLabel = wrapper.find('label[for="image-upload"]')
+    expect(uploadLabel.classes()).not.toContain('pointer-events-none')
+    vi.useRealTimers()
+    vi.unstubAllGlobals()
+  })
+})
+
+describe('BlogPostForm — dialog open watcher', () => {
+  const dialogStubs = {
+    Dialog: { template: '<div><slot /></div>' },
+    DialogPanel: { template: '<div><slot /></div>' },
+    DialogTitle: { template: '<div><slot /></div>' },
+  }
+
+  it('resets form state when dialog closes', async () => {
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await wrapper.setProps({ open: false })
+    await nextTick()
+
+    expect(wrapper.find('span.text-red-400').exists()).toBe(false)
+  })
+})
+
+describe('BlogPostForm — reference field inputs', () => {
+  const dialogStubs = {
+    Dialog: { template: '<div><slot /></div>' },
+    DialogPanel: { template: '<div><slot /></div>' },
+    DialogTitle: { template: '<div><slot /></div>' },
+  }
+
+  it('allows editing reference label and url', async () => {
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    const addBtn = wrapper.find('button[type="button"].t-label')
+    await addBtn.trigger('click')
+    await nextTick()
+
+    const labelInput = wrapper.find('input[placeholder="Label (e.g. Source)"]')
+    const urlInput = wrapper.find('input[placeholder="https://..."]')
+    expect(labelInput.exists()).toBe(true)
+    expect(urlInput.exists()).toBe(true)
+
+    await labelInput.setValue('My Source')
+    await urlInput.setValue('https://example.com')
+
+    expect(labelInput.element.value).toBe('My Source')
+    expect(urlInput.element.value).toBe('https://example.com')
   })
 })
