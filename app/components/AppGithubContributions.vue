@@ -120,13 +120,13 @@ watch(displayWeeks, () => {
     </div>
 
     <template v-else>
-      <div class="gh-months" :style="`grid-template-columns: repeat(${displayWeeks.length}, 1fr)`">
+      <div class="gh-months" :style="{ '--col-count': displayWeeks.length }">
         <div v-for="m in monthLabels" :key="m.index" :style="`grid-column: ${m.index + 1}`" class="month">
           {{ m.label }}
         </div>
       </div>
 
-      <div class="gh-graph" :style="`grid-template-columns: repeat(${displayWeeks.length}, 1fr)`">
+      <div class="gh-graph" :style="{ '--col-count': displayWeeks.length }">
         <div v-for="(week, wi) in displayWeeks" :key="wi" class="col">
           <div
             v-for="(day, di) in week.days"

@@ -887,7 +887,6 @@ em, .emph {
   border-radius: 6px;
   padding: 28px 28px 24px;
   position: relative;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -954,7 +953,7 @@ em, .emph {
 
 .gh-graph {
   display: grid;
-  grid-template-columns: repeat(52, 1fr);
+  grid-template-columns: repeat(var(--col-count, 52), 1fr);
   gap: 3px;
   margin-bottom: 14px;
   flex: 1;
@@ -963,6 +962,7 @@ em, .emph {
 }
 .gh-months {
   display: grid;
+  grid-template-columns: repeat(var(--col-count, 52), 1fr);
   gap: 3px;
   margin-bottom: 6px;
 }
@@ -1867,11 +1867,13 @@ em, .emph {
   .proj-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
   .gh-grid { grid-template-columns: 1fr !important; }
-  .gh-card { min-height: 0; }
-  .gh-graph { grid-template-columns: repeat(26, 1fr); }
-  .gh-graph .col:nth-child(even) { display: none; }
-  .gh-graph .col { grid-template-rows: repeat(7, 10px); }
-  .gh-graph .cell { height: 10px; }
+  .gh-card { min-height: 0; padding: 20px 16px; }
+  .gh-graph { grid-template-columns: repeat(var(--col-count, 52), minmax(0, 14px)); gap: 2px; justify-content: center; }
+  .gh-months { grid-template-columns: repeat(var(--col-count, 52), minmax(0, 14px)); gap: 2px; justify-content: center; }
+  .gh-graph .col { grid-template-rows: repeat(7, 1fr); gap: 2px; }
+  .gh-graph .cell { height: auto; aspect-ratio: 1; }
+  .gh-count { font-size: 32px; }
+  .gh-head { margin-bottom: 16px; }
 
   .pd-body { grid-template-columns: 1fr; gap: 32px; }
   .pd-sidebar { display: none; }
@@ -1931,10 +1933,10 @@ em, .emph {
   .kra-marquee { padding: 18px 0; }
   .kra-marquee-item { font-size: 18px; }
 
-  .gh-graph { grid-template-columns: repeat(13, 1fr); }
-  .gh-graph .col { display: none; }
-  .gh-graph .col:nth-child(4n+1) { display: grid; }
-  .gh-count { font-size: 32px; }
+  .gh-graph { gap: 1.5px; }
+  .gh-months { gap: 1.5px; }
+  .gh-graph .col { gap: 1.5px; }
+  .gh-card { padding: 16px 12px; }
 
   .hero-portrait { max-width: 100%; }
 
