@@ -25,7 +25,7 @@ const links = [
 
 <template>
   <nav aria-label="Social links">
-    <ul class="flex items-center gap-2 list-none p-0 m-0">
+    <ul class="flex items-center gap-4 list-none p-0 m-0">
       <li
         v-for="link in links"
         :key="link.label"
@@ -36,11 +36,11 @@ const links = [
           :title="link.label"
           target="_blank"
           rel="noopener noreferrer"
-          class="kra-social-btn"
+          class="kra-social-btn p-2 -m-2"
         >
           <component
             :is="link.icon"
-            class="h-4 w-4"
+            class="h-6 w-6"
           />
         </a>
       </li>

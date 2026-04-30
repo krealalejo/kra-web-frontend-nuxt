@@ -327,7 +327,7 @@ em, .emph {
 }
 .kra-footer-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   gap: 48px;
   margin-bottom: 72px;
   align-items: center;
@@ -1921,7 +1921,7 @@ em, .emph {
   .proj-card .visual { height: 90px; }
 
   .kra-footer-grid { grid-template-columns: 1fr; gap: 28px; align-items: start; }
-  .kra-footer-grid > div:first-child { grid-column: auto; }
+  .kra-footer-grid > div:first-child { grid-column: auto; text-align: center; }
   .kra-footer-nav { justify-content: center; flex-wrap: wrap; }
   .kra-footer-socials-wrap { justify-content: center; }
   .kra-footer-socials-wrap ul { justify-content: center; }
