@@ -49,6 +49,14 @@ const featuredProjects = computed(() => {
   return [...featured, ...rest].slice(0, 4)
 })
 
+const oldestProjectYear = computed(() => {
+  if (!projects?.value || projects.value.length === 0) return '2025'
+  const years = projects.value.filter(p => p.createdAt).map(p => new Date(p.createdAt).getFullYear())
+  if (years.length === 0) return '2025'
+  const minYear = Math.min(...years)
+  return Number.isNaN(minYear) ? '2025' : minYear.toString()
+})
+
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
@@ -191,7 +199,7 @@ function projectNum(i: number) {
         <div class="section-head reveal-scroll">
           <span class="num">Work</span>
           <h2>Selected <em>projects</em></h2>
-          <span class="sub">Curated — 2025 → Present</span>
+          <span class="sub">Curated — {{ oldestProjectYear }} → Present</span>
         </div>
 
         <div class="proj-list">
