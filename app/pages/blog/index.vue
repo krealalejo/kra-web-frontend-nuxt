@@ -57,7 +57,7 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
   <div>
     <header class="page-head">
       <div class="shell">
-        <div class="overline"><span class="bar" /> §05 — Writing</div>
+        <div class="overline"><span class="bar" /> §03 — Writing</div>
         <h1>Field notes &amp; <em>essays</em>.</h1>
         <p class="kicker">Short-form thinking on architecture, tooling, and the craft of shipping software that holds up on a Friday afternoon.</p>
       </div>

@@ -189,7 +189,7 @@ function projectNum(i: number) {
     <section class="kra-section">
       <div class="shell">
         <div class="section-head reveal-scroll">
-          <span class="num">§01 / Work</span>
+          <span class="num">Work</span>
           <h2>Selected <em>projects</em></h2>
           <span class="sub">Curated — 2025 → Present</span>
         </div>
@@ -240,7 +240,7 @@ function projectNum(i: number) {
     <section class="kra-section" style="padding-top:40px;">
       <div class="shell">
         <div class="section-head reveal-scroll">
-          <span class="num">§02 / Signal</span>
+          <span class="num">Signal</span>
           <h2>Open source <em>activity</em></h2>
           <span class="sub">Live from GitHub API</span>
         </div>

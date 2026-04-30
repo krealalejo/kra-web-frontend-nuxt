@@ -118,7 +118,7 @@ useSeoMeta({
           </NuxtLink>
 
           <div class="overline-meta">
-            <span>§05 · Writing</span>
+            <span>§03 · Writing</span>
             <span class="dot" />
             <span>{{ formatDate(post.createdAt) }}</span>
             <span v-if="post.updatedAt !== post.createdAt">
