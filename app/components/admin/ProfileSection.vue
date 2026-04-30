@@ -47,7 +47,7 @@ onMounted(async () => {
 })
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_BYTES = 5 * 1024 * 1024
+const MAX_BYTES = 20 * 1024 * 1024
 
 async function uploadPortrait(
   file: File,
@@ -63,7 +63,7 @@ async function uploadPortrait(
     return
   }
   if (file.size > MAX_BYTES) {
-    errorRef.value = 'Image must be smaller than 5 MB'
+    errorRef.value = 'Image must be smaller than 20 MB'
     return
   }
 
@@ -73,7 +73,7 @@ async function uploadPortrait(
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
       method: 'POST',
-      body: { filename: file.name, contentType: file.type },
+      body: { filename: file.name, contentType: file.type, uploadType: 'portrait' },
     })
 
     await $fetch(uploadUrl, {

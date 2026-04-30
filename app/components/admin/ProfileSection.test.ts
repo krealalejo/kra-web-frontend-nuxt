@@ -67,11 +67,11 @@ describe('ProfileSection', () => {
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
-    Object.defineProperty(file, 'size', { value: 6 * 1024 * 1024 })
+    Object.defineProperty(file, 'size', { value: 21 * 1024 * 1024 })
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     await input.trigger('change')
-    expect(wrapper.text()).toContain('Image must be smaller than 5 MB')
+    expect(wrapper.text()).toContain('Image must be smaller than 20 MB')
   })
 
   it('performs full upload flow for home portrait', async () => {
