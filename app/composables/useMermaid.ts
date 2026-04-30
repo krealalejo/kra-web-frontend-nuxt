@@ -23,6 +23,9 @@ export function useMermaid() {
         pre.replaceWith(wrapper)
       } catch (e) {
         console.error('[useMermaid] render error', e)
+        // Mermaid 10+ leaves an error SVG in the DOM body if rendering fails
+        const errorEl = document.getElementById(id)
+        if (errorEl) errorEl.remove()
       }
     }
   }
@@ -46,6 +49,8 @@ export function useMermaid() {
         wrapper.innerHTML = svg
       } catch (e) {
         console.error('[useMermaid] re-render error', e)
+        const errorEl = document.getElementById(id)
+        if (errorEl) errorEl.remove()
       }
     }
   }
