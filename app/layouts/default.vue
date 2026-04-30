@@ -30,7 +30,13 @@ onMounted(() => {
 })
 
 watch(isMobileMenuOpen, (open) => {
-  document.body.style.overflow = open ? 'hidden' : ''
+  if (open) {
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+    document.documentElement.style.overflow = ''
+  }
 })
 </script>
 
@@ -44,7 +50,7 @@ watch(isMobileMenuOpen, (open) => {
           <span class="kra-nav-logo-mark">/ Kevin Real Alejo</span>
         </NuxtLink>
 
-        <!-- Desktop nav links -->
+        
         <nav class="kra-nav-links">
           <NuxtLink
             v-for="item in navItems"
@@ -76,7 +82,7 @@ watch(isMobileMenuOpen, (open) => {
           </ClientOnly>
         </nav>
 
-        <!-- Mobile cluster: theme toggle + hamburger -->
+        
         <div class="nav-mobile-cluster">
           <ClientOnly>
             <button
@@ -100,7 +106,7 @@ watch(isMobileMenuOpen, (open) => {
           <button
             :class="['nav-burger', { open: isMobileMenuOpen }]"
             :aria-label="isMobileMenuOpen ? 'Close menu' : 'Open menu'"
-            :aria-expanded="isMobileMenuOpen.toString()"
+            :aria-expanded="isMobileMenuOpen"
             @click="isMobileMenuOpen = !isMobileMenuOpen"
           >
             <span /><span /><span />
@@ -109,8 +115,8 @@ watch(isMobileMenuOpen, (open) => {
       </div>
     </header>
     
-    <!-- Mobile fullscreen sheet -->
-    <div :class="['nav-sheet', { open: isMobileMenuOpen }]" :aria-hidden="!isMobileMenuOpen">
+    
+    <div :class="['nav-sheet', { open: isMobileMenuOpen }]" :aria-hidden="!isMobileMenuOpen" @touchmove.prevent>
       <div class="shell">
         <div class="nav-sheet-header">
           <div class="nav-sheet-overline t-overline">
@@ -141,7 +147,7 @@ watch(isMobileMenuOpen, (open) => {
           </NuxtLink>
         </div>
         <div class="nav-sheet-foot t-label">
-          <span>Madrid · ES</span>
+          <span>Barcelona · ES</span>
           <span>hi@krealejo.dev</span>
         </div>
       </div>
@@ -154,32 +160,29 @@ watch(isMobileMenuOpen, (open) => {
     <footer class="kra-footer">
       <div class="shell">
         <div class="kra-footer-grid">
-          <div>
-            <div class="kra-footer-name serif">Kevin Real<br><span style="color:var(--accent)">Alejo</span></div>
-            <p class="kra-footer-tag">Full-stack engineer building calm, reliable software on the JVM &amp; modern frontends.</p>
+          <div class="kra-footer-brand">
+            <div class="kra-footer-name serif">Kevin Real <span class="kra-footer-name-accent">Alejo</span></div>
+            <a href="mailto:hi@krealejo.dev" class="kra-footer-email">hi@krealejo.dev</a>
           </div>
-          <div class="kra-footer-col">
-            <h5>Sitemap</h5>
-            <ul>
-              <li v-for="item in navItems" :key="item.path">
-                <NuxtLink :to="item.path">
-                  <span class="arrow">↗</span>{{ item.label }}
-                </NuxtLink>
-              </li>
-            </ul>
-          </div>
-          <div class="kra-footer-col">
-            <h5>Elsewhere</h5>
-            <ul>
-              <li><a href="https://github.com/krealalejo" target="_blank" rel="noopener"><span class="arrow">↗</span>GitHub</a></li>
-              <li><a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener"><span class="arrow">↗</span>LinkedIn</a></li>
-              <li><NuxtLink to="/contact"><span class="arrow">↗</span>hi@krealejo.dev</NuxtLink></li>
-            </ul>
+          <nav class="kra-footer-nav" aria-label="Footer navigation">
+            <NuxtLink
+              v-for="item in navItems"
+              :key="item.path"
+              :to="item.path"
+              class="kra-footer-nav-link"
+            >
+              {{ item.label }}
+            </NuxtLink>
+          </nav>
+          <div class="kra-footer-socials-wrap">
+            <AppFooterSocials />
           </div>
         </div>
         <div class="kra-footer-bottom">
-          <span>© {{ currentYear }} Kevin Real Alejo · All systems operational</span> <!-- TODO: UPDATE LATER WITH REAL STATUS -->
-          <span>v3.0 · Barcelona, ES · 40.41°N 3.70°W</span>
+          <span>© {{ currentYear }} Kevin Real Alejo · Barcelona, ES</span>
+          <span class="kra-footer-status">
+            <span class="kra-status-dot" aria-hidden="true" />All systems operational
+          </span>
         </div>
       </div>
     </footer>
@@ -187,6 +190,6 @@ watch(isMobileMenuOpen, (open) => {
 </template>
 
 <style scoped>
-/* NuxtLink inside nav-sheet gets the right display */
+
 .nav-sheet-link { display: grid; }
 </style>

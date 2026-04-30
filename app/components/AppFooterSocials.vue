@@ -6,14 +6,14 @@ import IconBrandWow from './icons/IconBrandWow.vue'
 
 const links = [
   {
-    label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/kevinrealalejo/',
-    icon: markRaw(IconBrandLinkedin),
-  },
-  {
     label: 'GitHub',
     href: 'https://github.com/krealalejo',
     icon: markRaw(IconBrandGithub),
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/kevinrealalejo/',
+    icon: markRaw(IconBrandLinkedin),
   },
   {
     label: 'World of Warcraft',
@@ -24,14 +24,8 @@ const links = [
 </script>
 
 <template>
-  <nav
-    aria-label="Social links"
-    class="flex flex-col items-center gap-3"
-  >
-    <p class="text-xs font-medium uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-      Kevin Real Alejo
-    </p>
-    <ul class="flex items-center justify-center gap-4">
+  <nav aria-label="Social links">
+    <ul class="flex items-center gap-2 list-none p-0 m-0">
       <li
         v-for="link in links"
         :key="link.label"
@@ -42,11 +36,11 @@ const links = [
           :title="link.label"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600 transition-colors duration-200 hover:border-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          class="kra-social-btn"
         >
           <component
             :is="link.icon"
-            class="h-5 w-5"
+            class="h-4 w-4"
           />
         </a>
       </li>

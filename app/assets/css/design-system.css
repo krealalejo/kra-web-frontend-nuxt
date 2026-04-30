@@ -1,7 +1,7 @@
-/* ========== KRA Portfolio — Design System ========== */
+
 
 :root {
-  /* Dark default — warm neutral greys */
+  
   --bg: #1A1A1C;
   --bg-elev: #222225;
   --bg-sunken: #151517;
@@ -13,21 +13,17 @@
   --hairline-strong: rgba(237, 237, 236, 0.16);
   --overlay: rgba(237, 237, 236, 0.05);
 
-  /* Accent — mint */
   --accent: #7DD3B3;
   --accent-ink: #0B0B0C;
 
-  /* Typography */
   --font-display: 'Roboto Flex', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: var(--font-display);
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
 
-  /* Emphasis */
   --emphasis-style: normal;
   --emphasis-weight: 500;
 
-  /* Motion */
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.76, 0, 0.24, 1);
 }
@@ -49,7 +45,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 100px; /* Space for the sticky header/padding */
+  scroll-padding-top: 100px; 
   overflow-x: hidden;
 }
 
@@ -74,8 +70,6 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--hairline-strong); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--fg-faint); }
-
-/* ========== Typography scale ========== */
 
 .t-display {
   font-family: var(--font-display);
@@ -158,8 +152,6 @@ em, .emph {
   font-variation-settings: "wdth" 90;
 }
 
-/* ========== Layout shell ========== */
-
 .shell {
   max-width: 1280px;
   margin: 0 auto;
@@ -178,8 +170,6 @@ em, .emph {
   background: var(--hairline);
   width: 100%;
 }
-
-/* ========== Nav ========== */
 
 .kra-nav {
   position: sticky;
@@ -296,12 +286,9 @@ em, .emph {
 }
 .kra-theme-btn:hover { color: var(--fg); border-color: var(--fg-faint); transform: rotate(20deg); }
 
-/* Mobile nav */
 .kra-mobile-nav {
   display: none;
 }
-
-/* ========== Footer ========== */
 
 .kra-footer {
   margin-top: 120px;
@@ -368,8 +355,6 @@ em, .emph {
   color: var(--fg-muted);
 }
 
-/* ========== Buttons ========== */
-
 .btn {
   display: inline-flex;
   align-items: center;
@@ -413,8 +398,6 @@ em, .emph {
 .btn .icon { transition: transform 0.3s var(--ease-out); }
 .btn:hover .icon { transform: translate(2px, -2px); }
 
-/* ========== Chips ========== */
-
 .chip {
   display: inline-flex;
   align-items: center;
@@ -437,8 +420,6 @@ em, .emph {
 }
 .chip:hover { color: var(--accent); border-color: var(--accent); }
 .chip:hover::before { background: var(--accent); }
-
-/* ========== Marquee ========== */
 
 .kra-marquee {
   overflow: hidden;
@@ -471,8 +452,6 @@ em, .emph {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-
-/* ========== Section headers ========== */
 
 .kra-section {
   padding: 100px 0;
@@ -511,8 +490,6 @@ em, .emph {
   letter-spacing: 0.04em;
   text-align: right;
 }
-
-/* ========== Home hero ========== */
 
 .home-hero {
   padding: 72px 0 120px;
@@ -554,8 +531,6 @@ em, .emph {
   flex-wrap: wrap;
   gap: 8px;
 }
-
-/* ========== Portrait placeholder ========== */
 
 .hero-portrait {
   position: relative;
@@ -622,8 +597,6 @@ em, .emph {
   text-transform: uppercase;
   color: var(--fg-muted);
 }
-
-/* ========== Projects index (home list) ========== */
 
 .proj-list { display: flex; flex-direction: column; }
 
@@ -696,8 +669,6 @@ em, .emph {
 .proj-row:hover .cta { color: var(--accent); }
 .proj-row .arrow-icon { transition: transform 0.3s var(--ease-out); }
 .proj-row:hover .arrow-icon { transform: translate(4px, -4px); }
-
-/* ========== Projects grid (projects page) ========== */
 
 .proj-grid {
   display: grid;
@@ -799,8 +770,6 @@ em, .emph {
   opacity: 0.5;
 }
 
-/* ========== Page header (non-home) ========== */
-
 .page-head {
   padding: 64px 0 48px;
   border-bottom: 1px solid var(--hairline);
@@ -839,8 +808,6 @@ em, .emph {
   line-height: 1.3;
   font-weight: 400;
 }
-
-/* ========== GitHub widget ========== */
 
 .gh-card {
   background: var(--bg-elev);
@@ -967,8 +934,6 @@ em, .emph {
 }
 .gh-legend .scale { display: flex; align-items: center; gap: 4px; }
 .gh-legend .scale .cell { width: 10px; height: 10px; }
-
-/* ========== Blog ========== */
 
 .blog-list { display: flex; flex-direction: column; }
 .blog-row {
@@ -1141,8 +1106,6 @@ em, .emph {
 }
 .post-toc a:hover, .post-toc a.active { color: var(--accent); border-color: var(--accent); }
 
-/* ========== Contact ========== */
-
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1249,8 +1212,6 @@ em, .emph {
 .form-submit { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
 .form-submit .note { font-size: 12px; color: var(--fg-muted); max-width: 24ch; }
 
-/* ========== CV ========== */
-
 .cv-wrap { padding: 48px 0 100px; }
 .cv-head {
   display: grid;
@@ -1338,8 +1299,6 @@ em, .emph {
   font-weight: 500;
 }
 .cv-section .skill-row { display: flex; flex-wrap: wrap; gap: 6px; }
-
-/* ========== Project Detail ========== */
 
 .pd-head {
   padding: 64px 0 48px;
@@ -1478,8 +1437,6 @@ em, .emph {
   line-height: 1.6;
   margin: 24px 0;
 }
-
-/* ========== Markdown / Prose Content ========== */
 
 .prose, .markdown-content {
   color: var(--fg-dim);
@@ -1676,8 +1633,6 @@ em, .emph {
   background: var(--fg-muted);
 }
 
-/* ========== Utility ========== */
-
 .reveal { opacity: 0; transform: translateY(24px); }
 .reveal-done { opacity: 1; transform: none; transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out); }
 
@@ -1691,7 +1646,6 @@ em, .emph {
   color: var(--fg-muted);
 }
 
-/* ========== Activity sidebar cards ========== */
 .activity-card {
   padding: 24px 28px;
   border: 1px solid var(--hairline);
@@ -1699,8 +1653,6 @@ em, .emph {
   background: var(--bg-elev);
   flex: 1;
 }
-
-/* ========== Mobile nav components (hidden on desktop) ========== */
 
 .nav-mobile-cluster {
   display: none;
@@ -1799,9 +1751,6 @@ em, .emph {
   color: var(--fg-muted);
 }
 
-/* ========== Responsive ========== */
-
-/* === Tablet (≤ 900px) === */
 @media (max-width: 900px) {
   .shell { padding: 0 28px; }
   .shell-narrow { padding: 0 28px; }
@@ -1810,25 +1759,20 @@ em, .emph {
   .nav-mobile-cluster { display: flex; }
   .kra-nav-logo-mark { display: none; }
 
-  /* Hero stacks portrait below content */
   .hero-grid { grid-template-columns: 1fr; gap: 56px; }
   .t-display { white-space: normal; font-size: clamp(40px, 11vw, 76px); }
   .hero-portrait { max-width: 320px; }
   .home-hero { padding: 56px 0 64px; }
 
-  /* Section heads stack */
   .section-head { grid-template-columns: 1fr; gap: 12px; }
   .kra-section { padding: 80px 0; }
 
-  /* Project rows compact */
   .proj-row { grid-template-columns: 32px 1fr auto; gap: 12px; padding: 22px 0; }
   .proj-row .desc, .proj-row .tags { display: none; }
   .proj-row .name { font-size: clamp(20px, 4vw, 28px); }
 
-  /* Projects grid → 2 cols */
   .proj-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
-  /* GitHub + activity stack */
   .gh-grid { grid-template-columns: 1fr !important; }
   .gh-card { min-height: 0; }
   .gh-graph { grid-template-columns: repeat(26, 1fr); }
@@ -1836,92 +1780,71 @@ em, .emph {
   .gh-graph .col { grid-template-rows: repeat(7, 10px); }
   .gh-graph .cell { height: 10px; }
 
-  /* Project detail */
   .pd-body { grid-template-columns: 1fr; gap: 32px; }
   .pd-sidebar { display: none; }
 
-  /* Blog post */
   .post-body { grid-template-columns: 1fr; gap: 24px; }
   .post-toc { position: static; display: none; }
   .post-head h1 { font-size: clamp(40px, 9vw, 64px); }
 
-  /* Blog list */
   .blog-row { grid-template-columns: 32px 1fr; gap: 12px; padding: 22px 0; }
   .blog-row .date, .blog-thumb-wrap { display: none; }
 
-  /* Contact */
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
   .contact-form { padding: 24px; }
 
-  /* CV */
   .cv-head { grid-template-columns: 1fr; gap: 32px; }
   .cv-photo-wrap { width: 200px; justify-self: start; order: -1; }
   .cv-section { grid-template-columns: 1fr; gap: 16px; padding: 28px 0; }
 
-  /* Page heads */
   .page-head { padding: 64px 0 32px; }
   .page-head h1 { font-size: clamp(48px, 11vw, 80px); }
 
-  /* Footer */
   .kra-footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .kra-footer-grid > div:first-child { grid-column: 1 / -1; }
   .kra-footer-name { font-size: 36px; }
   .kra-footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
 
-  /* Marquee */
   .kra-marquee-item { font-size: 22px; }
   .kra-marquee { margin: 48px 0; }
 }
 
-/* === Mobile (≤ 560px) === */
 @media (max-width: 560px) {
   .shell { padding: 0 20px; }
   .shell-narrow { padding: 0 20px; }
 
-  /* Hero name wraps */
   .t-display { font-size: clamp(36px, 12vw, 60px); }
 
-  /* Chips compact */
   .hero-stack { gap: 6px; }
   .chip { font-size: 10px; padding: 4px 8px; }
 
-  /* Section paddings tighter */
   .kra-section { padding: 64px 0; }
 
-  /* Project grid → 1 col */
   .proj-grid { grid-template-columns: 1fr; }
   .proj-card { min-height: 280px; padding: 22px 22px 20px; }
   .proj-card .title { font-size: 24px; }
   .proj-card .visual { height: 90px; }
 
-  /* Footer single col */
   .kra-footer-grid { grid-template-columns: 1fr; gap: 28px; }
   .kra-footer-grid > div:first-child { grid-column: auto; }
 
-  /* Blog post */
   .post-head .lede { font-size: 18px; }
 
-  /* CV photo smaller */
   .cv-photo-wrap { width: 160px; }
 
-  /* Marquee */
   .kra-marquee { padding: 18px 0; }
   .kra-marquee-item { font-size: 18px; }
 
-  /* GH widget compact */
   .gh-graph { grid-template-columns: repeat(13, 1fr); }
   .gh-graph .col { display: none; }
   .gh-graph .col:nth-child(4n+1) { display: grid; }
   .gh-count { font-size: 32px; }
 
-  /* Hero portrait full width */
   .hero-portrait { max-width: 100%; }
 
-  /* Contact form */
   .contact-facts .row { grid-template-columns: 1fr; gap: 4px; }
 }
 
-/* Touch — disable hover-only transforms */
 @media (hover: none) {
   .gh-card .cell:hover { transform: none; }
   .proj-card:hover { transform: none; }
