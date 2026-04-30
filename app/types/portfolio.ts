@@ -1,4 +1,4 @@
-/** Mirrors Spring `PortfolioRepoResponse` / `PortfolioRepoDetailResponse` JSON (camelCase). */
+
 export interface PortfolioRepoDto {
   owner: string
   name: string
