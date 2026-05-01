@@ -12,7 +12,8 @@ describe('ProfileSection', () => {
     vi.useFakeTimers()
     mockFetch.mockResolvedValue({
       homePortraitUrl: 'images/home.jpg',
-      cvPortraitUrl: 'images/cv.jpg'
+      cvPortraitUrl: 'images/cv.jpg',
+      cvPdfUrl: null
     })
   })
 
@@ -162,7 +163,8 @@ describe('ProfileSection', () => {
       method: 'PUT',
       body: {
         homePortraitUrl: null,
-        cvPortraitUrl: 'images/cv.jpg'
+        cvPortraitUrl: 'images/cv.jpg',
+        cvPdfUrl: null
       }
     }))
 

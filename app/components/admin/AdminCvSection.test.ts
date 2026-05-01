@@ -654,6 +654,14 @@ describe('AdminCvSection — PDF Tab', () => {
     await flushPromises()
     await wrapper.vm.$nextTick()
     expect(mockFetch).toHaveBeenCalledWith('/api/admin/upload', expect.objectContaining({ method: 'POST' }))
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
+      method: 'PUT',
+      body: {
+        cvPdfUrl: 'documents/cv.pdf',
+        homePortraitUrl: null,
+        cvPortraitUrl: null
+      }
+    }))
   })
 
   it('shows upload error when upload fails', async () => {
@@ -698,7 +706,14 @@ describe('AdminCvSection — PDF Tab', () => {
     if (removeBtn) {
       await removeBtn.trigger('click')
       await flushPromises()
-      expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({ method: 'PUT', body: { cvPdfUrl: null } }))
+      expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
+        method: 'PUT',
+        body: {
+          cvPdfUrl: null,
+          homePortraitUrl: null,
+          cvPortraitUrl: null
+        }
+      }))
     }
   })
 
