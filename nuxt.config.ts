@@ -6,13 +6,20 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap'],
+  site: {
+    url: 'https://krealalejo.dev',
+  },
+  sitemap: {
+    exclude: ['/admin/**'],
+  },
   vite: {
     optimizeDeps: {
       include: [
         '@vue/devtools-core',
         '@vue/devtools-kit',
         'gsap',
+        'gsap/ScrollTrigger',
         'marked',
         'dompurify',
         'sanitize-html',
