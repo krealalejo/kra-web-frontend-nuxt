@@ -1,6 +1,3 @@
-import { marked } from 'marked'
-import DOMPurify from 'dompurify'
-
 export function useMarkdown() {
   function stripMarkdown(text: string): string {
     return text
@@ -19,10 +16,11 @@ export function useMarkdown() {
   }
 
   async function sanitizeMarkdown(text: string): Promise<string> {
+    const { marked } = await import('marked')
     const renderer = new (marked as any).Renderer()
     renderer.heading = ({ text, depth }: any) => {
       const id = text.toLowerCase()
-        .replace(/<[^>]*>?/gm, '') // Strip HTML tags
+        .replace(/<[^>]*>?/gm, '')
         .replace(/[^\w\s-]/g, '')
         .replace(/[\s_-]+/g, '-')
         .replace(/^-{1,200}|-{1,200}$/g, '')
@@ -40,6 +38,7 @@ export function useMarkdown() {
         },
       })
     }
+    const { default: DOMPurify } = await import('dompurify')
     return DOMPurify.sanitize(html, { ADD_ATTR: ['class', 'id'] })
   }
 
