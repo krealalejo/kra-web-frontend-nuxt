@@ -15,6 +15,7 @@ const cvPortraitUploading = ref(false)
 const cvThumbReady = ref(false)
 const isCvThumbPolling = ref(false)
 const cvPortraitError = ref<string | null>(null)
+const cvPdfKey = ref<string | null>(null)
 
 const { getThumbUrl } = useS3()
 const homeThumbUrl = computed(() => getThumbUrl(homePortraitKey.value))
@@ -30,13 +31,14 @@ onUnmounted(() => {
 
 onMounted(async () => {
   try {
-    const profile = await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null }>(
+    const profile = await $fetch<{ homePortraitUrl: string | null; cvPortraitUrl: string | null; cvPdfUrl: string | null }>(
       `${runtimeConfig.public.apiBase}/config/profile`
     )
     homePortraitKey.value = profile.homePortraitUrl ?? null
     homeThumbReady.value = !!profile.homePortraitUrl
     cvPortraitKey.value = profile.cvPortraitUrl ?? null
     cvThumbReady.value = !!profile.cvPortraitUrl
+    cvPdfKey.value = profile.cvPdfUrl ?? null
   } catch (e: unknown) {
     const error = e as { response?: { status?: number }; statusCode?: number }
     const status = error.response?.status ?? error.statusCode
@@ -84,7 +86,8 @@ async function uploadPortrait(
 
     const payload = {
       homePortraitUrl: portraitType === 'home' ? s3Key : homePortraitKey.value,
-      cvPortraitUrl: portraitType === 'cv' ? s3Key : cvPortraitKey.value
+      cvPortraitUrl: portraitType === 'cv' ? s3Key : cvPortraitKey.value,
+      cvPdfUrl: cvPdfKey.value
     }
 
     await $fetch('/api/admin/profile', {
@@ -152,7 +155,8 @@ async function removePortrait(
   try {
     const payload = {
       homePortraitUrl: portraitType === 'home' ? null : homePortraitKey.value,
-      cvPortraitUrl: portraitType === 'cv' ? null : cvPortraitKey.value
+      cvPortraitUrl: portraitType === 'cv' ? null : cvPortraitKey.value,
+      cvPdfUrl: cvPdfKey.value
     }
 
     await $fetch('/api/admin/profile', {

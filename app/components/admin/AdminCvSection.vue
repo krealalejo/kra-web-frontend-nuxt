@@ -251,6 +251,8 @@ async function deleteCategory(id: string) {
 
 const runtimeConfig = useRuntimeConfig()
 const cvPdfKey = ref<string | null>(null)
+const homePortraitKey = ref<string | null>(null)
+const cvPortraitKey = ref<string | null>(null)
 const cvPdfUploading = ref(false)
 const cvPdfError = ref<string | null>(null)
 const cvPdfSuccess = ref(false)
@@ -266,6 +268,8 @@ onMounted(async () => {
       `${runtimeConfig.public.apiBase}/config/profile`
     )
     cvPdfKey.value = profile.cvPdfUrl ?? null
+    homePortraitKey.value = profile.homePortraitUrl ?? null
+    cvPortraitKey.value = profile.cvPortraitUrl ?? null
   } catch {
   }
 })
@@ -296,7 +300,11 @@ async function handlePdfUpload(event: Event) {
     })
     await $fetch('/api/admin/profile', {
       method: 'PUT',
-      body: { cvPdfUrl: s3Key },
+      body: {
+        cvPdfUrl: s3Key,
+        homePortraitUrl: homePortraitKey.value,
+        cvPortraitUrl: cvPortraitKey.value
+      },
     })
     cvPdfKey.value = s3Key
     cvPdfSuccess.value = true
@@ -313,7 +321,11 @@ async function removePdf() {
   try {
     await $fetch('/api/admin/profile', {
       method: 'PUT',
-      body: { cvPdfUrl: null },
+      body: {
+        cvPdfUrl: null,
+        homePortraitUrl: homePortraitKey.value,
+        cvPortraitUrl: cvPortraitKey.value
+      },
     })
     cvPdfKey.value = null
   } catch (e: unknown) {
