@@ -2,6 +2,8 @@
 import type { PortfolioRepoDto } from '~/types/portfolio'
 
 const currentYear = new Date().getFullYear().toString()
+const isRickRolled = useState('isRickRolled', () => false)
+const rickAstleyGif = 'https://media1.tenor.com/m/yheo1GGu3FwAAAAC/rick-roll-rick-ashley.gif'
 
 const config = useRuntimeConfig()
 
@@ -37,7 +39,10 @@ const { data: profileData } = useAsyncData(
 )
 
 const { getThumbUrl } = useS3()
-const homePortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.homePortraitUrl))
+const homePortraitThumbUrl = computed(() => {
+  if (isRickRolled.value) return rickAstleyGif
+  return getThumbUrl(profileData.value?.homePortraitUrl)
+})
 
 const featuredProjects = computed(() => {
   if (!projects?.value) return []
@@ -132,8 +137,9 @@ function projectNum(i: number) {
 </script>
 
 <template>
-  <div ref="heroRef">
-    <section class="home-hero">
+  <div ref="heroRef" class="main-page">
+    <AppKonamiListener />
+    <section class="hero-section">
       <div class="shell">
         <div class="hero-grid">
           <div class="hero-left">

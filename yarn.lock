@@ -6916,6 +6916,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"konami@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "konami@npm:1.7.0"
+  checksum: 10c0/6bbc21d525746b1b5869ddd7eaf0834e672d71a4a7b5b126caddb47da2896bf593cd629018ad271b2a5aa6eb35a43b5290b90b16a57489474c00bae07ee42f04
+  languageName: node
+  linkType: hard
+
 "kra-web-frontend-nuxt@workspace:.":
   version: 0.0.0-use.local
   resolution: "kra-web-frontend-nuxt@workspace:."
@@ -6943,6 +6950,7 @@ __metadata:
     eslint-plugin-sonarjs: "npm:^4.0.3"
     gsap: "npm:^3.12.2"
     happy-dom: "npm:^20.9.0"
+    konami: "npm:^1.7.0"
     marked: "npm:18.0.2"
     mermaid: "npm:^11.14.0"
     nuxt: "npm:^4.4.2"
