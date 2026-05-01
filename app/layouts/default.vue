@@ -42,7 +42,7 @@ watch(isMobileMenuOpen, (open) => {
 
 <template>
   <div class="min-h-screen relative"> <!-- TODO: FIX THIS -->
-    <header class="sticky top-0 z-50 w-full kra-nav">
+    <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">
         <NuxtLink to="/" class="kra-nav-logo">
           <span class="dot" />
@@ -109,15 +109,6 @@ watch(isMobileMenuOpen, (open) => {
             <span style="width:24px;height:1px;background:var(--fg-muted);display:inline-block" />
             Menu
           </div>
-          <button
-            class="nav-sheet-close"
-            aria-label="Close menu"
-            @click="isMobileMenuOpen = false"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-            </svg>
-          </button>
         </div>
         <div class="nav-sheet-list">
           <NuxtLink

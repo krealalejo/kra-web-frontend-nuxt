@@ -1790,14 +1790,14 @@ em, .emph {
   background: var(--bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  z-index: 100;
-  opacity: 0; pointer-events: none;
+  z-index: 40;
+  opacity: 0; pointer-events: none; visibility: hidden;
   transform: translateY(-12px);
-  transition: opacity 0.3s var(--ease-out), transform 0.4s var(--ease-out);
-  padding-top: 48px;
+  transition: opacity 0.3s var(--ease-out), transform 0.4s var(--ease-out), visibility 0s 0.4s;
+  padding-top: 100px;
   display: flex; flex-direction: column;
 }
-.nav-sheet.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.nav-sheet.open { opacity: 1; pointer-events: auto; visibility: visible; transform: translateY(0); transition: opacity 0.3s var(--ease-out), transform 0.4s var(--ease-out), visibility 0s 0s; }
 .nav-sheet > .shell { display: flex; flex-direction: column; gap: 32px; flex: 1; padding-bottom: 40px; }
 
 .nav-sheet-header { display: flex; align-items: center; justify-content: space-between; }
