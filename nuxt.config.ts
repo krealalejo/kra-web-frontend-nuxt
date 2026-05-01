@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics'],
   site: {
     url: 'https://krealalejo.dev',
   },
