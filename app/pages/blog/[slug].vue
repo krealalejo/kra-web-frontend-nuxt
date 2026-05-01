@@ -2,7 +2,6 @@
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'
 import { useApiError } from '~/composables/useApiError'
-import gsap from 'gsap'
 
 const route = useRoute()
 const config = useRuntimeConfig()
@@ -64,6 +63,7 @@ watch(post, async () => {
 
 onMounted(() => {
   if (contentRef.value) renderDiagrams(contentRef.value)
+  const { gsap } = useGsap()
   gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
 })

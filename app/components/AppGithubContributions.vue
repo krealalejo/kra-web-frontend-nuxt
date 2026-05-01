@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { format, parseISO } from 'date-fns'
-import gsap from 'gsap'
 
 interface GitHubContributionResponse {
   totalContributions: number
@@ -88,6 +87,7 @@ function level(count: number): string {
 watch(displayWeeks, () => {
   if (!import.meta.client) return
   nextTick(() => {
+    const { $gsap: gsap } = useNuxtApp()
     if (gsap.utils.toArray('.gh-graph .cell:not(.is-empty)').length > 0) {
       gsap.fromTo('.gh-graph .cell:not(.is-empty)',
         { opacity: 0, scale: 0.5 },

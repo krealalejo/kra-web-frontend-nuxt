@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import gsap from 'gsap'
 
 const config = useRuntimeConfig()
 
@@ -46,6 +45,7 @@ useSeoMeta({
 })
 
 onMounted(() => {
+  const { $gsap: gsap } = useNuxtApp()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.25 })

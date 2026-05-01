@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, watch, nextTick } from 'vue'
 import type { BlogPostDto } from '~/types/blog'
-import gsap from 'gsap'
 import { useMarkdown } from '~/composables/useMarkdown'
 
 const config = useRuntimeConfig()
@@ -32,6 +31,7 @@ function excerpt(content: string | null | undefined): string {
 }
 
 onMounted(() => {
+  const { $gsap: gsap } = useNuxtApp()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   
@@ -43,6 +43,7 @@ onMounted(() => {
 watch(pending, (isPending) => {
   if (!isPending) {
     nextTick(() => {
+      const { $gsap: gsap } = useNuxtApp()
       if (gsap.utils.toArray('.blog-row').length > 0) {
         gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
       }

@@ -6,18 +6,6 @@ import { ref, nextTick } from 'vue'
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
-vi.mock('gsap', () => ({
-  default: {
-    from: vi.fn().mockReturnValue(Promise.resolve()),
-    to: vi.fn().mockReturnValue(Promise.resolve()),
-    fromTo: vi.fn().mockReturnValue(Promise.resolve()),
-    set: vi.fn(),
-    utils: {
-      toArray: vi.fn((val) => (typeof val === 'string' ? [val] : val))
-    }
-  },
-}))
-
 const handleCardHoverMock = vi.fn()
 const handleCardHoverOutMock = vi.fn()
 

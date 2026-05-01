@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import gsap from 'gsap'
 import { format } from 'date-fns'
 
 const currentYear = format(new Date(), 'yyyy')
@@ -93,10 +92,11 @@ const { getThumbUrl } = useS3()
 const cvPortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.cvPortraitUrl))
 
 onMounted(() => {
+  const { $gsap: gsap } = useNuxtApp()
   gsap.fromTo('.cv-head h1',  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.cv-head .role', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
   gsap.fromTo('.cv-head .actions', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.35 })
-  
+
   if (gsap.utils.toArray('.cv-section').length > 0) {
     gsap.fromTo('.cv-section', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.4, stagger: 0.1 })
   }

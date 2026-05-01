@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import gsap from 'gsap'
 import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
+const { gsap } = useGsap()
 const filter = ref('all')
 
 const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', async () => {

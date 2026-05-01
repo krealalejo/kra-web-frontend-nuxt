@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
 
 vi.mock('gsap', () => ({
   default: { from: vi.fn(), to: vi.fn() },
@@ -28,6 +29,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapHeroAnimation } = await import('./useGsapAnimations')
       useGsapHeroAnimation()
+      await flushPromises()
       expect(gsap.from).toHaveBeenCalledWith('.gsap-hero-item', expect.objectContaining({ opacity: 0, stagger: 0.1 }))
     })
 
@@ -46,6 +48,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapCardStagger } = await import('./useGsapAnimations')
       useGsapCardStagger()
+      await flushPromises()
       expect(gsap.from).toHaveBeenCalledWith('li', expect.objectContaining({ opacity: 0 }))
     })
 
@@ -54,6 +57,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapCardStagger } = await import('./useGsapAnimations')
       useGsapCardStagger('.card')
+      await flushPromises()
       expect(gsap.from).toHaveBeenCalledWith('.card', expect.objectContaining({ opacity: 0 }))
     })
 
@@ -72,6 +76,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapNavAnimation } = await import('./useGsapAnimations')
       useGsapNavAnimation()
+      await flushPromises()
       expect(gsap.from).toHaveBeenCalledWith('header nav a', expect.objectContaining({ opacity: 0 }))
     })
 
@@ -90,6 +95,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapContentAnimation } = await import('./useGsapAnimations')
       useGsapContentAnimation()
+      await flushPromises()
       expect(gsap.from).toHaveBeenCalledWith('article', expect.objectContaining({ opacity: 0 }))
     })
 
@@ -107,6 +113,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHover } = useCardHoverAnimation()
+      await flushPromises()
       const target = document.createElement('div')
       handleCardHover({ currentTarget: target } as unknown as MouseEvent)
       expect(gsap.to).toHaveBeenCalledWith(target, expect.objectContaining({ y: -4 }))
@@ -117,6 +124,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHover } = useCardHoverAnimation()
+      await flushPromises()
       handleCardHover({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
       expect(gsap.to).not.toHaveBeenCalled()
     })
@@ -125,6 +133,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHoverOut } = useCardHoverAnimation()
+      await flushPromises()
       const target = document.createElement('div')
       handleCardHoverOut({ currentTarget: target } as unknown as MouseEvent)
       expect(gsap.to).toHaveBeenCalledWith(target, expect.objectContaining({ y: 0 }))
@@ -135,6 +144,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHoverOut } = useCardHoverAnimation()
+      await flushPromises()
       handleCardHoverOut({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
       expect(gsap.to).not.toHaveBeenCalled()
     })

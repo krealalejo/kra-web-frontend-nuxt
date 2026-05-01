@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import gsap from 'gsap'
 import { useMarkdown } from '~/composables/useMarkdown'
 import IconBrandGithub from '~/components/icons/IconBrandGithub.vue'
 import { useApiError } from '~/composables/useApiError'
@@ -114,6 +113,7 @@ function projectKind(d: PortfolioRepoDto) {
 function animateIn() {
   if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   nextTick(() => {
+    const { gsap } = useGsap()
     gsap.fromTo('.pd-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
     gsap.fromTo('.pd-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.15 })
   })

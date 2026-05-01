@@ -7,6 +7,10 @@ vi.mock('gsap', () => ({
   default: { from: vi.fn(), to: vi.fn(), fromTo: vi.fn(), registerPlugin: vi.fn(), set: vi.fn(), utils: { toArray: vi.fn(() => []) } },
 }))
 
+vi.mock('gsap/ScrollTrigger', () => ({
+  ScrollTrigger: { batch: vi.fn() },
+}))
+
 vi.mock('~/composables/useGsapAnimations', async () => {
   const gsap = (await import('gsap')).default
   return {
@@ -62,7 +66,13 @@ import IndexPage from './index.vue'
 describe('pages/index.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })))
+    vi.stubGlobal('matchMedia', vi.fn(() => ({
+      matches: false,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })))
 
     mockFetch.mockImplementation((url: string) => {
       if (typeof url !== 'string') return Promise.resolve([])

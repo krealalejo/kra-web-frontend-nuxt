@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { format } from 'date-fns'
 
-const currentYear = format(new Date(), 'yyyy')
+const currentYear = new Date().getFullYear().toString()
 
 const config = useRuntimeConfig()
 
@@ -60,7 +57,7 @@ const oldestProjectYear = computed(() => {
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
-  gsap.registerPlugin(ScrollTrigger)
+  const { $gsap: gsap, $ScrollTrigger: ScrollTrigger } = useNuxtApp()
 
   const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
   if (display) {
@@ -99,6 +96,7 @@ onMounted(async () => {
 watch(pending, (isPending) => {
   if (!isPending) {
     nextTick(() => {
+      const { $gsap: gsap, $ScrollTrigger: ScrollTrigger } = useNuxtApp()
       const rows = gsap.utils.toArray<HTMLElement>('.proj-row')
       if (rows.length > 0) {
         ScrollTrigger.batch(rows, {
@@ -253,7 +251,7 @@ function projectNum(i: number) {
           <span class="sub">Live from GitHub API</span>
         </div>
         <div class="activity-layout reveal-scroll">
-          <AppGithubContributions />
+          <LazyAppGithubContributions />
           <div class="activity-list">
             <template v-for="card in activityCards" :key="card.type">
               <div

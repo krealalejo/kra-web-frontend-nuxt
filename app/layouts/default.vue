@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import gsap from 'gsap'
-
 import { format } from 'date-fns'
 
 const { isDark, toggle } = useTheme()
@@ -24,6 +22,7 @@ const navItems = [
 ]
 
 onMounted(() => {
+  const { $gsap: gsap } = useNuxtApp()
   gsap.from('.kra-nav-logo, .kra-nav-link', {
     opacity: 0, y: -8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
   })
