@@ -1,18 +1,31 @@
+function sanitizeDiagram(source: string): string {
+  return source.replace(/\|([^|"]+)\|/g, (match, label) =>
+    /[/()[\]{}]/.test(label) ? `|"${label}"|` : match
+  )
+}
+
+async function initMermaid() {
+  const { default: mermaid } = await import('mermaid')
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+  })
+  return mermaid
+}
+
 export function useMermaid() {
   async function renderDiagrams(container: HTMLElement) {
     if (import.meta.server) return
     const blocks = container.querySelectorAll('pre code.language-mermaid')
     if (!blocks.length) return
 
-    const { default: mermaid } = await import('mermaid')
-    const isDark = document.documentElement.classList.contains('dark')
-    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' })
-
+    const mermaid = await initMermaid()
     let counter = 0
+
     for (const block of Array.from(blocks)) {
       const pre = block.parentElement
       if (!pre) continue
-      const diagram = block.textContent ?? ''
+      const diagram = sanitizeDiagram(block.textContent ?? '')
       const id = `mermaid-${Date.now()}-${counter++}`
       try {
         const { svg } = await mermaid.render(id, diagram)
@@ -23,24 +36,20 @@ export function useMermaid() {
         pre.replaceWith(wrapper)
       } catch (e) {
         console.error('[useMermaid] render error', e)
-        // Mermaid 10+ leaves an error SVG in the DOM body if rendering fails
-        const errorEl = document.getElementById(id)
-        if (errorEl) errorEl.remove()
+        document.getElementById(id)?.remove()
       }
     }
   }
 
   async function reRender(container: HTMLElement) {
     if (import.meta.server) return
-    const wrappers = container.querySelectorAll('.mermaid-diagram')
+    const wrappers = container.querySelectorAll<HTMLElement>('.mermaid-diagram')
     if (!wrappers.length) return
 
-    const { default: mermaid } = await import('mermaid')
-    const isDark = document.documentElement.classList.contains('dark')
-    mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default' })
-
+    const mermaid = await initMermaid()
     let counter = 0
-    for (const wrapper of Array.from(wrappers) as HTMLElement[]) {
+
+    for (const wrapper of Array.from(wrappers)) {
       const diagram = wrapper.dataset.source
       if (!diagram) continue
       const id = `mermaid-re-${Date.now()}-${counter++}`
@@ -49,8 +58,7 @@ export function useMermaid() {
         wrapper.innerHTML = svg
       } catch (e) {
         console.error('[useMermaid] re-render error', e)
-        const errorEl = document.getElementById(id)
-        if (errorEl) errorEl.remove()
+        document.getElementById(id)?.remove()
       }
     }
   }

@@ -651,13 +651,22 @@ em, .emph {
 .hero-portrait .ph-center svg { opacity: 0.5; }
 .hero-portrait .corner {
   position: absolute;
-  width: 12px; height: 12px;
-  border: 1px solid var(--fg-muted);
+  width: 16px; height: 16px;
+  border: 2px solid var(--fg);
+  z-index: 10;
+  filter: drop-shadow(0 0 3px rgba(0,0,0,0.5));
+  pointer-events: none;
+  transition: transform 0.3s var(--ease-out);
 }
 .hero-portrait .corner.tl { top: 12px; left: 12px; border-right: 0; border-bottom: 0; }
 .hero-portrait .corner.tr { top: 12px; right: 12px; border-left: 0; border-bottom: 0; }
 .hero-portrait .corner.bl { bottom: 12px; left: 12px; border-right: 0; border-top: 0; }
 .hero-portrait .corner.br { bottom: 12px; right: 12px; border-left: 0; border-top: 0; }
+
+.hero-portrait:hover .corner.tl { transform: translate(-3px, -3px); }
+.hero-portrait:hover .corner.tr { transform: translate(3px, -3px); }
+.hero-portrait:hover .corner.bl { transform: translate(-3px, 3px); }
+.hero-portrait:hover .corner.br { transform: translate(3px, 3px); }
 
 .hero-portrait-meta {
   margin-top: 12px;
