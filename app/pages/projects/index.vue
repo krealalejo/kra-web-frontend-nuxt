@@ -4,7 +4,6 @@ import type { PortfolioRepoDto } from '~/types/portfolio'
 import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
 
 const config = useRuntimeConfig()
-const { gsap } = useGsap()
 const filter = ref('all')
 
 const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', async () => {
@@ -47,10 +46,11 @@ function projectYear(repo: PortfolioRepoDto) {
 
 async function applyFilter(k: string) {
   if (filter.value === k || isAnimating.value) return
-  
+
   isAnimating.value = true
   frozenProjects.value = [...displayProjects.value]
-  
+
+  const { gsap } = await useGsap()
   const cards = gsap.utils.toArray('.proj-card')
   if (cards.length > 0) {
     await gsap.to(cards, {
@@ -92,11 +92,12 @@ async function applyFilter(k: string) {
   isAnimating.value = false
 }
 
-onMounted(() => {
+onMounted(async () => {
+  const { gsap } = await useGsap()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
   gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
-  
+
   if (gsap.utils.toArray('.proj-card').length > 0) {
     gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.3, stagger: 0.1 })
   }
@@ -104,7 +105,8 @@ onMounted(() => {
 
 watch(pending, (isPending) => {
   if (!isPending) {
-    nextTick(() => {
+    nextTick(async () => {
+      const { gsap } = await useGsap()
       if (gsap.utils.toArray('.proj-card').length > 0) {
         gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 })
       }
