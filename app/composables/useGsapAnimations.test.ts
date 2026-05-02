@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { flushPromises } from '@vue/test-utils'
 
 vi.mock('gsap', () => ({
-  default: { from: vi.fn(), to: vi.fn() },
+  default: { from: vi.fn(), to: vi.fn(), registerPlugin: vi.fn() },
+}))
+
+vi.mock('gsap/ScrollTrigger', () => ({
+  ScrollTrigger: {},
 }))
 
 vi.mock('vue', async (importOriginal) => {
@@ -113,9 +117,8 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHover } = useCardHoverAnimation()
-      await flushPromises()
       const target = document.createElement('div')
-      handleCardHover({ currentTarget: target } as unknown as MouseEvent)
+      await handleCardHover({ currentTarget: target } as unknown as MouseEvent)
       expect(gsap.to).toHaveBeenCalledWith(target, expect.objectContaining({ y: -4 }))
     })
 
@@ -124,8 +127,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHover } = useCardHoverAnimation()
-      await flushPromises()
-      handleCardHover({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
+      await handleCardHover({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
       expect(gsap.to).not.toHaveBeenCalled()
     })
 
@@ -133,9 +135,8 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHoverOut } = useCardHoverAnimation()
-      await flushPromises()
       const target = document.createElement('div')
-      handleCardHoverOut({ currentTarget: target } as unknown as MouseEvent)
+      await handleCardHoverOut({ currentTarget: target } as unknown as MouseEvent)
       expect(gsap.to).toHaveBeenCalledWith(target, expect.objectContaining({ y: 0 }))
     })
 
@@ -144,8 +145,7 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useCardHoverAnimation } = await import('./useGsapAnimations')
       const { handleCardHoverOut } = useCardHoverAnimation()
-      await flushPromises()
-      handleCardHoverOut({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
+      await handleCardHoverOut({ currentTarget: document.createElement('div') } as unknown as MouseEvent)
       expect(gsap.to).not.toHaveBeenCalled()
     })
   })
