@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts'],
   fonts: {
     families: [
       { name: 'Roboto Flex', provider: 'google', weights: ['300..700'] },
@@ -29,14 +29,7 @@ export default defineNuxtConfig({
       include: [
         '@vue/devtools-core',
         '@vue/devtools-kit',
-        'gsap',
-        'gsap/ScrollTrigger',
-        'marked',
-        'dompurify',
-        'sanitize-html',
         '@headlessui/vue',
-        'zod',
-        '@vee-validate/zod',
       ]
     },
     build: {
