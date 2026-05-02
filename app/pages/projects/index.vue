@@ -11,7 +11,7 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-}, { lazy: false })
+}, { server: false })
 
 const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)

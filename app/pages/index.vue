@@ -20,7 +20,8 @@ const { data: projects, error, pending } = useAsyncData(
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
     if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-  }
+  },
+  { server: false }
 )
 
 const { data: profileData } = useAsyncData(
