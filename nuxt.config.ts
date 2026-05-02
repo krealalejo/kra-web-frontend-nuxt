@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts', '@nuxtjs/critters'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts'],
   fonts: {
     families: [
       { name: 'Roboto Flex', provider: 'google', weights: ['300..700'] },
