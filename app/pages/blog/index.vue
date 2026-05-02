@@ -30,11 +30,11 @@ function excerpt(content: string | null | undefined): string {
   return plain.length > 140 ? `${plain.slice(0, 140)}…` : plain
 }
 
-onMounted(() => {
-  const { $gsap: gsap } = useNuxtApp()
+onMounted(async () => {
+  const { gsap } = await useGsap()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
-  
+
   if (gsap.utils.toArray('.blog-row').length > 0) {
     gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08 })
   }
@@ -42,8 +42,8 @@ onMounted(() => {
 
 watch(pending, (isPending) => {
   if (!isPending) {
-    nextTick(() => {
-      const { $gsap: gsap } = useNuxtApp()
+    nextTick(async () => {
+      const { gsap } = await useGsap()
       if (gsap.utils.toArray('.blog-row').length > 0) {
         gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
       }
