@@ -1,11 +1,11 @@
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-/**
- * Composable to provide GSAP and its plugins.
- * Using direct imports here ensures that Vitest can easily mock GSAP
- * while maintaining compatibility with Nuxt's auto-import system.
- */
 export function useGsap() {
-  return { gsap, ScrollTrigger }
+  return Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+  ]).then(([{ default: gsap }, { ScrollTrigger }]) => {
+    if (typeof gsap.registerPlugin === 'function') {
+      gsap.registerPlugin(ScrollTrigger)
+    }
+    return { gsap, ScrollTrigger }
+  })
 }
