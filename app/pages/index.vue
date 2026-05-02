@@ -45,6 +45,12 @@ const homePortraitThumbUrl = computed(() => {
   return getThumbUrl(profileData.value?.homePortraitUrl)
 })
 
+useHead(() => ({
+  link: homePortraitThumbUrl.value && !isRickRolled.value
+    ? [{ rel: 'preload', as: 'image', href: homePortraitThumbUrl.value, fetchpriority: 'high' }]
+    : []
+}))
+
 const featuredProjects = computed(() => {
   if (!projects?.value) return []
   const featured = projects.value.filter(r => r.topics?.includes('featured'))
