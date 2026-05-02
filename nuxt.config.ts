@@ -6,17 +6,17 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxtjs/google-fonts'],
-  googleFonts: {
-    families: {
-      'Roboto Flex': { wght: '300..700' },
-      Inter: [400, 500, 600],
-      'JetBrains Mono': [400, 500],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts', '@nuxtjs/critters'],
+  fonts: {
+    families: [
+      { name: 'Roboto Flex', provider: 'google', weights: ['300..700'] },
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600] },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
+    ],
+    defaults: {
+      display: 'swap',
+      preload: true,
     },
-    display: 'swap',
-    preload: true,
-    download: true,
-    inject: true,
   },
   site: {
     url: 'https://krealalejo.dev',
