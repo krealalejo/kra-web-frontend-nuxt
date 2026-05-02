@@ -290,24 +290,14 @@ describe('admin layout — GSAP hook functions (direct)', () => {
 
     const done = vi.fn()
 
-    
-    onBeforeEnter(el)
+    await onBeforeEnter(el)
+    await onEnter(el, done)
 
-    
-    onEnter(el, done)
-
-    
     const elNoSidebar = document.createElement('div')
-    onEnter(elNoSidebar, done)
-
-    
-    onLeave(el, done)
-
-    
-    onLeave(elNoSidebar, done)
-
-    
-    onBeforeEnter(elNoSidebar)
+    await onEnter(elNoSidebar, done)
+    await onLeave(el, done)
+    await onLeave(elNoSidebar, done)
+    await onBeforeEnter(elNoSidebar)
 
     expect(done).toHaveBeenCalled()
   })
