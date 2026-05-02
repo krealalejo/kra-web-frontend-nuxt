@@ -21,8 +21,8 @@ const navItems = [
   { path: '/cv', label: 'CV' },
 ]
 
-onMounted(() => {
-  const { $gsap: gsap } = useNuxtApp()
+onMounted(async () => {
+  const { gsap } = await useGsap()
   gsap.from('.kra-nav-logo, .kra-nav-link', {
     opacity: 0, y: -8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
   })
