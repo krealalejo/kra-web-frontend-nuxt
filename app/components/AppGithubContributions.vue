@@ -86,8 +86,8 @@ function level(count: number): string {
 
 watch(displayWeeks, () => {
   if (!import.meta.client) return
-  nextTick(() => {
-    const { $gsap: gsap } = useNuxtApp()
+  nextTick(async () => {
+    const { gsap } = await useGsap()
     if (gsap.utils.toArray('.gh-graph .cell:not(.is-empty)').length > 0) {
       gsap.fromTo('.gh-graph .cell:not(.is-empty)',
         { opacity: 0, scale: 0.5 },
