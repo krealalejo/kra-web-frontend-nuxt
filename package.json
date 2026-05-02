@@ -38,6 +38,7 @@
   "devDependencies": {
     "@iconify-json/lucide": "^1.2.103",
     "@nuxt/test-utils": "^4.0.2",
+    "@nuxtjs/google-fonts": "^3.2.0",
     "@nuxtjs/sitemap": "^8.0.15",
     "@pinia/testing": "^1.0.3",
     "@types/dompurify": "3.2.0",

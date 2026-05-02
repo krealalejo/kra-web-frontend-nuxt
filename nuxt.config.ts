@@ -6,7 +6,18 @@ export default defineNuxtConfig({
     server: true
   },
   css: ['~/assets/css/design-system.css'],
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics'],
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@vee-validate/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxtjs/google-fonts'],
+  googleFonts: {
+    families: {
+      'Roboto Flex': { wght: '300..700' },
+      Inter: [400, 500, 600],
+      'JetBrains Mono': [400, 500],
+    },
+    display: 'swap',
+    preload: true,
+    download: true,
+    inject: true,
+  },
   site: {
     url: 'https://krealalejo.dev',
   },
@@ -36,13 +47,6 @@ export default defineNuxtConfig({
     serverBundle: 'local'
   },
   app: {
-    head: {
-      link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght,wdth@8..144,300..700,75..125&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap' },
-      ]
-    },
     pageTransition: {
       name: 'page',
       mode: 'out-in',

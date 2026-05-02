@@ -168,6 +168,7 @@ function projectNum(i: number) {
                 v-if="homePortraitThumbUrl"
                 :src="homePortraitThumbUrl"
                 alt="Kevin Real Alejo"
+                fetchpriority="high"
                 style="width:100%;height:100%;object-fit:cover;display:block;"
               />
               <div v-else class="ph-center">
