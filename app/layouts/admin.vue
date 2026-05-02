@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import gsap from 'gsap'
 
 const userCookie = useCookie('kra_user')
 
@@ -13,14 +12,16 @@ watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })
 
-const onBeforeEnter = (el: Element) => {
+const onBeforeEnter = async (el: Element) => {
+  const { gsap } = await useGsap()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
   if (sidebar) gsap.set(sidebar, { x: '-100%' })
   if (overlay) gsap.set(overlay, { opacity: 0 })
 }
 
-const onEnter = (el: Element, done: () => void) => {
+const onEnter = async (el: Element, done: () => void) => {
+  const { gsap } = await useGsap()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
 
@@ -34,7 +35,8 @@ const onEnter = (el: Element, done: () => void) => {
   }
 }
 
-const onLeave = (el: Element, done: () => void) => {
+const onLeave = async (el: Element, done: () => void) => {
+  const { gsap } = await useGsap()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
 
