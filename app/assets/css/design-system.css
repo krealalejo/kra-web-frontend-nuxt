@@ -604,6 +604,9 @@ em, .emph {
   gap: 8px;
 }
 
+.dl { display: inline-block; }
+.reveal-scroll { will-change: transform, opacity; }
+
 .hero-portrait {
   position: relative;
   aspect-ratio: 3/4;
@@ -611,6 +614,7 @@ em, .emph {
   border: 1px solid var(--hairline);
   border-radius: 4px;
   overflow: hidden;
+  will-change: transform, opacity;
 }
 .hero-portrait .inner {
   position: absolute; inset: 0;

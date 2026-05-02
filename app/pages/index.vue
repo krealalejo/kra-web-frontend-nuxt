@@ -67,9 +67,9 @@ onMounted(async () => {
 
   const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
   if (display) {
-    const text = display.innerText
+    const text = display.textContent ?? ''
     display.innerHTML = text.split('').map(c =>
-      c === ' ' ? `<span class="dl" style="display:inline-block">&nbsp;</span>` : `<span class="dl">${c}</span>`
+      c === ' ' ? `<span class="dl">&nbsp;</span>` : `<span class="dl">${c}</span>`
     ).join('')
     gsap.fromTo('.dl',
       { yPercent: 110, opacity: 0 },
