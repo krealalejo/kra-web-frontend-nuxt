@@ -1,6 +1,7 @@
 import { defineVitestConfig } from '@nuxt/test-utils/config'
 
 export default defineVitestConfig({
+  esbuild: false,
   test: {
     environment: 'nuxt',
     environmentOptions: {

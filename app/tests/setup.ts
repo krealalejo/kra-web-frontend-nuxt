@@ -65,11 +65,13 @@ const originalConsoleError = console.error
 const silentLogs = [
   '<Suspense> is an experimental feature',
   '[Icon] failed to load icon',
-  'Both esbuild and oxc options were set',
+  '[Vercel Speed Insights]',
+  '[Vercel Web Analytics]',
+  'GSAP target',
 ]
 
 function shouldSilence(args: any[]) {
-  const msg = args.join(' ')
+  const msg = args.map(arg => typeof arg === 'string' ? arg : JSON.stringify(arg)).join(' ')
   return silentLogs.some(log => msg.includes(log))
 }
 
