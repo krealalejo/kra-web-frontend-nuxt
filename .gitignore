@@ -16,6 +16,9 @@ logs
 # Test coverage (Vitest)
 coverage/
 
+#unlighthouse
+.unlighthouse/
+
 # Misc
 .DS_Store
 .fleet
