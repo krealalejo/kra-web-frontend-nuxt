@@ -69,7 +69,7 @@ const oldestProjectYear = computed(() => {
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
-  const { $gsap: gsap, $ScrollTrigger: ScrollTrigger } = useNuxtApp()
+  const { gsap, ScrollTrigger } = await useGsap()
 
   const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
   if (display) {
@@ -107,8 +107,8 @@ onMounted(async () => {
 
 watch(pending, (isPending) => {
   if (!isPending) {
-    nextTick(() => {
-      const { $gsap: gsap, $ScrollTrigger: ScrollTrigger } = useNuxtApp()
+    nextTick(async () => {
+      const { gsap, ScrollTrigger } = await useGsap()
       const rows = gsap.utils.toArray<HTMLElement>('.proj-row')
       if (rows.length > 0) {
         ScrollTrigger.batch(rows, {
