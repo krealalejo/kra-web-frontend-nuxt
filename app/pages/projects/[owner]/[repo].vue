@@ -111,7 +111,7 @@ function projectKind(d: PortfolioRepoDto) {
 }
 
 function animateIn() {
-  if (typeof globalThis.window !== 'undefined' && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  if (globalThis.window !== undefined && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   nextTick(async () => {
     const { gsap } = await useGsap()
     gsap.fromTo('.pd-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
