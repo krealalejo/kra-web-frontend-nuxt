@@ -10,7 +10,8 @@
     "postinstall": "nuxt prepare",
     "test": "vitest run",
     "test:coverage": "mkdir -p coverage/.tmp && vitest run --coverage",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.500.0",
@@ -50,6 +51,7 @@
     "@vue/test-utils": "^2.4.6",
     "eslint-plugin-sonarjs": "^4.0.3",
     "happy-dom": "^20.9.0",
+    "sonarqube-scanner": "^4.3.6",
     "vitest": "^4.1.4"
   },
   "packageManager": "yarn@4.14.1"
