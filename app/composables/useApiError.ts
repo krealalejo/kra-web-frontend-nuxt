@@ -3,9 +3,14 @@ import type { Ref } from 'vue'
 
 export function useApiError(error: Ref<unknown>) {
   const isMissingApiBase = computed(() => {
-    const msg = error.value && typeof error.value === 'object' && 'message' in error.value
-      ? String((error.value as Error).message)
-      : error.value ? String(error.value) : ''
+    let msg: string
+    if (error.value && typeof error.value === 'object' && 'message' in error.value) {
+      msg = (error.value as Error).message
+    } else if (error.value) {
+      msg = error.value instanceof Error ? error.value.message : String(error.value)
+    } else {
+      msg = ''
+    }
     return msg.includes('MISSING_API_BASE')
   })
 

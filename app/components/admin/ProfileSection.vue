@@ -48,7 +48,7 @@ onMounted(async () => {
   }
 })
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 const MAX_BYTES = 20 * 1024 * 1024
 
 async function uploadPortrait(
@@ -60,7 +60,7 @@ async function uploadPortrait(
   readyRef: Ref<boolean>,
   pollingRef: Ref<boolean>
 ) {
-  if (!ALLOWED_TYPES.includes(file.type)) {
+  if (!ALLOWED_TYPES.has(file.type)) {
     errorRef.value = 'Only JPEG, PNG, or WebP images are allowed'
     return
   }

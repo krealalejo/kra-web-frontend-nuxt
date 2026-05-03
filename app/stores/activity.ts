@@ -18,7 +18,7 @@ export const useActivityStore = defineStore('activity', () => {
     error.value = null
     try {
       const config = useRuntimeConfig()
-      const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+      const apiBase = config.public.apiBase.replace(/\/$/, '')
       const response = await $fetch<ActivityCard[]>(`${apiBase}/activity`)
       cards.value = response
     } catch (e: unknown) {

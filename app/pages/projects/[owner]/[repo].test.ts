@@ -52,7 +52,7 @@ describe('pages/projects/[owner]/[repo].vue', () => {
     const wrapper = await mountSuspended(RepoPage, {
       route: '/projects/owner/repo'
     })
-    expect(wrapper.find('[role="status"]').exists()).toBe(true)
+    expect(wrapper.find('output[aria-label="Loading repository"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('Loading repository…')
   })
 

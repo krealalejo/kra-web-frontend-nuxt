@@ -5,10 +5,10 @@ export function useTheme() {
 
   function applyTheme(value: Theme) {
     const root = document.documentElement
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const prefersDark = globalThis.matchMedia('(prefers-color-scheme: dark)').matches
     const shouldBeDark = value === 'dark' || (value === 'system' && prefersDark)
     root.classList.toggle('dark', shouldBeDark)
-    root.setAttribute('data-theme', shouldBeDark ? 'dark' : 'light')
+    root.dataset.theme = shouldBeDark ? 'dark' : 'light'
   }
 
   function setTheme(value: Theme) {
@@ -64,7 +64,7 @@ export function useTheme() {
     theme.value = initial
     applyTheme(initial)
 
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       if (theme.value === 'system') applyTheme('system')
     })
   }
@@ -72,7 +72,7 @@ export function useTheme() {
   const isDark = computed(() => {
     if (import.meta.server) return false
     return theme.value === 'dark' ||
-      (theme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      (theme.value === 'system' && globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
   })
 
   return { theme, isDark, setTheme, toggle, init }

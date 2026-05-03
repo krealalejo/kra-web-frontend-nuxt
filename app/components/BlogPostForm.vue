@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { useFieldArray } from 'vee-validate'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { BlogPost } from '~/stores/blog'
@@ -171,7 +171,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div
           v-if="formError"
           class="mb-6 rounded-xl p-4 text-sm"
-          style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #ff4d4d"
+          style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #b91c1c"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -222,7 +222,7 @@ const onSubmit = handleSubmit(async (values) => {
 
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between">
-              <label class="t-label" style="font-size: 10px">Content (Markdown)</label>
+              <label for="post-content" class="t-label" style="font-size: 10px">Content (Markdown)</label>
               <span class="t-label" style="font-size: 9px; opacity: 0.5">Preview (HTML)</span>
             </div>
             <div class="grid grid-cols-2 gap-4 h-[50vh]">
@@ -244,7 +244,7 @@ const onSubmit = handleSubmit(async (values) => {
           </div>
 
           <div class="flex flex-col gap-3 p-6 rounded-xl" style="background: var(--overlay); border: 1px solid var(--hairline)">
-            <label class="t-label" style="font-size: 10px">Cover Image</label>
+            <label for="image-upload" class="t-label" style="font-size: 10px">Cover Image</label>
             <div class="flex items-center gap-6">
               <div
                 v-if="thumbReady && thumbUrl"
@@ -296,7 +296,7 @@ const onSubmit = handleSubmit(async (values) => {
 
           <div class="flex flex-col gap-3 p-6 rounded-xl" style="background: var(--overlay); border: 1px solid var(--hairline)">
             <div class="flex items-center justify-between">
-              <label class="t-label" style="font-size: 10px">References & Links</label>
+              <span class="t-label" style="font-size: 10px">References & Links</span>
               <button
                 type="button"
                 class="t-label hover:text-[var(--accent)] transition-colors"

@@ -14,13 +14,16 @@ let cwClient: CloudWatchLogsClient | null = null;
 let initialized = false;
 
 function getClient(): CloudWatchLogsClient {
-  return cwClient ??= new CloudWatchLogsClient({
-    region: 'eu-west-1',
-    credentials: {
-      accessKeyId: process.env.NUXT_AWS_CW_ACCESS_KEY_ID ?? '',
-      secretAccessKey: process.env.NUXT_AWS_CW_SECRET_ACCESS_KEY ?? '',
-    },
-  });
+  if (!cwClient) {
+    cwClient = new CloudWatchLogsClient({
+      region: 'eu-west-1',
+      credentials: {
+        accessKeyId: process.env.NUXT_AWS_CW_ACCESS_KEY_ID ?? '',
+        secretAccessKey: process.env.NUXT_AWS_CW_SECRET_ACCESS_KEY ?? '',
+      },
+    })
+  }
+  return cwClient
 }
 
 async function ensureStream(): Promise<void> {

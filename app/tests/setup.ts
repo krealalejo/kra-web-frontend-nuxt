@@ -15,7 +15,10 @@ vi.mock('gsap', () => {
       add: vi.fn().mockReturnThis(),
     }),
     utils: {
-      toArray: vi.fn((val) => (typeof val === 'string' ? [val] : (Array.isArray(val) ? val : [val]))),
+      toArray: vi.fn((val) => {
+        if (typeof val === 'string') return [val]
+        return Array.isArray(val) ? val : [val]
+      }),
     },
   }
   return {

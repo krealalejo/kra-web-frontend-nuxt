@@ -123,7 +123,7 @@ async function saveExpModal() {
 }
 
 async function deleteExp(id: string) {
-  if (import.meta.client && !window.confirm('Delete this experience entry?')) return
+  if (import.meta.client && !globalThis.confirm('Delete this experience entry?')) return
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/experience/${id}`, { method: 'DELETE' })
@@ -185,7 +185,7 @@ async function saveEduModal() {
 }
 
 async function deleteEdu(id: string) {
-  if (import.meta.client && !window.confirm('Delete this education entry?')) return
+  if (import.meta.client && !globalThis.confirm('Delete this education entry?')) return
   deletingId.value = id
   try {
     await $fetch(`/api/admin/cv/education/${id}`, { method: 'DELETE' })
@@ -231,7 +231,7 @@ async function saveCategory(catId: string) {
 }
 
 async function deleteCategory(id: string) {
-  if (import.meta.client && !window.confirm('Delete this skill category?')) return
+  if (import.meta.client && !globalThis.confirm('Delete this skill category?')) return
   deletingCategoryId.value = id
   try {
     await $fetch(`/api/admin/cv/skills/categories/${id}`, { method: 'DELETE' })
@@ -368,7 +368,7 @@ async function submitAddCategory() {
 
     <div v-if="loading" class="mb-6 text-sm" style="color: var(--fg-dim)">Loading CV data…</div>
 
-    <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+    <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
       {{ error }}
     </div>
 
@@ -416,7 +416,7 @@ async function submitAddCategory() {
           >✎</button>
           <button
             class="text-sm px-2 py-1 rounded"
-            style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
             :disabled="deletingId === item.id"
             @click="deleteExp(item.id)"
             title="Delete"
@@ -457,7 +457,7 @@ async function submitAddCategory() {
           >✎</button>
           <button
             class="text-sm px-2 py-1 rounded"
-            style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
             :disabled="deletingId === item.id"
             @click="deleteEdu(item.id)"
             title="Delete"
@@ -481,7 +481,7 @@ async function submitAddCategory() {
           <div class="mb-4 flex items-center justify-between">
             <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
             <button
-              style="background: none; border: none; cursor: pointer; color: #ff4d4d; font-size: 14px; padding: 0;"
+              style="background: none; border: none; cursor: pointer; color: #b91c1c; font-size: 14px; padding: 0;"
               :disabled="deletingCategoryId === cat.id"
               @click="deleteCategory(cat.id)"
               title="Delete category"
@@ -513,7 +513,7 @@ async function submitAddCategory() {
             />
           </div>
 
-          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
             {{ categoryError[cat.id] }}
           </div>
 
@@ -538,8 +538,9 @@ async function submitAddCategory() {
       </div>
       <div v-else class="rounded-xl p-4" style="background: var(--bg-elev); border: 1px solid var(--hairline); max-width: 400px;">
         <div class="mb-3">
-          <label class="t-label mb-1 block text-xs" style="color: var(--fg-dim)">Category Name</label>
+          <label for="new-category-name" class="t-label mb-1 block text-xs" style="color: var(--fg-dim)">Category Name</label>
           <input
+            id="new-category-name"
             v-model="newCategoryName"
             class="w-full rounded-lg px-3 py-2 text-sm"
             style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
@@ -547,7 +548,7 @@ async function submitAddCategory() {
             @keydown.enter.prevent="submitAddCategory"
           />
         </div>
-        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
           {{ addCategoryError }}
         </div>
         <div style="display:flex;gap:8px">
@@ -583,7 +584,7 @@ async function submitAddCategory() {
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <a :href="cvPdfUrl!" target="_blank" rel="noopener" class="text-xs px-2 py-1 rounded" style="color: var(--accent); border: 1px solid var(--hairline); background: none; text-decoration: none">Preview ↗</a>
-              <button class="text-xs px-2 py-1 rounded" style="color: #ff4d4d; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer" @click="removePdf">Remove</button>
+              <button class="text-xs px-2 py-1 rounded" style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer" @click="removePdf">Remove</button>
             </div>
           </div>
           <div v-else class="text-xs" style="color: var(--fg-faint)">No PDF uploaded yet.</div>
@@ -596,7 +597,7 @@ async function submitAddCategory() {
         </label>
 
         <p v-if="cvPdfSuccess" class="mt-3 text-xs" style="color: #4caf50">PDF uploaded successfully.</p>
-        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #ff4d4d">{{ cvPdfError }}</p>
+        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #b91c1c">{{ cvPdfError }}</p>
       </div>
     </div>
 
@@ -610,8 +611,9 @@ async function submitAddCategory() {
 
         <div class="space-y-4">
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">title</label>
+            <label for="exp-title" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">title</label>
             <input
+              id="exp-title"
               v-model="expModal.data.title"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -619,8 +621,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">company</label>
+            <label for="exp-company" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">company</label>
             <input
+              id="exp-company"
               v-model="expModal.data.company"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -628,8 +631,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
+            <label for="exp-location" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
             <input
+              id="exp-location"
               v-model="expModal.data.location"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -637,8 +641,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
+            <label for="exp-years" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
             <input
+              id="exp-years"
               v-model="expModal.data.years"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -646,8 +651,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
+            <label for="exp-description" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
             <textarea
+              id="exp-description"
               v-model="expModal.data.description"
               rows="4"
               class="w-full rounded-lg px-3 py-2 text-sm"
@@ -657,7 +663,7 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2)">
           {{ expModal.error }}
         </div>
 
@@ -688,8 +694,9 @@ async function submitAddCategory() {
 
         <div class="space-y-4">
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Title</label>
+            <label for="edu-title" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Title</label>
             <input
+              id="edu-title"
               v-model="eduModal.data.title"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -697,8 +704,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution</label>
+            <label for="edu-institution" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution</label>
             <input
+              id="edu-institution"
               v-model="eduModal.data.institution"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -706,8 +714,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
+            <label for="edu-location" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Location</label>
             <input
+              id="edu-location"
               v-model="eduModal.data.location"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -715,8 +724,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
+            <label for="edu-years" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Years</label>
             <input
+              id="edu-years"
               v-model="eduModal.data.years"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none"
@@ -724,8 +734,9 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
+            <label for="edu-description" class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Description</label>
             <textarea
+              id="edu-description"
               v-model="eduModal.data.description"
               rows="4"
               class="w-full rounded-lg px-3 py-2 text-sm"
@@ -735,7 +746,7 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2)">
           {{ eduModal.error }}
         </div>
 

@@ -40,7 +40,7 @@ watch(isMobileMenuOpen, (open) => {
 </script>
 
 <template>
-  <div class="min-h-screen relative"> <!-- TODO: FIX THIS -->
+  <div class="min-h-screen relative">
     <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">
         <NuxtLink to="/" class="kra-nav-logo">
@@ -50,7 +50,7 @@ watch(isMobileMenuOpen, (open) => {
         </NuxtLink>
 
         
-        <nav class="kra-nav-links">
+        <nav class="kra-nav-links" aria-label="Main navigation">
           <NuxtLink
             v-for="item in navItems"
             :key="item.path"

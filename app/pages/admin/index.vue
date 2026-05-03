@@ -68,7 +68,7 @@ function closeDeleteModal() {
     <div
       v-else-if="store.error && !store.loading"
       class="mb-8 rounded-xl p-6 text-sm"
-      style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #ff4d4d"
+      style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #b91c1c"
     >
       <div class="flex items-center gap-3">
         <Icon name="lucide:alert-circle" class="w-5 h-5" />

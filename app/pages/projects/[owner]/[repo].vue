@@ -111,7 +111,7 @@ function projectKind(d: PortfolioRepoDto) {
 }
 
 function animateIn() {
-  if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  if (typeof globalThis.window !== 'undefined' && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   nextTick(async () => {
     const { gsap } = await useGsap()
     gsap.fromTo('.pd-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
@@ -138,9 +138,9 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div v-if="pending" role="status" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
+    <output v-if="pending" aria-label="Loading repository" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">Loading repository…</span>
-    </div>
+    </output>
 
     <div v-else-if="error" role="alert" class="shell" style="padding:64px 0;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);padding:32px 0;">

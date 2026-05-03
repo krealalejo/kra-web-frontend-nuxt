@@ -86,8 +86,9 @@ function removeTag(index: number) {
         <div class="t-overline mb-4" style="color: var(--fg-dim)">SHIPPING</div>
         <div class="mb-4 space-y-3">
           <div>
-            <label class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Title</label>
+            <label for="shipping-title" class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Title</label>
             <input
+              id="shipping-title"
               v-model="shippingTitle"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
@@ -95,8 +96,9 @@ function removeTag(index: number) {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Description</label>
+            <label for="shipping-description" class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Description</label>
             <textarea
+              id="shipping-description"
               v-model="shippingDescription"
               rows="3"
               class="w-full rounded-lg px-3 py-2 text-sm"
@@ -105,7 +107,7 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+        <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.SHIPPING }}
         </div>
 
@@ -124,8 +126,9 @@ function removeTag(index: number) {
         <div class="t-overline mb-4" style="color: var(--fg-dim)">READING</div>
         <div class="mb-4 space-y-3">
           <div>
-            <label class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Title</label>
+            <label for="reading-title" class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Title</label>
             <input
+              id="reading-title"
               v-model="readingTitle"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
@@ -133,8 +136,9 @@ function removeTag(index: number) {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Description</label>
+            <label for="reading-description" class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Description</label>
             <textarea
+              id="reading-description"
               v-model="readingDescription"
               rows="3"
               class="w-full rounded-lg px-3 py-2 text-sm"
@@ -143,7 +147,7 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+        <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.READING }}
         </div>
 
@@ -161,7 +165,7 @@ function removeTag(index: number) {
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;">
         <div class="t-overline mb-4" style="color: var(--fg-dim)">PLAYING</div>
         <div class="mb-4">
-          <label class="t-label mb-2 block" style="color: var(--fg-dim); font-size: 11px">Chip tags</label>
+          <label for="playing-tag-input" class="t-label mb-2 block" style="color: var(--fg-dim); font-size: 11px">Chip tags</label>
           <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
             <span
               v-for="(tag, i) in playingTags"
@@ -177,6 +181,7 @@ function removeTag(index: number) {
             </span>
           </div>
           <input
+            id="playing-tag-input"
             v-model="newTag"
             class="w-full rounded-lg px-3 py-2 text-sm"
             style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
@@ -184,7 +189,7 @@ function removeTag(index: number) {
             @keydown.enter.prevent="addTag"
           />
         </div>
-        <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #ff4d4d; border: 1px solid rgba(255,77,77,0.2)">
+        <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
           {{ errors.PLAYING }}
         </div>
 

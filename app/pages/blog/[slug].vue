@@ -74,7 +74,7 @@ const thumbUrl = computed(() => getThumbUrl(post.value?.imageUrl))
 function formatDate(iso: string) {
   try {
     const d = new Date(iso)
-    if (isNaN(d.getTime())) return iso
+    if (Number.isNaN(d.getTime())) return iso
     return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
   } catch { return iso }
 }

@@ -20,10 +20,10 @@ function signIn() {
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: config.public.cognitoClientId,
-    redirect_uri: config.public.cognitoRedirectUri || `${window.location.origin}/api/auth/callback`,
+    redirect_uri: config.public.cognitoRedirectUri || `${globalThis.location.origin}/api/auth/callback`,
     scope: 'openid email profile',
   })
-  window.location.href = `${config.public.cognitoDomain}/oauth2/authorize?${params.toString()}`
+  globalThis.location.href = `${config.public.cognitoDomain}/oauth2/authorize?${params.toString()}`
 }
 </script>
 
@@ -45,7 +45,7 @@ function signIn() {
         v-if="errorMsg"
         role="alert"
         class="mb-6 rounded-lg p-4 text-sm"
-        style="background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); color: #ff4d4d"
+        style="background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); color: #b91c1c"
       >
         {{ errorMsg }}
       </div>
