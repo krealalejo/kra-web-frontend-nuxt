@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "krealalejo",
+        "projectKey": "krealalejo_kra-web-frontend-nuxt"
+    }
+}
