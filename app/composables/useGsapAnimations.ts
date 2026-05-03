@@ -49,18 +49,18 @@ export function useGsapContentAnimation() {
   })
 }
 
+async function handleCardHover(e: MouseEvent) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const { gsap } = await useGsap()
+  gsap.to(e.currentTarget, { y: -4, duration: 0.3, ease: 'power1.out' })
+}
+
+async function handleCardHoverOut(e: MouseEvent) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  const { gsap } = await useGsap()
+  gsap.to(e.currentTarget, { y: 0, duration: 0.3, ease: 'power1.out' })
+}
+
 export function useCardHoverAnimation() {
-  async function handleCardHover(e: MouseEvent) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const { gsap } = await useGsap()
-    gsap.to(e.currentTarget, { y: -4, duration: 0.3, ease: 'power1.out' })
-  }
-
-  async function handleCardHoverOut(e: MouseEvent) {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const { gsap } = await useGsap()
-    gsap.to(e.currentTarget, { y: 0, duration: 0.3, ease: 'power1.out' })
-  }
-
   return { handleCardHover, handleCardHoverOut }
 }

@@ -52,7 +52,7 @@ onMounted(async () => {
         }
       })
     )
-  } catch (e: unknown) {
+  } catch {
     pageError.value = 'Could not load repositories. Please refresh.'
   } finally {
     loading.value = false
@@ -130,7 +130,7 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
       Loading repositories…
     </div>
 
-    <div v-if="pageError" class="mb-6 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#ff4d4d;border:1px solid rgba(255,77,77,0.2)">
+    <div v-if="pageError" class="mb-6 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#d93025;border:1px solid rgba(255,77,77,0.2);font-weight:500">
       {{ pageError }}
     </div>
 
@@ -188,8 +188,9 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         </h3>
 
         <div style="margin-bottom:16px">
-          <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">ROLE</label>
+          <label for="modal-role" style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">ROLE</label>
           <input
+            id="modal-role"
             v-model="modal.data.role"
             type="text"
             style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--hairline-strong);padding:10px 0;font-size:16px;color:var(--fg);outline:none"
@@ -197,8 +198,9 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         </div>
 
         <div style="margin-bottom:16px">
-          <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">YEAR</label>
+          <label for="modal-year" style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">YEAR</label>
           <input
+            id="modal-year"
             v-model="modal.data.year"
             type="text"
             style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--hairline-strong);padding:10px 0;font-size:16px;color:var(--fg);outline:none"
@@ -206,8 +208,9 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         </div>
 
         <div style="margin-bottom:16px">
-          <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">KIND</label>
+          <label for="modal-kind" style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">KIND</label>
           <select
+            id="modal-kind"
             v-model="modal.data.kind"
             style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--hairline-strong);padding:10px 0;font-size:16px;color:var(--fg);outline:none;appearance:none"
           >
@@ -217,8 +220,9 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         </div>
 
         <div style="margin-bottom:16px">
-          <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">MAIN BRANCH</label>
+          <label for="modal-branch" style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">MAIN BRANCH</label>
           <input
+            id="modal-branch"
             v-model="modal.data.mainBranch"
             type="text"
             style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--hairline-strong);padding:10px 0;font-size:16px;color:var(--fg);outline:none"
@@ -226,7 +230,7 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         </div>
 
         <div style="margin-bottom:16px">
-          <label style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">STACK</label>
+          <label for="modal-stack" style="display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--fg-muted);margin-bottom:8px">STACK</label>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;min-height:32px">
             <span
               v-for="(item, i) in modal.data.stack"
@@ -237,11 +241,13 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
               {{ item }}
               <button
                 style="background:none;border:none;cursor:pointer;color:inherit;padding:0;line-height:1"
+                aria-label="Remove tag"
                 @click="modal.data.stack.splice(i, 1)"
               >&#x2715;</button>
             </span>
           </div>
           <input
+            id="modal-stack"
             v-model="newStackItem"
             type="text"
             placeholder="Add technology…"

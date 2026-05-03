@@ -69,7 +69,7 @@ const oldestProjectYear = computed(() => {
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
-  const { gsap, ScrollTrigger } = await useGsap()
+  const { gsap } = await useGsap()
 
   const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
   if (display) {
