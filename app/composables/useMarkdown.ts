@@ -1,17 +1,17 @@
 export function useMarkdown() {
   function stripMarkdown(text: string): string {
     return text
-      .replace(/^#{1,6}\s+/gm, '')
-      .replace(/\*\*([\s\S]{1,2000}?)\*\*/g, '$1')
-      .replace(/\*([\s\S]{1,2000}?)\*/g, '$1')
-      .replace(/__([\s\S]{1,2000}?)__/g, '$1')
-      .replace(/_([\s\S]{1,2000}?)_/g, '$1')
-      .replace(/`{1,3}([^`]{0,2000})`{1,3}/g, '')
-      .replace(/!\[([^\]]{0,2000})\]\([^)]{1,2000}\)/g, '')
-      .replace(/\[([^\]]{1,2000})\]\([^)]{1,2000}\)/g, '$1')
-      .replace(/^[ \t]{0,10}[-*+][ \t]{1,10}/gm, '')
-      .replace(/^[ \t]{0,10}\d+\.[ \t]{1,10}/gm, '')
-      .replace(/\n{2,}/g, ' ')
+      .replaceAll(/^#{1,6}\s+/gm, '')
+      .replaceAll(/\*\*([\s\S]{1,2000}?)\*\*/g, '$1')
+      .replaceAll(/\*([\s\S]{1,2000}?)\*/g, '$1')
+      .replaceAll(/__([\s\S]{1,2000}?)__/g, '$1')
+      .replaceAll(/_([\s\S]{1,2000}?)_/g, '$1')
+      .replaceAll(/`{1,3}([^`]{0,2000})`{1,3}/g, '')
+      .replaceAll(/!\[([^\]]{0,2000})\]\([^)]{1,2000}\)/g, '')
+      .replaceAll(/\[([^\]]{1,2000})\]\([^)]{1,2000}\)/g, '$1')
+      .replaceAll(/^[ \t]{0,10}[-*+][ \t]{1,10}/gm, '')
+      .replaceAll(/^[ \t]{0,10}\d+\.[ \t]{1,10}/gm, '')
+      .replaceAll(/\n{2,}/g, ' ')
       .trim()
   }
 
@@ -20,10 +20,10 @@ export function useMarkdown() {
     const renderer = new (marked as any).Renderer()
     renderer.heading = ({ text, depth }: any) => {
       const id = text.toLowerCase()
-        .replace(/<[^>]*>?/gm, '')
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-{1,200}|-{1,200}$/g, '')
+        .replaceAll(/<[^>]*>?/gm, '')
+        .replaceAll(/[^\w\s-]/g, '')
+        .replaceAll(/[\s_-]+/g, '-')
+        .replaceAll(/^-{1,200}|-{1,200}$/g, '')
       return `<h${depth} id="${id}">${text}</h${depth}>`
     }
     const html = await marked.parse(text, { renderer })
@@ -51,9 +51,9 @@ export function useMarkdown() {
         const rawTitle = match[1].trim()
         const title = stripMarkdown(rawTitle)
         const id = title.toLowerCase()
-          .replace(/[^\w\s-]/g, '')
-          .replace(/[\s_-]+/g, '-')
-          .replace(/^-{1,200}|-{1,200}$/g, '')
+          .replaceAll(/[^\w\s-]/g, '')
+          .replaceAll(/[\s_-]+/g, '-')
+          .replaceAll(/^-{1,200}|-{1,200}$/g, '')
         headings.push({ title, id })
       }
     }

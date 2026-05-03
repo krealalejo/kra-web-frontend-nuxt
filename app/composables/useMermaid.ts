@@ -11,7 +11,7 @@ const MIN_SCALE = 0.25
 const MAX_SCALE = 4
 
 function sanitizeDiagram(source: string): string {
-  return source.replace(/\|([^|"]+)\|/g, (match, label) =>
+  return source.replaceAll(/\|([^|"]+)\|/g, (match, label) =>
     /[/()[\]{}]/.test(label) ? `|"${label}"|` : match
   )
 }
@@ -27,9 +27,9 @@ async function initMermaid() {
 
 function getSvgNaturalWidth(svgEl: SVGElement): number {
   const w = svgEl.getAttribute('width')
-  if (w && !w.endsWith('%')) return parseFloat(w)
+  if (w && !w.endsWith('%')) return Number.parseFloat(w)
   const vb = svgEl.getAttribute('viewBox')
-  if (vb) return parseFloat(vb.split(' ')[2] ?? '0')
+  if (vb) return Number.parseFloat(vb.split(' ')[2] ?? '0')
   return svgEl.getBoundingClientRect().width
 }
 
@@ -59,8 +59,8 @@ function attachControls(wrapper: HTMLElement) {
   }
 
   function applyZoom() {
-    svgEl!.style.width = `${naturalWidth * scale}px`
-    svgEl!.style.height = 'auto'
+    svgEl.style.width = `${naturalWidth * scale}px`
+    svgEl.style.height = 'auto'
     syncButtons()
   }
 
@@ -77,7 +77,7 @@ function attachControls(wrapper: HTMLElement) {
   })
 
   wrapper.querySelector('.btn-open')?.addEventListener('click', () => {
-    const svgHtml = viewport!.querySelector('svg')!.outerHTML
+    const svgHtml = svgEl.outerHTML
     const blob = new Blob([svgHtml], { type: 'image/svg+xml' })
     const url = URL.createObjectURL(blob)
     window.open(url, '_blank')
@@ -107,54 +107,55 @@ function buildWrapper(svg: string, diagram: string): HTMLElement {
   return wrapper
 }
 
+async function renderDiagrams(container: HTMLElement | null | undefined) {
+  if (import.meta.server || !container) return
+  const blocks = container.querySelectorAll('pre code.language-mermaid')
+  if (!blocks.length) return
+
+  const mermaid = await initMermaid()
+  let counter = 0
+
+  for (const block of Array.from(blocks)) {
+    const pre = block.parentElement
+    if (!pre) continue
+    const diagram = sanitizeDiagram(block.textContent ?? '')
+    const id = `mermaid-${Date.now()}-${counter++}`
+    try {
+      const { svg } = await mermaid.render(id, diagram)
+      pre.replaceWith(buildWrapper(svg, diagram))
+    } catch (e) {
+      console.error('[useMermaid] render error', e)
+      document.getElementById(id)?.remove()
+    }
+  }
+}
+
+async function reRender(container: HTMLElement | null | undefined) {
+  if (import.meta.server || !container) return
+  const wrappers = container.querySelectorAll<HTMLElement>('.mermaid-diagram')
+  if (!wrappers.length) return
+
+  const mermaid = await initMermaid()
+  let counter = 0
+
+  for (const wrapper of Array.from(wrappers)) {
+    const diagram = wrapper.dataset.source
+    if (!diagram) continue
+    const viewport = wrapper.querySelector<HTMLElement>('.diagram-viewport')
+    if (!viewport) continue
+    const id = `mermaid-re-${Date.now()}-${counter++}`
+    try {
+      const { svg } = await mermaid.render(id, diagram)
+      viewport.innerHTML = svg
+      attachControls(wrapper)
+    } catch (e) {
+      console.error('[useMermaid] re-render error', e)
+      document.getElementById(id)?.remove()
+    }
+  }
+}
+
 export function useMermaid() {
-  async function renderDiagrams(container: HTMLElement | null | undefined) {
-    if (import.meta.server || !container) return
-    const blocks = container.querySelectorAll('pre code.language-mermaid')
-    if (!blocks.length) return
-
-    const mermaid = await initMermaid()
-    let counter = 0
-
-    for (const block of Array.from(blocks)) {
-      const pre = block.parentElement
-      if (!pre) continue
-      const diagram = sanitizeDiagram(block.textContent ?? '')
-      const id = `mermaid-${Date.now()}-${counter++}`
-      try {
-        const { svg } = await mermaid.render(id, diagram)
-        pre.replaceWith(buildWrapper(svg, diagram))
-      } catch (e) {
-        console.error('[useMermaid] render error', e)
-        document.getElementById(id)?.remove()
-      }
-    }
-  }
-
-  async function reRender(container: HTMLElement | null | undefined) {
-    if (import.meta.server || !container) return
-    const wrappers = container.querySelectorAll<HTMLElement>('.mermaid-diagram')
-    if (!wrappers.length) return
-
-    const mermaid = await initMermaid()
-    let counter = 0
-
-    for (const wrapper of Array.from(wrappers)) {
-      const diagram = wrapper.dataset.source
-      if (!diagram) continue
-      const viewport = wrapper.querySelector<HTMLElement>('.diagram-viewport')
-      if (!viewport) continue
-      const id = `mermaid-re-${Date.now()}-${counter++}`
-      try {
-        const { svg } = await mermaid.render(id, diagram)
-        viewport.innerHTML = svg
-        attachControls(wrapper)
-      } catch (e) {
-        console.error('[useMermaid] re-render error', e)
-        document.getElementById(id)?.remove()
-      }
-    }
-  }
-
   return { renderDiagrams, reRender }
 }
+
