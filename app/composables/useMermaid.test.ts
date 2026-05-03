@@ -14,7 +14,16 @@ vi.mock('mermaid', () => ({
 describe('useMermaid', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })))
+    vi.stubGlobal('matchMedia', vi.fn(() => ({
+      matches: false,
+      media: '',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })))
     document.body.innerHTML = ''
   })
 

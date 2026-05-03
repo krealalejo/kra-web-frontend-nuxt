@@ -215,7 +215,16 @@ describe('pages/index.vue', () => {
   it('skips gsap.to on mouseenter when reduced motion is preferred', async () => {
     const { default: gsap } = await import('gsap')
     ;(gsap.to as ReturnType<typeof vi.fn>).mockClear()
-    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
+    vi.stubGlobal('matchMedia', vi.fn(() => ({
+      matches: true,
+      media: '(prefers-reduced-motion: reduce)',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })))
     mockFetch.mockResolvedValue([
       { fullName: 'o/r', name: 'r', description: 'desc', owner: 'o', topics: [] },
     ])
@@ -244,7 +253,16 @@ describe('pages/index.vue', () => {
   it('skips gsap.to on mouseleave when reduced motion is preferred', async () => {
     const { default: gsap } = await import('gsap')
     mockFetch.mockResolvedValue([{ name: 'p1', owner: 'o', fullName: 'o/p1', topics: [] }])
-    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({ matches: true }))
+    vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({
+      matches: true,
+      media: '(prefers-reduced-motion: reduce)',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }))
     const wrapper = await mountSuspended(IndexPage)
     await flushPromises()
     const article = wrapper.find('.proj-row')

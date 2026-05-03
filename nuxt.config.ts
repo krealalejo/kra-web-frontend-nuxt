@@ -14,7 +14,6 @@ export default defineNuxtConfig({
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
     ],
     defaults: {
-      display: 'swap',
       preload: true,
     },
   },
@@ -23,6 +22,7 @@ export default defineNuxtConfig({
   },
   sitemap: {
     exclude: ['/admin/**'],
+    zeroRuntime: true,
   },
   vite: {
     optimizeDeps: {

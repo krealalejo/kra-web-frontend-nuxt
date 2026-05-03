@@ -64,9 +64,16 @@ export function useTheme() {
     theme.value = initial
     applyTheme(initial)
 
-    globalThis.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    const mq = globalThis.matchMedia('(prefers-color-scheme: dark)')
+    const listener = () => {
       if (theme.value === 'system') applyTheme('system')
-    })
+    }
+    
+    if (mq.addEventListener) {
+      mq.addEventListener('change', listener)
+    } else if ((mq as any).addListener) {
+      (mq as any).addListener(listener)
+    }
   }
 
   const isDark = computed(() => {
