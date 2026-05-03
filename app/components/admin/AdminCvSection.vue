@@ -368,7 +368,7 @@ async function submitAddCategory() {
 
     <div v-if="loading" class="mb-6 text-sm" style="color: var(--fg-dim)">Loading CV data…</div>
 
-    <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
+    <div v-if="error" class="mb-6 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
       {{ error }}
     </div>
 
@@ -416,7 +416,7 @@ async function submitAddCategory() {
           >✎</button>
           <button
             class="text-sm px-2 py-1 rounded"
-            style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            style="color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); background: none; cursor: pointer"
             :disabled="deletingId === item.id"
             @click="deleteExp(item.id)"
             title="Delete"
@@ -457,7 +457,7 @@ async function submitAddCategory() {
           >✎</button>
           <button
             class="text-sm px-2 py-1 rounded"
-            style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer"
+            style="color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); background: none; cursor: pointer"
             :disabled="deletingId === item.id"
             @click="deleteEdu(item.id)"
             title="Delete"
@@ -481,7 +481,7 @@ async function submitAddCategory() {
           <div class="mb-4 flex items-center justify-between">
             <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
             <button
-              style="background: none; border: none; cursor: pointer; color: #b91c1c; font-size: 14px; padding: 0;"
+              style="background: none; border: none; cursor: pointer; color: #f87171; font-size: 14px; padding: 0;"
               :disabled="deletingCategoryId === cat.id"
               @click="deleteCategory(cat.id)"
               title="Delete category"
@@ -513,7 +513,7 @@ async function submitAddCategory() {
             />
           </div>
 
-          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
+          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
             {{ categoryError[cat.id] }}
           </div>
 
@@ -548,7 +548,7 @@ async function submitAddCategory() {
             @keydown.enter.prevent="submitAddCategory"
           />
         </div>
-        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(255,77,77,0.1); color: #b91c1c; border: 1px solid rgba(255,77,77,0.2)">
+        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
           {{ addCategoryError }}
         </div>
         <div style="display:flex;gap:8px">
@@ -584,7 +584,7 @@ async function submitAddCategory() {
             </div>
             <div style="display:flex;gap:8px;align-items:center">
               <a :href="cvPdfUrl!" target="_blank" rel="noopener" class="text-xs px-2 py-1 rounded" style="color: var(--accent); border: 1px solid var(--hairline); background: none; text-decoration: none">Preview ↗</a>
-              <button class="text-xs px-2 py-1 rounded" style="color: #b91c1c; border: 1px solid rgba(255,77,77,0.3); background: none; cursor: pointer" @click="removePdf">Remove</button>
+              <button class="text-xs px-2 py-1 rounded" style="color: #f87171; border: 1px solid rgba(220, 38, 38, 0.3); background: none; cursor: pointer" @click="removePdf">Remove</button>
             </div>
           </div>
           <div v-else class="text-xs" style="color: var(--fg-faint)">No PDF uploaded yet.</div>
@@ -597,7 +597,7 @@ async function submitAddCategory() {
         </label>
 
         <p v-if="cvPdfSuccess" class="mt-3 text-xs" style="color: #4caf50">PDF uploaded successfully.</p>
-        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #b91c1c">{{ cvPdfError }}</p>
+        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #f87171">{{ cvPdfError }}</p>
       </div>
     </div>
 
@@ -663,7 +663,7 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2)">
+        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.25)">
           {{ expModal.error }}
         </div>
 
@@ -746,7 +746,7 @@ async function submitAddCategory() {
           </div>
         </div>
 
-        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2)">
+        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.25)">
           {{ eduModal.error }}
         </div>
 

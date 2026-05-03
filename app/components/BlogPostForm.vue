@@ -171,7 +171,7 @@ const onSubmit = handleSubmit(async (values) => {
         <div
           v-if="formError"
           class="mb-6 rounded-xl p-4 text-sm"
-          style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #b91c1c"
+          style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); color: #f87171"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">

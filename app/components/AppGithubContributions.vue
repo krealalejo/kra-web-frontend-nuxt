@@ -27,7 +27,7 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
 const isMobile = ref(false)
 
 onMounted(() => {
-  if (typeof globalThis.window !== 'undefined') {
+  if (globalThis.window !== undefined) {
     const check = () => { isMobile.value = globalThis.innerWidth < 640 }
     check()
     globalThis.addEventListener('resize', check)

@@ -45,7 +45,7 @@ function signIn() {
         v-if="errorMsg"
         role="alert"
         class="mb-6 rounded-lg p-4 text-sm"
-        style="background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); color: #b91c1c"
+        style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); color: #f87171"
       >
         {{ errorMsg }}
       </div>

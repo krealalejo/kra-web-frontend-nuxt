@@ -130,7 +130,7 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
       Loading repositories…
     </div>
 
-    <div v-if="pageError" class="mb-6 rounded px-3 py-2 text-xs" style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2);font-weight:500">
+    <div v-if="pageError" class="mb-6 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.25);font-weight:500">
       {{ pageError }}
     </div>
 
@@ -259,7 +259,7 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
         <div
           v-if="modal.error"
           class="mt-4 rounded px-3 py-2 text-xs"
-          style="background:rgba(255,77,77,0.1);color:#b91c1c;border:1px solid rgba(255,77,77,0.2)"
+          style="background:rgba(220,38,38,0.1);color:#f87171;border:1px solid rgba(220,38,38,0.25)"
         >
           {{ modal.error }}
         </div>

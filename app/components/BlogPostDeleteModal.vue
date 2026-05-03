@@ -49,7 +49,8 @@ async function confirmDelete() {
         <div
           v-if="deleteError"
           class="mb-6 rounded-xl p-4 text-sm"
-          style="background: rgba(255, 77, 77, 0.05); border: 1px solid rgba(255, 77, 77, 0.1); color: #b91c1c"
+          role="alert"
+          style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); color: #f87171"
         >
           {{ deleteError }}
         </div>
@@ -66,7 +67,7 @@ async function confirmDelete() {
             type="button"
             :disabled="store.loading"
             class="btn btn-ghost"
-            style="color: #b91c1c; border-color: rgba(255, 77, 77, 0.2)"
+            style="color: #f87171; border-color: rgba(220, 38, 38, 0.3)"
             @click="confirmDelete"
           >
             {{ store.loading ? 'Deleting...' : 'Delete Permanently' }}
