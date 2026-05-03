@@ -42,7 +42,8 @@ describe('useMermaid', () => {
 
     const svgWrapper = container.querySelector('.mermaid-diagram')
     expect(svgWrapper).not.toBeNull()
-    expect(svgWrapper?.innerHTML).toBe('<svg>mock-svg</svg>')
+    const viewport = svgWrapper?.querySelector('.diagram-viewport')
+    expect(viewport?.innerHTML).toContain('<svg>mock-svg</svg>')
     expect(container.querySelector('pre')).toBeNull()
   })
 
@@ -162,6 +163,9 @@ describe('useMermaid', () => {
     const wrapper = document.createElement('div')
     wrapper.className = 'mermaid-diagram'
     wrapper.dataset.source = 'graph TD; A-->B;'
+    const viewport = document.createElement('div')
+    viewport.className = 'diagram-viewport'
+    wrapper.appendChild(viewport)
     container.appendChild(wrapper)
 
     await reRender(container)
