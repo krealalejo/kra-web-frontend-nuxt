@@ -4,12 +4,6 @@ Frontend for the **KRA** portfolio: a highly interactive and animated interface 
 
 **Stack:** Nuxt **4**, Vue **3**, **Tailwind CSS**, **Pinia** for state management, **GSAP** for premium animations, **VeeValidate** + **Zod** for form validation, **Vitest** for unit testing.
 
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krealalejo_kra-web-frontend-nuxt&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krealalejo_kra-web-frontend-nuxt)
-![Nuxt](https://img.shields.io/badge/Nuxt_4-00DC82?style=flat&logo=nuxtdotjs&logoColor=white)
-![Vue](https://img.shields.io/badge/Vue_3-4FC08D?style=flat&logo=vuedotjs&logoColor=white)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat&logo=tailwind-css&logoColor=white)
-![Vitest](https://img.shields.io/badge/Vitest-6E9F18?style=flat&logo=vitest&logoColor=white)
-
 ---
 
 ## Prerequisites
@@ -19,7 +13,7 @@ Frontend for the **KRA** portfolio: a highly interactive and animated interface 
 
 ---
 
-## Quick start
+## Quick Start
 
 1. Copy `.env.example` to `.env` and set the required variables (API base URL, Cognito details).
 2. Install dependencies: `yarn install`
@@ -37,6 +31,7 @@ Frontend for the **KRA** portfolio: a highly interactive and animated interface 
 | Build for production | `yarn build` |
 | Generate static site (SSG) | `yarn generate` |
 | Preview production build | `yarn preview` |
+| Type checking | `yarn typecheck` |
 | Unit tests (Vitest) | `yarn test` |
 | Unit tests (Watch mode) | `yarn test:watch` |
 
@@ -63,7 +58,7 @@ Base URL: `http://localhost:3000`
 ## Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
   subgraph browser [User Browser]
     VUE[Vue 3 / Nuxt]
     GSAP[GSAP Animations]
@@ -132,3 +127,11 @@ Variables used in deployment and local `.env` (see `.env.example`):
 | `NUXT_COGNITO_LOGOUT_URI` | Redirection URI after logout |
 
 > **Note:** The app uses `ssr: false` for all routes under `/admin` to ensure compatibility with client-side auth flows through Cognito.
+
+---
+
+## Deployment
+
+Managed by **Terraform** (`kra-infra`) and deployed via **GitHub Actions**. On every push to `main`, the CI/CD pipeline builds a Docker image, pushes it to ECR, and SSH-deploys it to the EC2 instance running Docker Compose alongside `kra-api`.
+
+> Run `kra-start` to start the EC2 instance before triggering a deploy pipeline run.
