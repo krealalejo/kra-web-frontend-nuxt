@@ -186,4 +186,56 @@ describe('components/admin/AdminProjectsSection.vue', () => {
 
     expect(wrapper.text()).toContain('Could not load repositories')
   })
+
+  it('does not add empty stack item', async () => {
+    mockFetch.mockResolvedValueOnce([mockRepos[1]])
+    mockFetch.mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+
+    const input = wrapper.find('input[placeholder="Add technology…"]')
+    await input.setValue('  ')
+    await input.trigger('keydown.enter')
+
+    expect(wrapper.findAll('span.chip').length).toBe(0)
+  })
+
+  it('does not add duplicate stack item', async () => {
+    mockFetch.mockResolvedValueOnce([mockRepos[1]])
+    mockFetch.mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+
+    const input = wrapper.find('input[placeholder="Add technology…"]')
+    await input.setValue('typescript')
+    await input.trigger('keydown.enter')
+    await input.setValue('typescript')
+    await input.trigger('keydown.enter')
+
+    expect(wrapper.findAll('span.chip').length).toBe(1)
+  })
+
+  it('accepts typed input in modal fields', async () => {
+    mockFetch.mockResolvedValueOnce([mockRepos[1]])
+    mockFetch.mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = await mountSuspended(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+
+    await wrapper.find('#modal-role').setValue('Lead Engineer')
+    await wrapper.find('#modal-year').setValue('2024')
+    await wrapper.find('#modal-branch').setValue('main')
+
+    expect((wrapper.find('#modal-role').element as HTMLInputElement).value).toBe('Lead Engineer')
+    expect((wrapper.find('#modal-year').element as HTMLInputElement).value).toBe('2024')
+    expect((wrapper.find('#modal-branch').element as HTMLInputElement).value).toBe('main')
+  })
 })

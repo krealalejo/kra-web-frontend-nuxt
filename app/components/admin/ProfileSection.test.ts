@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
+import { flushPromises } from '@vue/test-utils'
 import ProfileSection from './ProfileSection.vue'
 
 const mockFetch = vi.fn()
@@ -170,5 +171,96 @@ describe('ProfileSection', () => {
 
     await nextTick()
     expect(wrapper.find('img[alt="Home portrait"]').exists()).toBe(false)
+  })
+
+  it('handles CV portrait deletion', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+
+    const deleteBtns = wrapper.findAll('button[title="Remove portrait"]')
+    expect(deleteBtns.length).toBe(2)
+
+    mockFetch.mockResolvedValue({})
+
+    await deleteBtns[1].trigger('click')
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
+      method: 'PUT',
+      body: {
+        homePortraitUrl: 'images/home.jpg',
+        cvPortraitUrl: null,
+        cvPdfUrl: null
+      }
+    }))
+
+    await nextTick()
+    expect(wrapper.find('img[alt="CV portrait"]').exists()).toBe(false)
+  })
+
+  it('handles removal error', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const deleteBtn = wrapper.find('button[title="Remove portrait"]')
+
+    mockFetch.mockRejectedValue(new Error('Removal failed'))
+    await deleteBtn.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Removal failed')
+  })
+
+  it('stops polling after 15 failed not-ready responses', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const input = wrapper.find('input[type="file"]')
+
+    const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file] })
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/x.jpg' })
+      if (url === 's3://url') return Promise.resolve({})
+      if (url === '/api/admin/profile') return Promise.resolve({})
+      if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: false })
+      return Promise.resolve({})
+    })
+
+    await input.trigger('change')
+    await flushPromises()
+
+    for (let i = 0; i < 15; i++) {
+      vi.advanceTimersByTime(2000)
+      await flushPromises()
+    }
+
+    expect(wrapper.text()).toContain('Image uploaded but thumbnail is still generating.')
+    vi.useRealTimers()
+  })
+
+  it('stops polling after 15 fetch errors in polling', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const input = wrapper.find('input[type="file"]')
+
+    const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
+    Object.defineProperty(input.element, 'files', { value: [file] })
+
+    let pollCount = 0
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/x.jpg' })
+      if (url === 's3://url') return Promise.resolve({})
+      if (url === '/api/admin/profile') return Promise.resolve({})
+      if (url.includes('/api/admin/image-status')) {
+        pollCount++
+        return Promise.reject(new Error('poll error'))
+      }
+      return Promise.resolve({})
+    })
+
+    await input.trigger('change')
+    await flushPromises()
+
+    for (let i = 0; i < 15; i++) {
+      vi.advanceTimersByTime(2000)
+      await flushPromises()
+    }
+
+    expect(pollCount).toBeGreaterThanOrEqual(15)
+    vi.useRealTimers()
   })
 })

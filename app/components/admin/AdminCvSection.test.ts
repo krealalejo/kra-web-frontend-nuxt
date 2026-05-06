@@ -744,3 +744,114 @@ describe('AdminCvSection — PDF Tab', () => {
     }
   })
 })
+
+describe('AdminCvSection — Experience modal field inputs', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      return Promise.resolve({})
+    })
+  })
+
+  it('accepts typed input in exp modal location, years, description fields', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    await wrapper.find('#exp-location').setValue('London, UK')
+    await wrapper.find('#exp-years').setValue('2020 — Present')
+    await wrapper.find('#exp-description').setValue('Led backend development')
+
+    expect((wrapper.find('#exp-location').element as HTMLInputElement).value).toBe('London, UK')
+    expect((wrapper.find('#exp-years').element as HTMLInputElement).value).toBe('2020 — Present')
+    expect((wrapper.find('#exp-description').element as HTMLTextAreaElement).value).toBe('Led backend development')
+  })
+
+  it('closes exp modal when backdrop is clicked', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
+    await addBtn!.trigger('click')
+    await nextTick()
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(true)
+
+    const modalH3 = wrapper.findAll('h3').find(h => h.text().includes('Add Experience'))
+    const backdropEl = modalH3?.element.parentElement?.parentElement
+    if (backdropEl) {
+      backdropEl.dispatchEvent(new MouseEvent('click', { bubbles: false, cancelable: true }))
+      await nextTick()
+    }
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(false)
+  })
+
+  it('closes edu modal when backdrop is clicked', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
+    await addBtn!.trigger('click')
+    await nextTick()
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Education'))).toBe(true)
+
+    const modalH3 = wrapper.findAll('h3').find(h => h.text().includes('Add Education'))
+    const backdropEl = modalH3?.element.parentElement?.parentElement
+    if (backdropEl) {
+      backdropEl.dispatchEvent(new MouseEvent('click', { bubbles: false, cancelable: true }))
+      await nextTick()
+    }
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Education'))).toBe(false)
+  })
+})
+
+describe('AdminCvSection — Education modal interactions', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      return Promise.resolve({})
+    })
+  })
+
+  it('closes education modal on cancel', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
+    await addBtn!.trigger('click')
+    expect(wrapper.text()).toContain('Add Education')
+
+    const cancelBtn = wrapper.findAll('button').find(b => b.text() === 'Cancel')
+    await cancelBtn!.trigger('click')
+    await nextTick()
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Education'))).toBe(false)
+  })
+
+  it('accepts typed input in education modal fields', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
+    await addBtn!.trigger('click')
+
+    await wrapper.find('#edu-title').setValue('BSc Computer Science')
+    await wrapper.find('#edu-institution').setValue('MIT')
+    await wrapper.find('#edu-location').setValue('Cambridge, US')
+    await wrapper.find('#edu-years').setValue('2020 — 2024')
+    await wrapper.find('#edu-description').setValue('Studied algorithms')
+
+    expect((wrapper.find('#edu-title').element as HTMLInputElement).value).toBe('BSc Computer Science')
+    expect((wrapper.find('#edu-institution').element as HTMLInputElement).value).toBe('MIT')
+  })
+})

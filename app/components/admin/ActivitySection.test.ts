@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 import { ref, nextTick } from 'vue'
 import ActivitySection from './ActivitySection.vue'
 
@@ -122,6 +123,31 @@ describe('ActivitySection', () => {
     const removeBtn = wrapper.find('.chip button')
     await removeBtn.trigger('click')
     expect(wrapper.text()).not.toContain('tag1')
+  })
+
+  it('shows error message when fetchCards throws', async () => {
+    mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
+    const wrapper = await mountSuspended(ActivitySection)
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load activity cards')
+  })
+
+  it('updates shipping title and description via input setValue', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    await flushPromises()
+    await wrapper.find('#shipping-title').setValue('My Ship Title')
+    await wrapper.find('#shipping-description').setValue('My Ship Desc')
+    expect((wrapper.find('#shipping-title').element as HTMLInputElement).value).toBe('My Ship Title')
+    expect((wrapper.find('#shipping-description').element as HTMLTextAreaElement).value).toBe('My Ship Desc')
+  })
+
+  it('updates reading title and description via input setValue', async () => {
+    const wrapper = await mountSuspended(ActivitySection)
+    await flushPromises()
+    await wrapper.find('#reading-title').setValue('Clean Code')
+    await wrapper.find('#reading-description').setValue('Robert C. Martin')
+    expect((wrapper.find('#reading-title').element as HTMLInputElement).value).toBe('Clean Code')
+    expect((wrapper.find('#reading-description').element as HTMLTextAreaElement).value).toBe('Robert C. Martin')
   })
 
   it('has correct layout classes for bottom alignment', async () => {

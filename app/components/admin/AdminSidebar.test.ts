@@ -50,4 +50,28 @@ describe('components/admin/AdminSidebar.vue', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/admin/login')
     })
   })
+
+  it('isLinkActive returns true for /admin when route is exactly /admin', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin' })
+    const blogLink = wrapper.findAll('a').find(a => a.text().includes('Blog Posts'))
+    expect(blogLink?.attributes('style')).toContain('var(--overlay)')
+  })
+
+  it('isLinkActive returns false for /admin when route is /admin/posts', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/posts' })
+    const blogLink = wrapper.findAll('a').find(a => a.text().includes('Blog Posts'))
+    expect(blogLink?.attributes('style')).not.toContain('var(--overlay)')
+  })
+
+  it('isLinkActive returns true for /admin/profile when route starts with it', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/profile' })
+    const profileLink = wrapper.findAll('a').find(a => a.text().includes('Profile'))
+    expect(profileLink?.attributes('style')).toContain('var(--overlay)')
+  })
+
+  it('isLinkActive returns false for /admin/profile when route is /admin/activity', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/activity' })
+    const profileLink = wrapper.findAll('a').find(a => a.text().includes('Profile'))
+    expect(profileLink?.attributes('style')).not.toContain('var(--overlay)')
+  })
 })
