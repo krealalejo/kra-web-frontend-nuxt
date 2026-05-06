@@ -107,7 +107,7 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
+        <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
           {{ errors.SHIPPING }}
         </div>
 
@@ -147,7 +147,7 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
+        <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
           {{ errors.READING }}
         </div>
 
@@ -189,7 +189,7 @@ function removeTag(index: number) {
             @keydown.enter.prevent="addTag"
           />
         </div>
-        <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.25)">
+        <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
           {{ errors.PLAYING }}
         </div>
 
