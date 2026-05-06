@@ -5,9 +5,13 @@ const isRickRolled = useState('isRickRolled', () => false)
 const konamiInstance = ref<any>(null)
 
 onMounted(() => {
-  konamiInstance.value = new Konami(() => {
-    isRickRolled.value = !isRickRolled.value
-  })
+  try {
+    konamiInstance.value = new Konami(() => {
+      isRickRolled.value = !isRickRolled.value
+    })
+  } catch {
+    konamiInstance.value = null
+  }
 })
 
 onBeforeUnmount(() => {
