@@ -28,5 +28,20 @@ describe('useApiError', () => {
       const { isMissingApiBase } = useApiError(ref('some other error'))
       expect(isMissingApiBase.value).toBe(false)
     })
+
+    it('returns false when error is undefined', () => {
+      const { isMissingApiBase } = useApiError(ref(undefined))
+      expect(isMissingApiBase.value).toBe(false)
+    })
+
+    it('returns false when error is a plain object without message property', () => {
+      const { isMissingApiBase } = useApiError(ref({ code: 42 }))
+      expect(isMissingApiBase.value).toBe(false)
+    })
+
+    it('returns true when error is a plain object that JSON.stringify contains MISSING_API_BASE', () => {
+      const { isMissingApiBase } = useApiError(ref({ code: 'MISSING_API_BASE' }))
+      expect(isMissingApiBase.value).toBe(true)
+    })
   })
 })

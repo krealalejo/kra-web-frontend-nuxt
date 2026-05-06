@@ -217,6 +217,19 @@ describe('useTheme', () => {
       expect(document.documentElement.classList.contains('dark')).toBe(true)
     })
 
+    it('falls back to addListener when addEventListener is not available', async () => {
+      const addListenerMock = vi.fn()
+      vi.stubGlobal('matchMedia', vi.fn(() => ({
+        matches: false,
+        addEventListener: undefined,
+        addListener: addListenerMock,
+      })))
+      const { useTheme } = await import('./useTheme')
+      const { init } = useTheme()
+      init()
+      expect(addListenerMock).toHaveBeenCalledWith(expect.any(Function))
+    })
+
     it('skips re-apply when OS preference changes and theme is not system', async () => {
       localStorage.setItem('theme', 'dark')
       let changeListener: (() => void) | undefined

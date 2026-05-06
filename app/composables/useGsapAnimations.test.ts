@@ -44,6 +44,15 @@ describe('useGsapAnimations', () => {
       useGsapHeroAnimation()
       expect(gsap.from).not.toHaveBeenCalled()
     })
+
+    it('does not call gsap.from when no hero items found', async () => {
+      document.body.innerHTML = ''
+      const gsap = (await import('gsap')).default
+      const { useGsapHeroAnimation } = await import('./useGsapAnimations')
+      useGsapHeroAnimation()
+      await flushPromises()
+      expect(gsap.from).not.toHaveBeenCalled()
+    })
   })
 
   describe('useGsapCardStagger', () => {
@@ -72,6 +81,15 @@ describe('useGsapAnimations', () => {
       useGsapCardStagger()
       expect(gsap.from).not.toHaveBeenCalled()
     })
+
+    it('does not call gsap.from when no elements match selector', async () => {
+      document.body.innerHTML = ''
+      const gsap = (await import('gsap')).default
+      const { useGsapCardStagger } = await import('./useGsapAnimations')
+      useGsapCardStagger()
+      await flushPromises()
+      expect(gsap.from).not.toHaveBeenCalled()
+    })
   })
 
   describe('useGsapNavAnimation', () => {
@@ -91,6 +109,15 @@ describe('useGsapAnimations', () => {
       useGsapNavAnimation()
       expect(gsap.from).not.toHaveBeenCalled()
     })
+
+    it('does not call gsap.from when no nav links found', async () => {
+      document.body.innerHTML = ''
+      const gsap = (await import('gsap')).default
+      const { useGsapNavAnimation } = await import('./useGsapAnimations')
+      useGsapNavAnimation()
+      await flushPromises()
+      expect(gsap.from).not.toHaveBeenCalled()
+    })
   })
 
   describe('useGsapContentAnimation', () => {
@@ -108,6 +135,15 @@ describe('useGsapAnimations', () => {
       const gsap = (await import('gsap')).default
       const { useGsapContentAnimation } = await import('./useGsapAnimations')
       useGsapContentAnimation()
+      expect(gsap.from).not.toHaveBeenCalled()
+    })
+
+    it('does not call gsap.from when no article elements found', async () => {
+      document.body.innerHTML = ''
+      const gsap = (await import('gsap')).default
+      const { useGsapContentAnimation } = await import('./useGsapAnimations')
+      useGsapContentAnimation()
+      await flushPromises()
       expect(gsap.from).not.toHaveBeenCalled()
     })
   })

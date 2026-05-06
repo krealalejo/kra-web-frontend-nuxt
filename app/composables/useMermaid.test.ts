@@ -182,4 +182,170 @@ describe('useMermaid', () => {
     expect(consoleSpy).toHaveBeenCalledWith('[useMermaid] re-render error', expect.any(Error))
     consoleSpy.mockRestore()
   })
+
+  it('does nothing when renderDiagrams receives null container', async () => {
+    const { renderDiagrams } = useMermaid()
+    await renderDiagrams(null)
+    expect(mermaidInitializeMock).not.toHaveBeenCalled()
+  })
+
+  it('does nothing when reRender receives null container', async () => {
+    const { reRender } = useMermaid()
+    await reRender(null)
+    expect(mermaidInitializeMock).not.toHaveBeenCalled()
+  })
+
+  it('does nothing when reRender container has no .mermaid-diagram wrappers', async () => {
+    const { reRender } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<p>no diagrams here</p>'
+    await reRender(container)
+    expect(mermaidInitializeMock).not.toHaveBeenCalled()
+  })
+
+  it('reRender skips wrapper without .diagram-viewport', async () => {
+    const { renderDiagrams, reRender } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    await renderDiagrams(container)
+    vi.clearAllMocks()
+
+    const wrapper = container.querySelector('.mermaid-diagram') as HTMLElement
+    const viewport = wrapper.querySelector('.diagram-viewport')
+    viewport?.remove()
+
+    await reRender(container)
+    expect(mermaidRenderMock).not.toHaveBeenCalled()
+  })
+
+  it('sanitizeDiagram wraps pipe labels with special chars in quotes', async () => {
+    const { renderDiagrams } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A -->|has/slash| B</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+    const called = mermaidRenderMock.mock.calls[0]?.[1] as string
+    expect(called).toContain('|"has/slash"|')
+  })
+
+  it('sanitizeDiagram does not quote simple pipe labels', async () => {
+    const { renderDiagrams } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A -->|simple| B</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+    const called = mermaidRenderMock.mock.calls[0]?.[1] as string
+    expect(called).not.toContain('|"simple"|')
+  })
+
+  it('zoom in button increases SVG width', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="200" height="100"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const svgEl = container.querySelector<SVGElement>('.diagram-viewport svg') as SVGElement
+    const btnIn = container.querySelector<HTMLButtonElement>('.btn-zoom-in')
+    await btnIn?.click()
+    expect(svgEl.style.width).toBe('250px')
+  })
+
+  it('zoom out button decreases SVG width', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="200" height="100"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const svgEl = container.querySelector<SVGElement>('.diagram-viewport svg') as SVGElement
+    const btnOut = container.querySelector<HTMLButtonElement>('.btn-zoom-out')
+    await btnOut?.click()
+    expect(svgEl.style.width).toBe('150px')
+  })
+
+  it('zoom in is disabled when scale reaches MAX_SCALE', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="100" height="100"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const btnIn = container.querySelector<HTMLButtonElement>('.btn-zoom-in')
+    for (let i = 0; i < 15; i++) btnIn?.click()
+    expect(btnIn?.disabled).toBe(true)
+  })
+
+  it('zoom out is disabled when scale reaches MIN_SCALE', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="100" height="100"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const btnOut = container.querySelector<HTMLButtonElement>('.btn-zoom-out')
+    for (let i = 0; i < 10; i++) btnOut?.click()
+    expect(btnOut?.disabled).toBe(true)
+  })
+
+  it('open button creates a blob URL and opens new tab', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="100" height="100"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+
+    const createObjectURL = vi.fn().mockReturnValue('blob:fake-url')
+    const revokeObjectURL = vi.fn()
+    const windowOpen = vi.fn()
+    vi.stubGlobal('URL', { createObjectURL, revokeObjectURL })
+    vi.stubGlobal('open', windowOpen)
+
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const btnOpen = container.querySelector<HTMLButtonElement>('.btn-open')
+    btnOpen?.click()
+
+    expect(createObjectURL).toHaveBeenCalled()
+    expect(windowOpen).toHaveBeenCalledWith('blob:fake-url', '_blank')
+  })
+
+  it('getSvgNaturalWidth uses viewBox when width ends with %', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg width="100%" viewBox="0 0 400 200"><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const btnIn = container.querySelector<HTMLButtonElement>('.btn-zoom-in')
+    btnIn?.click()
+    const svgEl = container.querySelector<SVGElement>('.diagram-viewport svg') as SVGElement
+    expect(svgEl.style.width).toBe('500px')
+  })
+
+  it('getSvgNaturalWidth uses getBoundingClientRect when no width or viewBox', async () => {
+    const { renderDiagrams } = useMermaid()
+    const svgHtml = '<svg><rect /></svg>'
+    mermaidRenderMock.mockResolvedValueOnce({ svg: svgHtml })
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+    await renderDiagrams(container)
+
+    const btnIn = container.querySelector<HTMLButtonElement>('.btn-zoom-in')
+    btnIn?.click()
+    const svgEl = container.querySelector<SVGElement>('.diagram-viewport svg') as SVGElement
+    expect(svgEl.style.width).toBeDefined()
+  })
 })
