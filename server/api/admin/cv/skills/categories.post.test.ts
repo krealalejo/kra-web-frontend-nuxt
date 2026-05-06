@@ -44,4 +44,63 @@ describe('server/api/admin/cv/skills/categories.post', () => {
     )
     expect(result).toEqual(newCategory)
   })
+
+  it('throws 422 when name is missing', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ skills: ['Java'] }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is a float', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', sortOrder: 1.5 }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is zero', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', sortOrder: 0 }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is a non-number string', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', sortOrder: 'first' }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when skills is not an array', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', skills: 'Java' }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when skills array contains non-string elements', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', skills: [1, 2] }))
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('omits sortOrder from body when not provided', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test', skills: ['Java'] }))
+    const mockFetch2 = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('$fetch', mockFetch2)
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await handler({})
+    expect(mockFetch2.mock.calls[0][1].body).not.toHaveProperty('sortOrder')
+  })
 })

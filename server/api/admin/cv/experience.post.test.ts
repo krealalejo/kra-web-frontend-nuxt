@@ -44,4 +44,55 @@ describe('server/api/admin/cv/experience.post', () => {
     )
     expect(result).toEqual(newEntry)
   })
+
+  it('throws 422 when title is missing', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems' }))
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when company is missing', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'Engineer', location: 'BCN', years: '2024', description: 'Led systems' }))
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is a float', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems', sortOrder: 1.5 }))
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is zero', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems', sortOrder: 0 }))
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when sortOrder is negative', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems', sortOrder: -1 }))
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('omits sortOrder from body when not provided', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Led systems' }))
+    const mockFetch2 = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('$fetch', mockFetch2)
+    const mod = await import('./experience.post')
+    const handler = mod.default as Function
+    await handler({})
+    expect(mockFetch2.mock.calls[0][1].body).not.toHaveProperty('sortOrder')
+  })
 })

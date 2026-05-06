@@ -72,4 +72,22 @@ describe('server/api/admin/cv/skills/categories/[id].put', () => {
     const calledBody = mockFetch.mock.calls[0][1].body
     expect(calledBody).not.toHaveProperty('sortOrder')
   })
+
+  it('throws 422 when skills array contains non-string elements', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('cat-1'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Backend', skills: [1, 2, 3] }))
+    const mod = await import('./[id].put')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
+
+  it('throws 422 when skills is not an array', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('cat-1'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Backend', skills: 'Java' }))
+    const mod = await import('./[id].put')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
+  })
 })

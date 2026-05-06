@@ -43,3 +43,46 @@ describe('server/api/admin/activity/[type].put', () => {
     expect(result).toEqual({ type: 'SHIPPING', title: 'New' })
   })
 })
+
+// Additional coverage tests
+describe('server/api/admin/activity/[type].put — additional', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'T' }))
+    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({ apiBase: 'http://localhost:3001' }))
+  })
+
+  it('throws 400 when type is invalid', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('INVALID'))
+    const mod = await import('./[type].put')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 400 })
+  })
+
+  it('forwards only title description tags from body', async () => {
+    const mockF = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('READING'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'T', description: 'D', tags: ['x'], extra: 'ignored' }))
+    vi.stubGlobal('$fetch', mockF)
+    const mod = await import('./[type].put')
+    const handler = mod.default as Function
+    await handler({})
+    const body = mockF.mock.calls[0][1].body
+    expect(body).toHaveProperty('title', 'T')
+    expect(body).not.toHaveProperty('extra')
+  })
+
+  it('accepts PLAYING type (case-insensitive)', async () => {
+    const mockF = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('playing'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ tags: ['game'] }))
+    vi.stubGlobal('$fetch', mockF)
+    const mod = await import('./[type].put')
+    const handler = mod.default as Function
+    await handler({})
+    expect(mockF).toHaveBeenCalledWith(expect.stringContaining('/activity/PLAYING'), expect.any(Object))
+  })
+})
