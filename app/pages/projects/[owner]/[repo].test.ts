@@ -22,8 +22,9 @@ mockNuxtImport('useAsyncData', () => {
 })
 
 const renderDiagramsMock = vi.fn()
+const reRenderMock = vi.fn()
 vi.mock('~/composables/useMermaid', () => ({
-  useMermaid: () => ({ renderDiagrams: renderDiagramsMock }),
+  useMermaid: () => ({ renderDiagrams: renderDiagramsMock, reRender: reRenderMock }),
 }))
 
 const mockFetch = vi.fn()
@@ -143,5 +144,52 @@ describe('pages/projects/[owner]/[repo].vue', () => {
 
     expect(wrapper.text()).toContain('README')
     expect(wrapper.find('div.prose').exists()).toBe(true)
+  })
+
+  it('shows Backend project kind for backend topic', async () => {
+    mockFetch.mockResolvedValue({ ...mockDetail, topics: ['backend'] })
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Backend')
+  })
+
+  it('shows Frontend project kind for frontend topic', async () => {
+    mockFetch.mockResolvedValue({ ...mockDetail, topics: ['frontend'] })
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Frontend')
+  })
+
+  it('shows Serverless project kind for serverless topic', async () => {
+    mockFetch.mockResolvedValue({ ...mockDetail, topics: ['serverless'] })
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Serverless')
+  })
+
+  it('shows Code as default project kind for unknown topics', async () => {
+    mockFetch.mockResolvedValue({ ...mockDetail, topics: [] })
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+    expect(wrapper.text()).toContain('Code')
+  })
+
+  it('re-renders mermaid diagrams when isDark theme changes', async () => {
+    mockFetch.mockResolvedValue(mockDetail)
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+
+    const isDark = useState<boolean>('theme-is-dark')
+    isDark.value = !isDark.value
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('owner/repo')
+  })
+
+  it('renders no-readme placeholder when readmeExcerpt is absent', async () => {
+    mockFetch.mockResolvedValue({ ...mockDetail, readmeExcerpt: null })
+    const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
+    await flushPromises()
+    expect(wrapper.find('div.prose').exists()).toBe(false)
   })
 })

@@ -130,4 +130,22 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
     const downloadLink = wrapper.findAll('a').find(a => a.text().includes('Download CV'))
     expect(downloadLink).toBeUndefined()
   })
+
+  it('triggers mouseover/mouseout on social links', async () => {
+    const wrapper = await mountSuspended(CvPage)
+
+    const githubLink = wrapper.find('a[href="https://github.com/krealalejo"]')
+    if (githubLink.exists()) {
+      await githubLink.trigger('mouseover')
+      await githubLink.trigger('mouseout')
+    }
+
+    const linkedinLink = wrapper.find('a[href="https://www.linkedin.com/in/kevinrealalejo/"]')
+    if (linkedinLink.exists()) {
+      await linkedinLink.trigger('mouseover')
+      await linkedinLink.trigger('mouseout')
+    }
+
+    expect(wrapper.text()).toContain('github.com/krealalejo')
+  })
 })

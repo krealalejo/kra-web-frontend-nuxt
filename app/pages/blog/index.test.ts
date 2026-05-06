@@ -6,6 +6,15 @@ import { ref } from 'vue'
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
+let mockApiBase = 'http://localhost:8080'
+
+mockNuxtImport('useRuntimeConfig', () => {
+  return () => ({
+    public: { apiBase: mockApiBase },
+    app: { baseURL: '/', buildAssetsDir: '/_nuxt/', cdnURL: '' }
+  })
+})
+
 mockNuxtImport('useAsyncData', () => {
   return (_key: string, factory: () => Promise<any>, _options?: any) => {
     const data = ref(null)
@@ -63,6 +72,10 @@ function makeAsync(data: unknown, error: unknown = null) {
 }
 
 describe('pages/blog/index.vue', () => {
+  beforeEach(() => {
+    mockApiBase = 'http://localhost:8080'
+  })
+
   it('renders the Blog heading', async () => {
     mockFetch.mockResolvedValue([mockPost])
     const wrapper = await mountSuspended(BlogIndexPage)
@@ -170,5 +183,21 @@ describe('pages/blog/index.vue', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('invalid-date')
+  })
+
+  it('throws MISSING_API_BASE when apiBase is empty string', async () => {
+    mockApiBase = ''
+    const wrapper = await mountSuspended(BlogIndexPage)
+    await flushPromises()
+    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
+  })
+
+  it('truncates excerpt to 140 chars when content exceeds limit', async () => {
+    const longContent = 'A'.repeat(200)
+    mockFetch.mockResolvedValue([{ ...mockPost, content: longContent }])
+    const wrapper = await mountSuspended(BlogIndexPage)
+    await flushPromises()
+    const text = wrapper.text()
+    expect(text).toContain('A'.repeat(140) + '…')
   })
 })

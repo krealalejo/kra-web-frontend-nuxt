@@ -285,4 +285,129 @@ describe('pages/index.vue', () => {
 
     expect(wrapper.findAllComponents({ name: 'SkeletonProjectRow' }).length).toBe(0)
   })
+
+  it('shows rickroll gif when isRickRolled is true', async () => {
+    const isRickRolled = useState<boolean>('isRickRolled')
+    isRickRolled.value = true
+
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+
+    const img = wrapper.find('img[alt="Kevin Real Alejo"]')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('rick-roll')
+
+    isRickRolled.value = false
+  })
+
+  it('renders SHIPPING activity card with overline label', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'SHIPPING', title: 'My Project', description: 'Building cool stuff', tags: null }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Now shipping'), { timeout: 3000 })
+    expect(wrapper.text()).toContain('My Project')
+  })
+
+  it('renders READING activity card with overline label', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'READING', title: 'Clean Code', description: 'Robert C. Martin', tags: null }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Currently reading'), { timeout: 3000 })
+  })
+
+  it('renders PLAYING activity card with tags and overline label', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'PLAYING', title: null, description: null, tags: ['Rust', 'WASM'] }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('Playing with'), { timeout: 3000 })
+    expect(wrapper.text()).toContain('Rust')
+  })
+
+  it('hides activity card when non-PLAYING card has no title or description', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'SHIPPING', title: null, description: null, tags: null }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('.activity-card').exists()).toBe(false)
+  })
+
+  it('hides PLAYING card when tags are empty', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'PLAYING', title: null, description: null, tags: [] }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    await flushPromises()
+
+    expect(wrapper.find('.activity-card').exists()).toBe(false)
+  })
+
+  it('uses type name as fallback overline label for unknown type', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'UNKNOWN_TYPE', title: 'Something', description: 'desc', tags: null }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await vi.waitFor(() => expect(wrapper.text()).toContain('UNKNOWN_TYPE'), { timeout: 3000 })
+  })
+
+  it('returns 2025 for oldestProjectYear when all projects lack createdAt', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([
+        { fullName: 'o/r', name: 'r', description: 'desc', owner: 'o', topics: [] }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('2025')
+  })
+
+  it('computes oldest project year from createdAt dates', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([
+        { fullName: 'o/r1', name: 'r1', description: 'desc', owner: 'o', topics: [], createdAt: '2022-03-15T00:00:00Z' },
+        { fullName: 'o/r2', name: 'r2', description: 'desc', owner: 'o', topics: [], createdAt: '2024-06-01T00:00:00Z' },
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('2022')
+  })
 })

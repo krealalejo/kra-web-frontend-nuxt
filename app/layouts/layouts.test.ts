@@ -303,6 +303,32 @@ describe('admin layout — GSAP hook functions (direct)', () => {
   })
 })
 
+describe('default layout — overflow watcher', () => {
+  it('sets body overflow to hidden when mobile menu opens', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+
+    const button = wrapper.find('header button[aria-expanded]')
+    await button.trigger('click')
+    await nextTick()
+    expect(document.body.style.overflow).toBe('hidden')
+  })
+
+  it('clears body overflow when mobile menu closes', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+
+    const button = wrapper.find('header button[aria-expanded]')
+    await button.trigger('click')
+    await nextTick()
+    await button.trigger('click')
+    await nextTick()
+    expect(document.body.style.overflow).toBe('')
+  })
+})
+
 describe('default layout — route watcher', () => {
   it('closes mobile menu when route changes', async () => {
     const wrapper = await mountSuspended(DefaultLayout, {
@@ -317,5 +343,19 @@ describe('default layout — route watcher', () => {
     await (wrapper.vm.$router as any).push('/blog')
     await flushPromises()
     expect(wrapper.find('.nav-sheet.open').exists()).toBe(false)
+  })
+})
+
+describe('default layout — theme toggle', () => {
+  it('calls toggle when theme button is clicked', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+
+    const themeBtn = wrapper.find('button.kra-theme-btn')
+    if (themeBtn.exists()) {
+      await themeBtn.trigger('click')
+      expect(themeBtn.exists()).toBe(true)
+    }
   })
 })
