@@ -101,7 +101,7 @@ config.global.stubs = {
   ClientOnly: { template: '<div><slot /></div>' },
 }
 
-if (typeof globalThis.window !== 'undefined') {
+if (globalThis.window !== undefined) {
   Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
     value: vi.fn().mockImplementation(query => ({
