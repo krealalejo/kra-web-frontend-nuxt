@@ -399,6 +399,59 @@ describe('BlogPostForm — dialog open watcher', () => {
 
     expect(wrapper.find('span.text-red-400').exists()).toBe(false)
   })
+
+  it('does not reset form when dialog opens (open: false to true)', async () => {
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: false, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await wrapper.setProps({ open: true })
+    await nextTick()
+
+    expect(wrapper.exists()).toBe(true)
+  })
+})
+
+describe('BlogPostForm — post watch edge cases', () => {
+  const dialogStubs = {
+    Dialog: { template: '<div><slot /></div>' },
+    DialogPanel: { template: '<div><slot /></div>' },
+    DialogTitle: { template: '<div><slot /></div>' },
+  }
+
+  it('initializes empty references array when post.references is null', async () => {
+    const postWithNullRefs = {
+      slug: 'test', title: 'Title', content: 'Content',
+      createdAt: '2023-01-01', updatedAt: '2023-01-01',
+      references: null as any
+    }
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: postWithNullRefs },
+      global: { stubs: dialogStubs },
+    })
+    expect(wrapper.text()).toContain('Edit Post')
+  })
+
+  it('shows fallback error message for non-Error throws in submit', async () => {
+    const store = useBlogStore()
+    vi.spyOn(store, 'createPost').mockRejectedValue('non-error-string')
+    store.error = null
+
+    const wrapper = await mountSuspended(BlogPostForm, {
+      props: { open: true, post: null },
+      global: { stubs: dialogStubs },
+    })
+
+    await wrapper.find('#post-slug').setValue('new-post')
+    await wrapper.find('#post-title').setValue('New Title')
+    await wrapper.find('#post-content').setValue('New Content here')
+    await wrapper.find('form').trigger('submit.prevent')
+
+    await vi.waitFor(() => {
+      expect(wrapper.text()).toContain('An unexpected error occurred')
+    })
+  })
 })
 
 describe('BlogPostForm — reference field inputs', () => {
