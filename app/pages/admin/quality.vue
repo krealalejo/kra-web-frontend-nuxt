@@ -73,6 +73,8 @@ const projects = [
       </div>
     </div>
 
+    <CloudWatchDashboard />
+
     <div class="rounded-xl p-6" style="background: var(--overlay); border: 1px solid var(--hairline)">
       <div class="flex gap-4">
         <Icon name="lucide:info" class="h-5 w-5 flex-shrink-0" style="color: var(--accent)" />
