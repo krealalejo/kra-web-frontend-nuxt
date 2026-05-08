@@ -27,7 +27,7 @@ export default defineVitestConfig({
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
       include: ['app/**/*.ts', 'app/**/*.vue', 'server/**/*.ts'],
-      exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**', 'app/types/**'],
+      exclude: ['**/*.test.ts', '**/*.spec.ts', '**/*.d.ts', '.nuxt/**', '.output/**', 'app/types/**', 'app/tests/**'],
       thresholds: {
         lines: 80,
         statements: 80,
