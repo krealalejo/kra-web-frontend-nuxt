@@ -26,6 +26,7 @@ async function sanitizeMarkdown(text: string): Promise<string> {
     return `<h${depth} id="${id}">${text}</h${depth}>`
   }
   const html = await marked.parse(text, { renderer })
+  /* v8 ignore next 10 */
   if (import.meta.server) {
     const { default: sanitizeHtml } = await import('sanitize-html')
     return sanitizeHtml(html, {

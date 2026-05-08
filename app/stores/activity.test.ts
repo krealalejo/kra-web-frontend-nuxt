@@ -91,4 +91,18 @@ describe('stores/activity.ts', () => {
 
     expect(store.error).toBe('Failed to update activity card')
   })
+
+  it('updateCard when type not in cards leaves cards unchanged', async () => {
+    const updatedCard = { type: 'READING', title: 'New', description: 'New' }
+    mockFetch.mockResolvedValue(updatedCard)
+
+    const store = useActivityStore()
+    store.cards = [{ type: 'SHIPPING', title: 'Old', description: 'Old' }]
+
+    const result = await store.updateCard('READING', { title: 'New' })
+
+    expect(result).toEqual(updatedCard)
+    expect(store.cards).toEqual([{ type: 'SHIPPING', title: 'Old', description: 'Old' }])
+    expect(store.loading).toBe(false)
+  })
 })

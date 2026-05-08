@@ -58,6 +58,7 @@ export function useTheme() {
   }
 
   function init() {
+    /* v8 ignore next 1 */
     if (import.meta.server) return
     const stored = localStorage.getItem('theme') as Theme | null
     const initial: Theme = stored === 'light' || stored === 'dark' ? stored : 'system'
@@ -77,6 +78,7 @@ export function useTheme() {
   }
 
   const isDark = computed(() => {
+    /* v8 ignore next 1 */
     if (import.meta.server) return false
     return theme.value === 'dark' ||
       (theme.value === 'system' && globalThis.matchMedia('(prefers-color-scheme: dark)').matches)
