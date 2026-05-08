@@ -181,6 +181,48 @@ describe('auth/callback.get', () => {
     expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_user', 'admin', expect.any(Object))
   })
 
+  it('falls through to JSON parsing when response is not ok but content-type is application/json', async () => {
+    const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('getQuery', vi.fn().mockReturnValue({ code: 'valid-code' }))
+    vi.stubGlobal('sendRedirect', mockSendRedirect)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: false,
+      headers: { get: () => 'application/json' },
+      json: vi.fn().mockResolvedValue({ error: 'invalid_grant' }),
+    }))
+
+    const mod = await import('./callback.get')
+    const handler = mod.default as Function
+    await handler({})
+
+    expect(mockSendRedirect).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.stringContaining('invalid_grant'),
+      302,
+    )
+  })
+
+  it('uses access_token for email extraction when id_token is absent', async () => {
+    const mockSetCookie = vi.fn()
+    const payload = Buffer.from(JSON.stringify({ email: 'user@example.com' })).toString('base64')
+    const fakeAccessToken = `header.${payload}.signature`
+
+    vi.stubGlobal('getQuery', vi.fn().mockReturnValue({ code: 'valid-code' }))
+    vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
+    vi.stubGlobal('setCookie', mockSetCookie)
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: vi.fn().mockResolvedValue({ access_token: fakeAccessToken }),
+    }))
+
+    const mod = await import('./callback.get')
+    const handler = mod.default as Function
+    await handler({})
+
+    expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_user', 'user@example.com', expect.any(Object))
+  })
+
   it('redirects to login when fetch response is not ok and not JSON', async () => {
     const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('getQuery', vi.fn().mockReturnValue({ code: 'valid-code' }))

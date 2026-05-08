@@ -49,4 +49,36 @@ describe('api/admin/profile.put', () => {
       }
     )
   })
+
+  it('includes cvPortraitUrl in safe body when provided', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(readBody).mockResolvedValue({ cvPortraitUrl: 'images/portrait-cv.jpg' })
+    mockFetch.mockResolvedValue({})
+    await handler({} as any)
+    const body = mockFetch.mock.calls[0][1].body
+    expect(body).toHaveProperty('cvPortraitUrl', 'images/portrait-cv.jpg')
+    expect(body).not.toHaveProperty('homePortraitUrl')
+  })
+
+  it('includes cvPdfUrl in safe body when provided', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(readBody).mockResolvedValue({ cvPdfUrl: 'docs/cv.pdf' })
+    mockFetch.mockResolvedValue({})
+    await handler({} as any)
+    const body = mockFetch.mock.calls[0][1].body
+    expect(body).toHaveProperty('cvPdfUrl', 'docs/cv.pdf')
+    expect(body).not.toHaveProperty('homePortraitUrl')
+    expect(body).not.toHaveProperty('cvPortraitUrl')
+  })
+
+  it('sends empty safe body when no url fields are provided', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(readBody).mockResolvedValue({ unrelated: 'field' })
+    mockFetch.mockResolvedValue({})
+    await handler({} as any)
+    const body = mockFetch.mock.calls[0][1].body
+    expect(body).not.toHaveProperty('homePortraitUrl')
+    expect(body).not.toHaveProperty('cvPortraitUrl')
+    expect(body).not.toHaveProperty('cvPdfUrl')
+  })
 })

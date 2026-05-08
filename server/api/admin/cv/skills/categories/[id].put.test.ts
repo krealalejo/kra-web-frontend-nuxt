@@ -90,4 +90,18 @@ describe('server/api/admin/cv/skills/categories/[id].put', () => {
     const handler = mod.default as Function
     await expect(handler({})).rejects.toMatchObject({ statusCode: 422 })
   })
+
+  it('omits skills from safe body when not provided', async () => {
+    const mockFetch = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('cat-1'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Frontend' }))
+    vi.stubGlobal('$fetch', mockFetch)
+    const mod = await import('./[id].put')
+    const handler = mod.default as Function
+    await handler({})
+    const calledBody = mockFetch.mock.calls[0][1].body
+    expect(calledBody).toHaveProperty('name', 'Frontend')
+    expect(calledBody).not.toHaveProperty('skills')
+  })
 })

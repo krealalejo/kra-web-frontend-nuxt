@@ -85,4 +85,13 @@ describe('server/api/admin/activity/[type].put — additional', () => {
     await handler({})
     expect(mockF).toHaveBeenCalledWith(expect.stringContaining('/activity/PLAYING'), expect.any(Object))
   })
+
+  it('treats null getRouterParam as invalid type and throws 400', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue(null))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({}))
+    const mod = await import('./[type].put')
+    const handler = mod.default as Function
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 400 })
+  })
 })

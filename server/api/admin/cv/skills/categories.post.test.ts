@@ -103,4 +103,18 @@ describe('server/api/admin/cv/skills/categories.post', () => {
     await handler({})
     expect(mockFetch2.mock.calls[0][1].body).not.toHaveProperty('sortOrder')
   })
+
+  it('omits skills from body when not provided', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ name: 'Test' }))
+    const mockFetch3 = vi.fn().mockResolvedValue({})
+    vi.stubGlobal('$fetch', mockFetch3)
+    const mod = await import('./categories.post')
+    const handler = mod.default as Function
+    await handler({})
+    const body = mockFetch3.mock.calls[0][1].body
+    expect(body).toHaveProperty('name', 'Test')
+    expect(body).not.toHaveProperty('skills')
+    expect(body).not.toHaveProperty('sortOrder')
+  })
 })
