@@ -11,6 +11,7 @@ const mockCards = ref([
   { type: 'READING', title: 'Read title', description: 'Read desc' },
   { type: 'PLAYING', tags: ['tag1', 'tag2'] }
 ])
+let mockStoreError: string | null = null
 
 mockNuxtImport('useActivityStore', () => {
   return () => ({
@@ -18,7 +19,7 @@ mockNuxtImport('useActivityStore', () => {
     fetchCards: mockFetchCards,
     updateCard: mockUpdateCard,
     loading: false,
-    error: null
+    error: mockStoreError
   })
 })
 
@@ -27,6 +28,7 @@ describe('ActivitySection', () => {
     vi.clearAllMocks()
     mockUpdateCard.mockResolvedValue({})
     mockFetchCards.mockResolvedValue({})
+    mockStoreError = null
   })
 
   it('renders all three activity cards', async () => {
@@ -148,6 +150,41 @@ describe('ActivitySection', () => {
     await wrapper.find('#reading-description').setValue('Robert C. Martin')
     expect((wrapper.find('#reading-title').element as HTMLInputElement).value).toBe('Clean Code')
     expect((wrapper.find('#reading-description').element as HTMLTextAreaElement).value).toBe('Robert C. Martin')
+  })
+
+  it('shows READING error when READING save fails', async () => {
+    mockUpdateCard.mockRejectedValue(new Error('Reading save error'))
+    const wrapper = await mountSuspended(ActivitySection)
+    const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
+    await saveButtons[1]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Reading save error')
+  })
+
+  it('shows PLAYING error when PLAYING save fails', async () => {
+    mockUpdateCard.mockRejectedValue(new Error('Playing save error'))
+    const wrapper = await mountSuspended(ActivitySection)
+    const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
+    await saveButtons[2]!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Playing save error')
+  })
+
+  it('shows "Save failed" when rejection is not an Error instance', async () => {
+    mockUpdateCard.mockRejectedValue('string rejection')
+    const wrapper = await mountSuspended(ActivitySection)
+    const saveButton = wrapper.findAll('button').find(b => b.text().includes('Save'))
+    await saveButton!.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Save failed')
+  })
+
+  it('uses store.error message when fetchCards throws and store.error is set', async () => {
+    mockStoreError = 'Store reported an error'
+    mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
+    const wrapper = await mountSuspended(ActivitySection)
+    await flushPromises()
+    expect(wrapper.text()).toContain('Store reported an error')
   })
 
   it('has correct layout classes for bottom alignment', async () => {

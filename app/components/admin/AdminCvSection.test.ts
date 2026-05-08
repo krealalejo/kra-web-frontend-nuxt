@@ -810,6 +810,213 @@ describe('AdminCvSection — Experience modal field inputs', () => {
   })
 })
 
+describe('AdminCvSection — non-Error rejection fallbacks', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem])
+      if (url === '/api/admin/cv/education') return Promise.resolve([eduItem])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([catItem])
+      return Promise.resolve({})
+    })
+  })
+
+  it('shows "Failed to load CV data" when onMounted fetch rejects with non-Error', async () => {
+    mockFetch.mockRejectedValue('string rejection')
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load CV data')
+  })
+
+  it('shows "Save failed" when saveExpModal rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const editBtn = wrapper.find('button[title="Edit"]')
+    await editBtn.trigger('click')
+    const saveBtn = wrapper.findAll('button').find(b => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Save failed')
+  })
+
+  it('shows "Delete failed" when deleteExp rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'DELETE') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const deleteBtn = wrapper.find('button[title="Delete"]')
+    await deleteBtn.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Delete failed')
+  })
+
+  it('shows "Save failed" when saveEduModal rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([eduItem])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const editBtn = wrapper.find('button[title="Edit"]')
+    await editBtn.trigger('click')
+    const saveBtn = wrapper.findAll('button').find(b => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Save failed')
+  })
+
+  it('shows "Delete failed" when deleteEdu rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([eduItem])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'DELETE') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const deleteBtn = wrapper.find('button[title="Delete"]')
+    await deleteBtn.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Delete failed')
+  })
+
+  it('shows "Save failed" when saveCategory rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([catItem])
+      if (opts?.method === 'PUT') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const skillsTab = wrapper.findAll('button').find(b => b.text().includes('Skills'))
+    await skillsTab!.trigger('click')
+    const saveBtn = wrapper.findAll('button').find(b => b.text() === 'Save')
+    await saveBtn!.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Save failed')
+  })
+
+  it('shows "Delete failed" when deleteCategory rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([catItem])
+      if (opts?.method === 'DELETE') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const skillsTab = wrapper.findAll('button').find(b => b.text().includes('Skills'))
+    await skillsTab!.trigger('click')
+    const deleteCatBtn = wrapper.find('button[title="Delete category"]')
+    await deleteCatBtn.trigger('click')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Delete failed')
+  })
+})
+
+describe('AdminCvSection — PDF non-Error fallbacks and no-file', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' })
+      return Promise.resolve({})
+    })
+  })
+
+  async function mountPdfTab() {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = await mountSuspended(AdminCvSection)
+    await flushPromises()
+    await nextTick()
+    const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
+    await pdfTab!.trigger('click')
+    await nextTick()
+    return wrapper
+  }
+
+  it('shows "Upload failed" when handlePdfUpload rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: null })
+      if (url === '/api/admin/upload') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountPdfTab()
+    const input = wrapper.find('input[type="file"]')
+    const file = new File(['%PDF'], 'cv.pdf', { type: 'application/pdf' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    await input.trigger('change')
+    await flushPromises()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.text()).toContain('Upload failed')
+  })
+
+  it('shows "Removal failed" when removePdf rejects with non-Error', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' })
+      if (url === '/api/admin/profile' && opts?.method === 'PUT') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountPdfTab()
+    const removeBtn = wrapper.findAll('button').find(b => b.text().includes('Remove'))
+    if (removeBtn) {
+      await removeBtn.trigger('click')
+      await flushPromises()
+      await nextTick()
+      expect(wrapper.text()).toContain('Removal failed')
+    }
+  })
+
+  it('does nothing when no file is selected for PDF upload', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (typeof url === 'string' && url.includes('/config/profile')) return Promise.resolve({ homePortraitUrl: null, cvPortraitUrl: null, cvPdfUrl: null })
+      return Promise.resolve({})
+    })
+    const wrapper = await mountPdfTab()
+    const fetchCallsBefore = mockFetch.mock.calls.length
+    const input = wrapper.find('input[type="file"]')
+    await input.trigger('change')
+    expect(mockFetch.mock.calls.length).toBe(fetchCallsBefore)
+  })
+})
+
 describe('AdminCvSection — Education modal interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks()

@@ -233,6 +233,39 @@ describe('ProfileSection', () => {
     vi.useRealTimers()
   })
 
+  it('does nothing when no file is selected for home upload', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const input = wrapper.find('input[type="file"]')
+    await input.trigger('change')
+    expect(mockFetch).not.toHaveBeenCalledWith('/api/admin/upload', expect.anything())
+  })
+
+  it('does nothing when no file is selected for cv upload', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const input = wrapper.findAll('input[type="file"]')[1]
+    await input.trigger('change')
+    expect(mockFetch).not.toHaveBeenCalledWith('/api/admin/upload', expect.anything())
+  })
+
+  it('shows "Removal failed" when removePortrait rejection is not an Error', async () => {
+    const wrapper = await mountSuspended(ProfileSection)
+    const deleteBtn = wrapper.find('button[title="Remove portrait"]')
+    mockFetch.mockRejectedValue('string rejection')
+    await deleteBtn.trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('Removal failed')
+  })
+
+  it('uses statusCode fallback when error has no response on load', async () => {
+    const error = new Error('Fetch failed') as any
+    delete error.response
+    error.statusCode = 500
+    mockFetch.mockRejectedValue(error)
+    const wrapper = await mountSuspended(ProfileSection)
+    await flushPromises()
+    expect(wrapper.text()).toContain('Failed to load current portraits')
+  })
+
   it('stops polling after 15 fetch errors in polling', async () => {
     const wrapper = await mountSuspended(ProfileSection)
     const input = wrapper.find('input[type="file"]')
