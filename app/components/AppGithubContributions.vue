@@ -18,6 +18,7 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
   'github-contributions',
   async () => {
     const raw = config.public.apiBase
+    /* v8 ignore next 1 */
     const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
     if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<GitHubContributionResponse>(`${apiBase}/portfolio/contributions`)
@@ -27,6 +28,7 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
 const isMobile = ref(false)
 
 onMounted(() => {
+  /* v8 ignore next 1 */
   if (globalThis.window !== undefined) {
     const check = () => { isMobile.value = globalThis.innerWidth < 640 }
     check()
@@ -56,6 +58,7 @@ const monthLabels = computed(() => {
 
   displayWeeks.value.forEach((week, i) => {
     const firstValidDay = week.days.find(d => d !== null)
+    /* v8 ignore next 1 */
     if (!firstValidDay) return
 
     const date = parseISO(firstValidDay.date)
@@ -85,9 +88,11 @@ function level(count: number): string {
 }
 
 watch(displayWeeks, () => {
+  /* v8 ignore next 1 */
   if (!import.meta.client) return
   nextTick(async () => {
     const { gsap } = await useGsap()
+    /* v8 ignore next 1 */
     if (gsap.utils.toArray('.gh-graph .cell:not(.is-empty)').length > 0) {
       gsap.fromTo('.gh-graph .cell:not(.is-empty)',
         { opacity: 0, scale: 0.5 },

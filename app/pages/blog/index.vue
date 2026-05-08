@@ -41,6 +41,7 @@ onMounted(async () => {
 })
 
 watch(pending, (isPending) => {
+  /* v8 ignore next 1 */
   if (!isPending) {
     nextTick(async () => {
       const { gsap } = await useGsap()

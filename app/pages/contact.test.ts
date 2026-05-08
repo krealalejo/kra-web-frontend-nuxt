@@ -1,13 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import ContactPage from './contact.vue'
+import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
+let mockApiBase = 'http://localhost:8080'
+
+mockNuxtImport('useRuntimeConfig', () => {
+  return () => ({
+    public: { apiBase: mockApiBase },
+    app: { baseURL: '/', buildAssetsDir: '/_nuxt/', cdnURL: '' }
+  })
+})
+
+import ContactPage from './contact.vue'
+
 describe('pages/contact.vue', () => {
   beforeEach(() => {
     mockFetch.mockReset()
+    mockApiBase = 'http://localhost:8080'
   })
 
   it('renders the contact form', async () => {
@@ -79,5 +91,24 @@ describe('pages/contact.vue', () => {
     const wrapper = await mountSuspended(ContactPage)
     expect(wrapper.find('#email').exists()).toBe(true)
     expect(wrapper.find('#message').exists()).toBe(true)
+  })
+
+  it('shows NUXT_PUBLIC_API_BASE_URL error when apiBase is empty', async () => {
+    mockApiBase = ''
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('shows singular "character" (not "characters") when 9 chars typed', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    const textarea = wrapper.find('#message')
+    await textarea.setValue('123456789')
+    expect(wrapper.text()).toContain('1 more character needed')
+    expect(wrapper.text()).not.toContain('characters')
   })
 })

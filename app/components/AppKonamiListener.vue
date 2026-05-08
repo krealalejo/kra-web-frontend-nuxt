@@ -21,6 +21,4 @@ onBeforeUnmount(() => {
 })
 </script>
 
-<template>
-  <div v-if="false" />
-</template>
+<template><!-- konami listener --></template>

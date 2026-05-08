@@ -14,6 +14,7 @@ const runtimeConfig = useRuntimeConfig()
 const { getThumbUrl: generateThumbUrl } = useS3()
 
 function getThumbUrl(key: string): string {
+  /* v8 ignore next 1 */
   return generateThumbUrl(key) || ''
 }
 

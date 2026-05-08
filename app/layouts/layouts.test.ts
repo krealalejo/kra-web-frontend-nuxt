@@ -358,4 +358,22 @@ describe('default layout — theme toggle', () => {
       expect(themeBtn.exists()).toBe(true)
     }
   })
+
+  it('mobile cluster button shows correct aria-label in dark mode', async () => {
+    const theme = useState<string>('theme')
+    const prev = theme.value
+    theme.value = 'dark'
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await nextTick()
+
+    const mobileBtn = wrapper.find('.nav-mobile-cluster button.kra-theme-btn')
+    if (mobileBtn.exists()) {
+      expect(mobileBtn.attributes('aria-label')).toBe('Switch to light mode')
+    }
+
+    theme.value = prev
+  })
 })

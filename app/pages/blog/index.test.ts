@@ -192,6 +192,13 @@ describe('pages/blog/index.vue', () => {
     expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
   })
 
+  it('renders empty excerpt when post content is null', async () => {
+    mockFetch.mockResolvedValue([{ ...mockPost, content: null }])
+    const wrapper = await mountSuspended(BlogIndexPage)
+    await flushPromises()
+    expect(wrapper.find('.blog-list').exists()).toBe(true)
+  })
+
   it('truncates excerpt to 140 chars when content exceeds limit', async () => {
     const longContent = 'A'.repeat(200)
     mockFetch.mockResolvedValue([{ ...mockPost, content: longContent }])

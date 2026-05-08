@@ -163,8 +163,12 @@ describe('pages/blog/[slug].vue', () => {
 
   it('triggers mermaid rendering when content is updated', async () => {
     mockFetch.mockResolvedValue(mockPost)
+    renderDiagramsMock.mockClear()
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
+    await nextTick()
+    await flushPromises()
+    expect(wrapper.text()).toContain('My Post Title')
     expect(renderDiagramsMock).toHaveBeenCalled()
   })
 

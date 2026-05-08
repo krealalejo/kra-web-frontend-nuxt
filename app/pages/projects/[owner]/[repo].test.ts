@@ -178,12 +178,17 @@ describe('pages/projects/[owner]/[repo].vue', () => {
     mockFetch.mockResolvedValue(mockDetail)
     const wrapper = await mountSuspended(RepoPage, { route: '/projects/owner/repo' })
     await flushPromises()
+    await nextTick()
 
-    const isDark = useState<boolean>('theme-is-dark')
-    isDark.value = !isDark.value
+    reRenderMock.mockClear()
+    const theme = useState<string>('theme')
+    const prev = theme.value
+    theme.value = theme.value === 'dark' ? 'light' : 'dark'
+    await nextTick()
     await flushPromises()
 
     expect(wrapper.text()).toContain('owner/repo')
+    theme.value = prev
   })
 
   it('renders no-readme placeholder when readmeExcerpt is absent', async () => {

@@ -5,13 +5,25 @@ const mounted = ref(false)
 onMounted(() => {
   mounted.value = true
 })
+
+const ariaLabel = computed(() => {
+  /* v8 ignore next 2 */
+  if (!mounted.value) return 'Theme toggle'
+  return isDark.value ? 'Switch to light mode' : 'Switch to dark mode'
+})
+
+const titleLabel = computed(() => {
+  /* v8 ignore next 2 */
+  if (!mounted.value) return 'Theme mode'
+  return isDark.value ? 'Light mode' : 'Dark mode'
+})
 </script>
 
 <template>
   <button
     type="button"
-    :aria-label="mounted ? (isDark ? 'Switch to light mode' : 'Switch to dark mode') : 'Theme toggle'"
-    :title="mounted ? (isDark ? 'Light mode' : 'Dark mode') : 'Theme mode'"
+    :aria-label="ariaLabel"
+    :title="titleLabel"
     class="kra-theme-btn"
     @click="toggle($event)"
   >

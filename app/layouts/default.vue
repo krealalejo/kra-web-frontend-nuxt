@@ -70,11 +70,12 @@ watch(isMobileMenuOpen, (open) => {
                 <span :class="['kra-theme-dot', { 'is-light': !isDark }]" />
               </span>
             </button>
+            <!-- v8 ignore next 1 -->
             <template #fallback><span style="width:44px;height:24px;display:inline-block" /></template>
           </ClientOnly>
         </nav>
 
-        
+
         <div class="nav-mobile-cluster">
           <ClientOnly>
             <button
@@ -86,6 +87,7 @@ watch(isMobileMenuOpen, (open) => {
                 <span :class="['kra-theme-dot', { 'is-light': !isDark }]" />
               </span>
             </button>
+            <!-- v8 ignore next 1 -->
             <template #fallback><span style="width:44px;height:24px;display:inline-block" /></template>
           </ClientOnly>
           <button

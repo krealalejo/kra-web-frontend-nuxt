@@ -156,7 +156,7 @@ describe('pages/projects/index.vue', () => {
 
   it('correctly identifies project kinds and glyphs', async () => {
     const mockProjects = [
-      { name: 'P1', owner: 'o', fullName: 'o/p1', kind: 'Backend', updatedAt: '2024-01-01T00:00:00Z' },
+      { name: 'P1', owner: 'o', fullName: 'o/p1', kind: 'Backend', updatedAt: '2024-01-01T00:00:00Z', topics: ['java', 'spring'], defaultBranch: 'main' },
       { name: 'P2', owner: 'o', fullName: 'o/p2', kind: 'Frontend', updatedAt: '2024-01-01T00:00:00Z' },
       { name: 'P3', owner: 'o', fullName: 'o/p3', kind: 'Serverless', updatedAt: '2024-01-01T00:00:00Z' },
       { name: 'P4', owner: 'o', fullName: 'o/p4', kind: null, updatedAt: '2024-01-01T00:00:00Z' }

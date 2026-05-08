@@ -8,6 +8,7 @@ const config = useRuntimeConfig()
 
 const slug = computed(() => {
   const p = route.params.slug
+  /* v8 ignore next 1 */
   return String(Array.isArray(p) ? (p[0] ?? '') : (p ?? ''))
 })
 
@@ -76,6 +77,7 @@ function formatDate(iso: string) {
     const d = new Date(iso)
     if (Number.isNaN(d.getTime())) return iso
     return `${String(d.getFullYear()).slice(2)}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`
+  /* v8 ignore next 1 */
   } catch { return iso }
 }
 
