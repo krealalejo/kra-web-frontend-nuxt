@@ -30,27 +30,23 @@ describe('admin/posts/index.get', () => {
     await handler({})
 
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/posts'),
+      expect.stringContaining('/admin/posts'),
       expect.objectContaining({
         headers: expect.objectContaining({ Authorization: 'Bearer test-token' }),
       }),
     )
   })
 
-  it('calls upstream API without auth header when no cookie', async () => {
-    const mockFetch = vi.fn().mockResolvedValue([])
+  it('throws 401 when no session cookie', async () => {
+    const mockFetch = vi.fn()
     const mockGetCookie = vi.fn().mockReturnValue(undefined)
-
+    vi.stubGlobal('createError', vi.fn().mockImplementation((opts: object) => opts))
     vi.stubGlobal('$fetch', mockFetch)
     vi.stubGlobal('getCookie', mockGetCookie)
 
     const mod = await import('./index.get')
     const handler = mod.default as Function
-    await handler({})
-
-    expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/posts'),
-      expect.objectContaining({ headers: {} }),
-    )
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 401 })
+    expect(mockFetch).not.toHaveBeenCalled()
   })
 })

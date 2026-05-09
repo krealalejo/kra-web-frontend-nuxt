@@ -2,8 +2,12 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event)
   const token = getCookie(event, 'kra_session')
 
-  const response = await $fetch(`${config.apiBase}/posts`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  if (!token) {
+    throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
+  }
+
+  const response = await $fetch(`${config.apiBase}/admin/posts`, {
+    headers: { Authorization: `Bearer ${token}` },
   })
 
   return response
