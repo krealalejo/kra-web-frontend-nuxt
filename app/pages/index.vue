@@ -36,7 +36,8 @@ const { data: profileData } = useAsyncData(
     } catch {
       return null
     }
-  }
+  },
+  { server: false }
 )
 
 const { getThumbUrl } = useS3()

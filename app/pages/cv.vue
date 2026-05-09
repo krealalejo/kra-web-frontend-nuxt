@@ -25,6 +25,7 @@ const { data: profileData } = useAsyncData(
       return null
     }
   },
+  { server: false }
 )
 
 
@@ -57,6 +58,7 @@ const { data: experienceData } = useAsyncData(
       return [] as ExperienceEntry[]
     }
   },
+  { lazy: true }
 )
 
 
@@ -71,6 +73,7 @@ const { data: educationData } = useAsyncData(
       return [] as EducationEntry[]
     }
   },
+  { lazy: true }
 )
 
 
@@ -85,6 +88,7 @@ const { data: skillsData } = useAsyncData(
       return [] as SkillCategory[]
     }
   },
+  { lazy: true }
 )
 
 
