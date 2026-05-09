@@ -25,7 +25,8 @@ describe('session.get', () => {
   })
 
   it('returns authenticated true when cookie present', async () => {
-    const getCookieMock = vi.fn().mockReturnValue('some-session-token')
+    const payload = Buffer.from(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 })).toString('base64')
+    const getCookieMock = vi.fn().mockReturnValue(`header.${payload}.sig`)
     vi.stubGlobal('getCookie', getCookieMock)
 
     const mod = await import('./session.get')
