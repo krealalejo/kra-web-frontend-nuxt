@@ -15,6 +15,7 @@ export default defineNuxtConfig({
     ],
     defaults: {
       preload: true,
+      display: 'swap',
     },
   },
   site: {
@@ -59,6 +60,9 @@ export default defineNuxtConfig({
     '/admin/login': { ssr: true },
   },
   nitro: {
+    externals: {
+      external: ['@aws-sdk/client-cloudwatch-logs', 'pino'],
+    },
     routeRules: {
       '/api/posts': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/posts` },
       '/api/posts/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/posts/**` },

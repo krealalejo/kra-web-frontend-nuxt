@@ -22,7 +22,8 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
     const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
     if (!apiBase) throw new Error('MISSING_API_BASE')
     return await $fetch<GitHubContributionResponse>(`${apiBase}/portfolio/contributions`)
-  }
+  },
+  { server: false }
 )
 
 const isMobile = ref(false)

@@ -46,11 +46,22 @@ const homePortraitThumbUrl = computed(() => {
   return getThumbUrl(profileData.value?.homePortraitUrl)
 })
 
-useHead(() => ({
-  link: homePortraitThumbUrl.value && !isRickRolled.value
-    ? [{ rel: 'preload', as: 'image', href: homePortraitThumbUrl.value, fetchpriority: 'high' }]
-    : []
-}))
+const s3Origin = computed(() => {
+  const url = config.public.s3PublicBucketUrl as string
+  if (!url) return null
+  try { return new URL(url).origin } catch { return null }
+})
+
+useHead(() => {
+  const links: Array<Record<string, string>> = []
+  if (s3Origin.value) {
+    links.push({ rel: 'preconnect', href: s3Origin.value, crossorigin: '' })
+  }
+  if (homePortraitThumbUrl.value && !isRickRolled.value) {
+    links.push({ rel: 'preload', as: 'image', href: homePortraitThumbUrl.value, fetchpriority: 'high' })
+  }
+  return { link: links }
+})
 
 const featuredProjects = computed(() => {
   if (!projects?.value) return []
