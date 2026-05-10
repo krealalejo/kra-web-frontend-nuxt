@@ -14,7 +14,6 @@
     "sonar": "sonar-scanner"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudwatch-logs": "^3.500.0",
     "@headlessui/vue": "^1.7.23",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.1",
@@ -33,7 +32,6 @@
     "mermaid": "^11.14.0",
     "nuxt": "^4.4.2",
     "pinia": "^3.0.4",
-    "pino": "^9.0.0",
     "sanitize-html": "^2.17.3",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4",
