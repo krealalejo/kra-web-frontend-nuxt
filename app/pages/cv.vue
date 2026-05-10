@@ -32,7 +32,8 @@ const { data: profileData } = useAsyncData(
 const cvPdfDownloadUrl = computed(() => {
   const key = profileData.value?.cvPdfUrl
   if (!key) return null
-  return `${(config.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${key}`
+  const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
+  return `${apiBase}/images/${key}`
 })
 
 interface ExperienceEntry {

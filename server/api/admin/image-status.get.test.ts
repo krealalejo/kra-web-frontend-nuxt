@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.stubGlobal('defineEventHandler', (handler: Function) => handler)
 vi.stubGlobal('useRuntimeConfig', vi.fn(() => ({
-  s3BucketUrl: 'https://test-bucket.s3.amazonaws.com',
-  apiBase: 'http://localhost:8080/api', public: { apiBase: 'http://localhost:8080/api' }
+  apiBase: 'http://localhost:8080', public: { apiBase: 'http://localhost:8080' }
 })))
 vi.stubGlobal('getCookie', vi.fn())
 vi.stubGlobal('getQuery', vi.fn())
@@ -52,7 +51,7 @@ describe('api/admin/image-status.get', () => {
 
     expect(result).toEqual({ ready: true })
     expect(mockFetch).toHaveBeenCalledWith(
-      expect.stringContaining('/thumbnails/test-thumb.webp'),
+      'http://localhost:8080/images/thumbnails/test-thumb.webp',
       { method: 'HEAD' }
     )
   })

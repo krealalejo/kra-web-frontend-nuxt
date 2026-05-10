@@ -268,7 +268,7 @@ const cvPdfSuccess = ref(false)
 
 const cvPdfUrl = computed(() => {
   if (!cvPdfKey.value) return null
-  return `${(runtimeConfig.public.s3PublicBucketUrl as string).replace(/\/$/, '')}/${cvPdfKey.value}`
+  return `${(runtimeConfig.public.apiBase as string).replace(/\/$/, '')}/images/${cvPdfKey.value}`
 })
 
 onMounted(async () => {

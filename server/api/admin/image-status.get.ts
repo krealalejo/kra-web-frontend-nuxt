@@ -17,10 +17,10 @@ export default defineEventHandler(async (event) => {
     .replace(/^images\//, 'thumbnails/')
     .replace(/\.[^.]+$/, '-thumb.webp')
 
-  const s3BucketUrl = config.s3BucketUrl
+  const apiBase = (config.apiBase as string).replace(/\/$/, '')
 
   try {
-    await $fetch(`${s3BucketUrl}/${thumbKey}`, { method: 'HEAD' })
+    await $fetch(`${apiBase}/images/${thumbKey}`, { method: 'HEAD' })
     return { ready: true }
   } catch {
     return { ready: false }

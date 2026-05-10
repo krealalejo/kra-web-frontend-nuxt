@@ -8,8 +8,8 @@ export const useS3 = () => {
       .replace(/^images\//, 'thumbnails/')
       .replace(/\.[^.]+$/, '-thumb.webp')
 
-    const baseUrl = (config.public.s3PublicBucketUrl || '').replace(/\/$/, '')
-    return `${baseUrl}/${thumbKey}`
+    const baseUrl = (config.public.apiBase || '').replace(/\/$/, '')
+    return `${baseUrl}/images/${thumbKey}`
   }
 
   return {
