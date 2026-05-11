@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const route = useRoute()
+const pageLoader = ref<HTMLElement | null>(null)
 
 const currentYear = format(new Date(), 'yyyy')
 
@@ -28,6 +29,16 @@ onMounted(async () => {
   })
 
   const { gsap } = await useGsap()
+
+  if (pageLoader.value) {
+    gsap.to(pageLoader.value, {
+      opacity: 0,
+      duration: 0.35,
+      ease: 'power1.out',
+      onComplete: () => { if (pageLoader.value) pageLoader.value.style.display = 'none' }
+    })
+  }
+
   gsap.fromTo('.kra-nav-logo, .kra-nav-link',
     { opacity: 0, y: -8 },
     { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out' }
@@ -46,6 +57,7 @@ watch(isMobileMenuOpen, (open) => {
 </script>
 
 <template>
+  <div ref="pageLoader" class="page-loader" aria-hidden="true" />
   <div class="min-h-screen relative">
     <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">
@@ -174,6 +186,13 @@ watch(isMobileMenuOpen, (open) => {
 </template>
 
 <style scoped>
+.page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  pointer-events: none;
+}
 
 .nav-sheet-link { display: grid; }
 </style>
