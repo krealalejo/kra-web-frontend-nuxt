@@ -116,6 +116,9 @@ function animateIn() {
   /* v8 ignore next 1 */
   if (globalThis.window !== undefined && globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
   nextTick(async () => {
+    document.querySelectorAll<HTMLElement>('.pd-head, .pd-body').forEach(el => {
+      el.style.opacity = '0'
+    })
     const { gsap } = await useGsap()
     gsap.fromTo('.pd-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' })
     gsap.fromTo('.pd-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.15 })

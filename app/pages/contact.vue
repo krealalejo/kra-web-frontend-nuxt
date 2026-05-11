@@ -45,6 +45,10 @@ useSeoMeta({
 })
 
 onMounted(async () => {
+  document.querySelectorAll<HTMLElement>('.page-head .overline, .page-head h1, .page-head .kicker, .contact-form, .contact-facts').forEach(el => {
+    el.style.opacity = '0'
+  })
+
   const { gsap } = await useGsap()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })

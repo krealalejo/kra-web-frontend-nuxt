@@ -63,6 +63,10 @@ watch(post, async () => {
 })
 
 onMounted(async () => {
+  document.querySelectorAll<HTMLElement>('.post-head, .post-body').forEach(el => {
+    el.style.opacity = '0'
+  })
+
   if (contentRef.value) renderDiagrams(contentRef.value)
   const { gsap } = await useGsap()
   gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
