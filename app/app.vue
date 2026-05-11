@@ -2,6 +2,10 @@
 const { init } = useTheme()
 
 useHead({
+  htmlAttrs: {
+    lang: 'en',
+    'data-theme': 'dark',
+  },
   bodyAttrs: {
     style: 'margin:0;padding:0;'
   },
