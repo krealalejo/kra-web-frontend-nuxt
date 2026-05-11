@@ -80,7 +80,7 @@ function removeTag(index: number) {
     </div>
 
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px;">
+    <div class="grid gap-8 grid-cols-1 md:grid-cols-3">
 
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;">
         <div class="t-overline mb-4" style="color: var(--fg-dim)">SHIPPING</div>
