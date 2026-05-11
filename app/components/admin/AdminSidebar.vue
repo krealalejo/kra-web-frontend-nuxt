@@ -5,12 +5,12 @@ const userCookie = useCookie('kra_user')
 const userEmail = computed(() => userCookie.value || 'Admin')
 
 const navigation = [
+  { name: 'Code Quality', href: '/admin/quality', icon: 'heroicons:chart-bar-20-solid' },
   { name: 'Profile', href: '/admin/profile', icon: 'heroicons:user-circle-20-solid' },
   { name: 'Activity', href: '/admin/activity', icon: 'heroicons:signal-20-solid' },
   { name: 'CV Manager', href: '/admin/cv', icon: 'heroicons:identification-20-solid' },
   { name: 'Projects', href: '/admin/projects', icon: 'heroicons:folder-open-20-solid' },
-  { name: 'Blog Posts', href: '/admin', icon: 'heroicons:document-text-20-solid' },
-  { name: 'Code Quality', href: '/admin/quality', icon: 'heroicons:chart-bar-20-solid' },
+  { name: 'Blog Posts', href: '/admin/posts', icon: 'heroicons:document-text-20-solid' },
 ]
 
 async function logout() {
@@ -21,9 +21,6 @@ async function logout() {
 }
 
 function isLinkActive(href: string) {
-  if (href === '/admin') {
-    return route.path === '/admin'
-  }
   return route.path.startsWith(href)
 }
 </script>
