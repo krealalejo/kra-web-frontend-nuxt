@@ -10,8 +10,8 @@ export default defineNuxtConfig({
   fonts: {
     families: [
       { name: 'Roboto Flex', provider: 'google', weights: ['300..700'], display: 'block' },
-      { name: 'Inter', provider: 'google', weights: [400, 500, 600] },
-      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600], display: 'optional' },
+      { name: 'JetBrains Mono', provider: 'google', weights: [400, 500], display: 'optional' },
     ],
     defaults: {
       preload: true,
