@@ -180,8 +180,8 @@ const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Lib
       @click.self="modal.open = false"
     >
       <div
-        class="rounded-2xl"
-        style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:32px"
+        class="rounded-2xl mx-4 p-5 sm:p-8"
+        style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:480px;max-height:90vh;overflow-y:auto"
       >
         <h3 style="font-family:var(--font-display);font-size:20px;font-weight:500;letter-spacing:-0.01em;color:var(--fg);margin-bottom:24px">
           {{ modal.mode === 'add' ? 'Add project metadata' : 'Edit project metadata' }}
