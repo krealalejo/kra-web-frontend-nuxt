@@ -5,6 +5,6 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const { data } = await useFetch('/api/auth/session')
   if (!data.value?.authenticated) {
-    return navigateTo('/admin/login')
+    return navigateTo('/admin')
   }
 })
