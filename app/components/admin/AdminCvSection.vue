@@ -480,7 +480,7 @@ async function submitAddCategory() {
         <h3 class="t-h3" style="color: var(--fg)">Skills</h3>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; margin-bottom: 32px;">
+      <div class="grid gap-8 grid-cols-1 md:grid-cols-3 mb-8">
         <div
           v-for="cat in skillCategories"
           :key="cat.id"
@@ -615,7 +615,7 @@ async function submitAddCategory() {
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
       @click.self="expModal.open = false"
     >
-      <div class="rounded-2xl p-6" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+      <div class="rounded-2xl p-4 sm:p-6 mx-4" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
         <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ expModal.mode === 'add' ? 'Add Experience' : 'Edit Experience' }}</h3>
 
         <div class="space-y-4">
@@ -698,7 +698,7 @@ async function submitAddCategory() {
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
       @click.self="eduModal.open = false"
     >
-      <div class="rounded-2xl p-6" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
+      <div class="rounded-2xl p-4 sm:p-6 mx-4" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
         <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ eduModal.mode === 'add' ? 'Add Education' : 'Edit Education' }}</h3>
 
         <div class="space-y-4">
