@@ -68,5 +68,5 @@ export default defineEventHandler(async (event) => {
     path: '/',
   })
 
-  return sendRedirect(event, '/admin', 302)
+  return sendRedirect(event, '/admin/quality', 302)
 })

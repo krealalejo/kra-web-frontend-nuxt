@@ -137,7 +137,7 @@ describe('auth/callback.get', () => {
 
     expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_session', 'at', expect.any(Object))
     expect(mockSetCookie).toHaveBeenCalledWith(expect.anything(), 'kra_user', 'admin@example.com', expect.any(Object))
-    expect(mockSendRedirect).toHaveBeenCalledWith(expect.anything(), '/admin', 302)
+    expect(mockSendRedirect).toHaveBeenCalledWith(expect.anything(), '/admin/quality', 302)
   })
 
   it('falls back to cognito:username when email claim is absent', async () => {
