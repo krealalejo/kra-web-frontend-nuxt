@@ -97,6 +97,9 @@ onMounted(async () => {
 
   const display = hero?.querySelector('.display-name') as HTMLElement | null
   if (display) {
+    const lockedH = display.offsetHeight
+    display.style.height = `${lockedH}px`
+    display.style.overflow = 'hidden'
     const text = display.textContent ?? ''
     display.innerHTML = text.split('').map(c =>
       c === ' ' ? `<span class="dl">&nbsp;</span>` : `<span class="dl">${c}</span>`
@@ -104,7 +107,13 @@ onMounted(async () => {
     display.style.removeProperty('opacity')
     gsap.fromTo('.dl',
       { yPercent: 110, opacity: 0 },
-      { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' }
+      {
+        yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out',
+        onComplete: () => {
+          display.style.removeProperty('height')
+          display.style.removeProperty('overflow')
+        }
+      }
     )
   }
 
