@@ -51,14 +51,14 @@ describe('components/admin/AdminSidebar.vue', () => {
     })
   })
 
-  it('isLinkActive returns true for /admin when route is exactly /admin', async () => {
-    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin' })
+  it('isLinkActive returns true for /admin/posts when route starts with it', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/posts' })
     const blogLink = wrapper.findAll('a').find(a => a.text().includes('Blog Posts'))
     expect(blogLink?.attributes('style')).toContain('var(--overlay)')
   })
 
-  it('isLinkActive returns false for /admin when route is /admin/posts', async () => {
-    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/posts' })
+  it('isLinkActive returns false for /admin/posts when route is /admin/quality', async () => {
+    const wrapper = await mountSuspended(AdminSidebar, { route: '/admin/quality' })
     const blogLink = wrapper.findAll('a').find(a => a.text().includes('Blog Posts'))
     expect(blogLink?.attributes('style')).not.toContain('var(--overlay)')
   })
