@@ -61,21 +61,21 @@ describe('middleware/auth', () => {
     expect(mockNavigateImpl).not.toHaveBeenCalled()
   })
 
-  it('redirects to /admin/login when session is not authenticated', async () => {
+  it('redirects to /admin when session is not authenticated', async () => {
     mockFetchImpl.mockResolvedValue({ data: ref({ authenticated: false }) })
-    mockNavigateImpl.mockReturnValue('/admin/login')
+    mockNavigateImpl.mockReturnValue('/admin')
     const mod = await import('./auth')
     const middleware = mod.default as Function
     await middleware({ path: '/admin/posts' })
-    expect(mockNavigateImpl).toHaveBeenCalledWith('/admin/login')
+    expect(mockNavigateImpl).toHaveBeenCalledWith('/admin')
   })
 
-  it('redirects to /admin/login when session data is null', async () => {
+  it('redirects to /admin when session data is null', async () => {
     mockFetchImpl.mockResolvedValue({ data: ref(null) })
-    mockNavigateImpl.mockReturnValue('/admin/login')
+    mockNavigateImpl.mockReturnValue('/admin')
     const mod = await import('./auth')
     const middleware = mod.default as Function
     await middleware({ path: '/admin/dashboard' })
-    expect(mockNavigateImpl).toHaveBeenCalledWith('/admin/login')
+    expect(mockNavigateImpl).toHaveBeenCalledWith('/admin')
   })
 })
