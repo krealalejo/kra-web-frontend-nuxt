@@ -7,6 +7,20 @@ mockNuxtImport('useTheme', () =>
   vi.fn(() => ({ init: mockInit, isDark: ref(false), toggle: vi.fn() }))
 )
 
+mockNuxtImport('useAsyncData', () => {
+  return (_key: string, _factory: () => Promise<any>, _options?: any) => {
+    return {
+      data: ref(null),
+      pending: ref(false),
+      error: ref(null),
+      status: ref('success'),
+      refresh: vi.fn(),
+      execute: vi.fn(),
+      clear: vi.fn()
+    }
+  }
+})
+
 import AppVue from './app.vue'
 
 describe('app.vue', () => {

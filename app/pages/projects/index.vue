@@ -12,6 +12,7 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
 }, { server: false })
 
+const isMounted = ref(false)
 const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)
 
@@ -93,6 +94,7 @@ async function applyFilter(k: string) {
 }
 
 onMounted(async () => {
+  isMounted.value = true
   document.querySelectorAll<HTMLElement>('.page-head .overline, .page-head h1, .page-head .kicker').forEach(el => {
     el.style.opacity = '0'
   })
@@ -108,6 +110,7 @@ onMounted(async () => {
 })
 
 watch(pending, (isPending) => {
+  if (!import.meta.client) return
   if (!isPending) {
     nextTick(async () => {
       const { gsap } = await useGsap()
@@ -155,7 +158,7 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
         API unavailable — set NUXT_PUBLIC_API_BASE_URL.
       </div>
 
-      <div v-else-if="pending" class="proj-grid">
+      <div v-else-if="!isMounted || pending" class="proj-grid">
         <SkeletonProjectCard v-for="i in 6" :key="i" />
       </div>
 

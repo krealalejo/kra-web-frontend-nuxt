@@ -126,6 +126,7 @@ function animateIn() {
 }
 
 watch(pending, async (isPending) => {
+  if (!import.meta.client) return
   if (!isPending && detail.value && !error.value) {
     animateIn()
   }

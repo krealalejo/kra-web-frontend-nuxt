@@ -26,9 +26,11 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
   { server: false }
 )
 
+const isMounted = ref(false)
 const isMobile = ref(false)
 
 onMounted(() => {
+  isMounted.value = true
   /* v8 ignore next 1 */
   if (globalThis.window !== undefined) {
     const check = () => { isMobile.value = globalThis.innerWidth < 640 }
@@ -121,7 +123,7 @@ watch(displayWeeks, () => {
       API unavailable
     </div>
 
-    <div v-else-if="pending" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
+    <div v-else-if="!isMounted || pending" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
       <span v-for="i in 3" :key="i" style="width:6px;height:6px;border-radius:50%;background:var(--fg-faint);animation:bounce 1s ease infinite" :style="`animation-delay:${i * 0.12}s`" />
     </div>
 

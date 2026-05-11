@@ -78,9 +78,11 @@ const oldestProjectYear = computed(() => {
   return Number.isNaN(minYear) ? '2025' : minYear.toString()
 })
 
+const isMounted = ref(false)
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
+  isMounted.value = true
   const hero = heroRef.value
   const noMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
@@ -140,6 +142,7 @@ onMounted(async () => {
 })
 
 watch(pending, (isPending) => {
+  if (!import.meta.client) return
   if (!isPending) {
     nextTick(async () => {
       const { gsap, ScrollTrigger } = await useGsap()
@@ -249,7 +252,7 @@ function projectNum(i: number) {
         </div>
 
         <div class="proj-list">
-          <template v-if="pending">
+          <template v-if="!isMounted || pending">
             <SkeletonProjectRow v-for="i in 4" :key="i" />
           </template>
           <template v-else>
