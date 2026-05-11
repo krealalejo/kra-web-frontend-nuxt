@@ -189,7 +189,7 @@ function handleRemoveCv() {
       </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+    <div class="grid gap-8 grid-cols-1 sm:grid-cols-2">
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline)">
         <div class="t-overline mb-4">Home Portrait</div>
         <div class="mb-4 relative group" style="aspect-ratio: 3/4; max-width: 180px; overflow: hidden; border-radius: 8px; background: var(--overlay);">
