@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts'],
   fonts: {
     families: [
-      { name: 'Roboto Flex', provider: 'google', weights: ['300..700'] },
+      { name: 'Roboto Flex', provider: 'google', weights: ['300..700'], display: 'block' },
       { name: 'Inter', provider: 'google', weights: [400, 500, 600] },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500] },
     ],

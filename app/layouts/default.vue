@@ -22,10 +22,16 @@ const navItems = [
 ]
 
 onMounted(async () => {
-  const { gsap } = await useGsap()
-  gsap.from('.kra-nav-logo, .kra-nav-link', {
-    opacity: 0, y: -8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
+  // Pre-hide nav before async GSAP import resolves
+  document.querySelectorAll<HTMLElement>('.kra-nav-logo, .kra-nav-link').forEach(el => {
+    el.style.opacity = '0'
   })
+
+  const { gsap } = await useGsap()
+  gsap.fromTo('.kra-nav-logo, .kra-nav-link',
+    { opacity: 0, y: -8 },
+    { opacity: 1, y: 0, duration: 0.5, stagger: 0.04, ease: 'power2.out' }
+  )
 })
 
 watch(isMobileMenuOpen, (open) => {

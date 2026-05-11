@@ -81,14 +81,27 @@ const oldestProjectYear = computed(() => {
 const heroRef = ref<HTMLElement | null>(null)
 
 onMounted(async () => {
+  const hero = heroRef.value
+  const noMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+
+  // Pre-hide animated elements before the async GSAP import resolves to prevent flash
+  if (hero && !noMotion) {
+    const displayEl = hero.querySelector('.display-name') as HTMLElement | null
+    if (displayEl) displayEl.style.opacity = '0'
+    hero.querySelectorAll<HTMLElement>('.hero-role, .hero-paragraphs > *, .hero-stack .chip, .hero-portrait').forEach(el => {
+      el.style.opacity = '0'
+    })
+  }
+
   const { gsap } = await useGsap()
 
-  const display = heroRef.value?.querySelector('.display-name') as HTMLElement | null
+  const display = hero?.querySelector('.display-name') as HTMLElement | null
   if (display) {
     const text = display.textContent ?? ''
     display.innerHTML = text.split('').map(c =>
       c === ' ' ? `<span class="dl">&nbsp;</span>` : `<span class="dl">${c}</span>`
     ).join('')
+    display.style.removeProperty('opacity')
     gsap.fromTo('.dl',
       { yPercent: 110, opacity: 0 },
       { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' }
