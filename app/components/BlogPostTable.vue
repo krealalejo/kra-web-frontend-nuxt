@@ -34,8 +34,8 @@ function formatDate(iso: string): string {
         <tr>
           <th scope="col" class="w-[80px] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Cover</th>
           <th scope="col" class="w-[30%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Title</th>
-          <th scope="col" class="w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Slug</th>
-          <th scope="col" class="w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Last Updated</th>
+          <th scope="col" class="hidden sm:table-cell w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Slug</th>
+          <th scope="col" class="hidden sm:table-cell w-[20%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Last Updated</th>
           <th scope="col" class="w-[25%] px-6 py-4 text-left t-label" style="font-size: 10px; color: var(--fg)">Actions</th>
         </tr>
       </thead>
@@ -63,10 +63,10 @@ function formatDate(iso: string): string {
           <td class="px-6 py-4">
             <span class="font-medium" style="color: var(--fg)">{{ post.title }}</span>
           </td>
-          <td class="px-6 py-4">
+          <td class="hidden sm:table-cell px-6 py-4">
             <span style="color: var(--fg-muted); font-family: var(--font-mono); font-size: 11px">{{ post.slug }}</span>
           </td>
-          <td class="px-6 py-4">
+          <td class="hidden sm:table-cell px-6 py-4">
             <span style="color: var(--fg-muted); font-family: var(--font-mono); font-size: 11px">{{ formatDate(post.updatedAt) }}</span>
           </td>
           <td class="px-6 py-4">
