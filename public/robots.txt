@@ -17,4 +17,4 @@ Disallow: /
 User-Agent: OAI-SearchBot
 Disallow: /
 
-Sitemap: https://kra-web-frontend-nuxt.vercel.app/sitemap.xml
+Sitemap: https://www.krealalejo.dev/sitemap.xml
