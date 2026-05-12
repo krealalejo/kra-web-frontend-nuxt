@@ -3,13 +3,8 @@ export const useS3 = () => {
 
   const getThumbUrl = (key: string | null | undefined): string | null => {
     if (!key) return null
-
-    const thumbKey = key
-      .replace(/^images\//, 'thumbnails/')
-      .replace(/\.[^.]+$/, '-thumb.webp')
-
     const baseUrl = (config.public.apiBase || '').replace(/\/$/, '')
-    return `${baseUrl}/images/${thumbKey}`
+    return `${baseUrl}/images/${key}`
   }
 
   return {
