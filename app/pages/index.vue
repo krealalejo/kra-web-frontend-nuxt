@@ -60,9 +60,6 @@ useHead(() => {
   if (s3Origin.value) {
     links.push({ rel: 'preconnect', href: s3Origin.value, crossorigin: '' })
   }
-  if (homePortraitThumbUrl.value && !isRickRolled.value) {
-    links.push({ rel: 'preload', as: 'image', href: homePortraitThumbUrl.value, fetchpriority: 'high' })
-  }
   return { link: links }
 })
 
