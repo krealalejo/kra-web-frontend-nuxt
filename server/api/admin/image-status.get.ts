@@ -13,14 +13,10 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing key parameter' })
   }
 
-  const thumbKey = key
-    .replace(/^images\//, 'thumbnails/')
-    .replace(/\.[^.]+$/, '-thumb.webp')
-
   const apiBase = (config.apiBase as string).replace(/\/$/, '')
 
   try {
-    await $fetch(`${apiBase}/images/${thumbKey}`, { method: 'HEAD' })
+    await $fetch(`${apiBase}/images/${key}`, { method: 'HEAD' })
     return { ready: true }
   } catch {
     return { ready: false }
