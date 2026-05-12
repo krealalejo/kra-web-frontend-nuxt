@@ -185,7 +185,7 @@ function projectNum(i: number) {
 
 <template>
   <div ref="heroRef" class="main-page">
-    <AppKonamiListener />
+    <ClientOnly><AppKonamiListener /></ClientOnly>
     <section class="hero-section">
       <div class="shell">
         <div class="hero-grid">
