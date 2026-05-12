@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PortfolioRepoDto } from '~/types/portfolio'
+import { useApiError } from '~/composables/useApiError'
 
 const currentYear = new Date().getFullYear().toString()
 const isRickRolled = useState('isRickRolled', () => false)
@@ -23,6 +24,8 @@ const { data: projects, error, pending } = useAsyncData(
   },
   { server: false }
 )
+
+const { isMissingApiBase } = useApiError(error)
 
 const { data: profileData } = useAsyncData(
   'home-profile',
@@ -279,7 +282,8 @@ function projectNum(i: number) {
         </div>
 
         <div v-if="error" role="alert" style="padding:32px 16px;color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;letter-spacing:0.08em;">
-          API unavailable — set NUXT_PUBLIC_API_BASE_URL to load projects.
+          <span v-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL to load projects.</span>
+          <span v-else>Oops! API failed to load.</span>
         </div>
 
         <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:center;" class="reveal-scroll">
