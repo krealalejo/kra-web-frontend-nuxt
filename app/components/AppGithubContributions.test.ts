@@ -16,25 +16,21 @@ mockNuxtImport('useRuntimeConfig', () => {
 })
 
 mockNuxtImport('useAsyncData', () => {
-  return async (_key: string, factory: () => Promise<any>) => {
-    try {
-      const res = await factory()
-      return {
-        data: ref(res),
-        pending: ref(false),
-        error: ref(null),
-        status: ref('success'),
-        refresh: vi.fn()
-      }
-    } catch (e) {
-      return {
-        data: ref(null),
-        pending: ref(false),
-        error: ref(e),
-        status: ref('error'),
-        refresh: vi.fn()
-      }
-    }
+  return (_key: string, factory: () => Promise<any>) => {
+    const data = ref(null)
+    const pending = ref(true)
+    const error = ref(null)
+    const status = ref('pending')
+    factory().then((res: any) => {
+      data.value = res
+      pending.value = false
+      status.value = 'success'
+    }).catch((e: unknown) => {
+      error.value = e as any
+      pending.value = false
+      status.value = 'error'
+    })
+    return { data, pending, error, status, refresh: vi.fn() }
   }
 })
 

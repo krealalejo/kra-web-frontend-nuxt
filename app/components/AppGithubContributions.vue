@@ -15,7 +15,7 @@ interface GitHubContributionResponse {
 
 const config = useRuntimeConfig()
 
-const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
+const { data, pending, error } = useAsyncData<GitHubContributionResponse>(
   'github-contributions',
   async () => {
     const raw = config.public.apiBase

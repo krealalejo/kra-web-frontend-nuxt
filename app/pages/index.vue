@@ -211,33 +211,21 @@ function projectNum(i: number) {
             <div class="hero-portrait">
               <span class="corner tl" /><span class="corner tr" />
               <span class="corner bl" /><span class="corner br" />
-              <ClientOnly>
-                <img
-                  v-if="homePortraitThumbUrl"
-                  :src="homePortraitThumbUrl"
-                  alt="Kevin Real Alejo"
-                  fetchpriority="high"
-                  style="width:100%;height:100%;object-fit:cover;display:block;"
-                />
-                <div v-else class="ph-center">
-                  <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
-                    <circle cx="22" cy="17" r="7" />
-                    <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
-                  </svg>
-                  <span>portrait.jpg</span>
-                  <span style="opacity:0.6">drop your photo here</span>
-                </div>
-                <template #fallback>
-                  <div class="ph-center">
-                    <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
-                      <circle cx="22" cy="17" r="7" />
-                      <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
-                    </svg>
-                    <span>portrait.jpg</span>
-                    <span style="opacity:0.6">drop your photo here</span>
-                  </div>
-                </template>
-              </ClientOnly>
+              <img
+                v-if="homePortraitThumbUrl"
+                :src="homePortraitThumbUrl"
+                alt="Kevin Real Alejo"
+                fetchpriority="high"
+                style="width:100%;height:100%;object-fit:cover;display:block;"
+              />
+              <div v-else class="ph-center">
+                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                  <circle cx="22" cy="17" r="7" />
+                  <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
+                </svg>
+                <span>portrait.jpg</span>
+                <span style="opacity:0.6">drop your photo here</span>
+              </div>
             </div>
             <div class="hero-portrait-meta">
               <span>Fig. 01 · self</span>
@@ -258,19 +246,15 @@ function projectNum(i: number) {
       </div>
     </div>
 
-    <section class="kra-section" key="work-section">
+    <section class="kra-section">
       <div class="shell">
         <div class="section-head reveal-scroll">
           <span class="num">Work</span>
           <h2>Selected <em>projects</em></h2>
-          <span class="sub">
-            <ClientOnly fallback="Curated — 2025 → Present">
-              Curated — {{ oldestProjectYear }} → Present
-            </ClientOnly>
-          </span>
+          <span class="sub">Curated — {{ oldestProjectYear }} → Present</span>
         </div>
 
-        <div class="proj-list" key="home-projects-list">
+        <div class="proj-list">
           <template v-if="!isMounted || pending">
             <SkeletonProjectRow v-for="i in 4" :key="i" />
           </template>
@@ -314,47 +298,37 @@ function projectNum(i: number) {
       </div>
     </section>
 
-    <section class="kra-section" key="activity-section" style="padding-top:40px;">
+    <section class="kra-section" style="padding-top:40px;">
       <div class="shell">
         <div class="section-head reveal-scroll">
           <span class="num">Signal</span>
           <h2>Open source <em>activity</em></h2>
           <span class="sub">Live from GitHub API</span>
         </div>
-        <ClientOnly>
-          <div class="activity-layout reveal-scroll">
-            <LazyAppGithubContributions />
-            <div class="activity-list">
-              <template v-for="card in activityCards" :key="card.type">
-                <div
-                  v-if="card.type !== 'PLAYING'
-                    ? (card.title || card.description)
-                    : (card.tags && card.tags.length)"
-                  class="activity-card"
-                >
-                  <div class="t-overline" style="margin-bottom:14px;">{{ overlineLabel(card.type) }}</div>
-                  <template v-if="card.type !== 'PLAYING'">
-                    <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
-                    <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
-                  </template>
-                  <template v-else>
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                      <span v-for="t in card.tags" :key="t" class="chip">{{ t }}</span>
-                    </div>
-                  </template>
-                </div>
-              </template>
-            </div>
-          </div>
-          <template #fallback>
-            <div class="activity-layout reveal-scroll">
-              <div class="gh-card" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
-                <span v-for="i in 3" :key="i" style="width:6px;height:6px;border-radius:50%;background:var(--fg-faint);animation:bounce 1s ease infinite" :style="`animation-delay:${i * 0.12}s`" />
+        <div class="activity-layout reveal-scroll">
+          <LazyAppGithubContributions />
+          <div class="activity-list">
+            <template v-for="card in activityCards" :key="card.type">
+              <div
+                v-if="card.type !== 'PLAYING'
+                  ? (card.title || card.description)
+                  : (card.tags && card.tags.length)"
+                class="activity-card"
+              >
+                <div class="t-overline" style="margin-bottom:14px;">{{ overlineLabel(card.type) }}</div>
+                <template v-if="card.type !== 'PLAYING'">
+                  <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
+                  <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
+                </template>
+                <template v-else>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <span v-for="t in card.tags" :key="t" class="chip">{{ t }}</span>
+                  </div>
+                </template>
               </div>
-              <div class="activity-list" />
-            </div>
-          </template>
-        </ClientOnly>
+            </template>
+          </div>
+        </div>
       </div>
     </section>
   </div>
