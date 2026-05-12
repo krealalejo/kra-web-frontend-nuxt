@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { format, parseISO } from 'date-fns'
+import { useApiError } from '~/composables/useApiError'
 
 interface GitHubContributionResponse {
   totalContributions: number
@@ -25,6 +26,8 @@ const { data, pending, error } = await useAsyncData<GitHubContributionResponse>(
   },
   { server: false }
 )
+
+const { isMissingApiBase } = useApiError(error)
 
 const isMounted = ref(false)
 const isMobile = ref(false)
@@ -120,7 +123,8 @@ watch(displayWeeks, () => {
     </div>
 
     <div v-if="error" style="flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);">
-      API unavailable
+      <span v-if="isMissingApiBase">API unavailable</span>
+      <span v-else>Oops! API failed to load.</span>
     </div>
 
     <div v-else-if="!isMounted || pending" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">

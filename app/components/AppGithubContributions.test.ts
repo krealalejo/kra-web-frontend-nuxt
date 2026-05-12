@@ -110,7 +110,7 @@ describe('components/AppGithubContributions.vue', () => {
     const wrapper = await mountSuspended(AppGithubContributions)
     await flushPromises()
 
-    expect(wrapper.text()).toContain('API unavailable')
+    expect(wrapper.text()).toContain('Oops! API failed to load.')
   })
 
   it('renders cells for all level values (0-4)', async () => {
