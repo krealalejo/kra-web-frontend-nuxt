@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import type { PortfolioRepoDto } from '~/types/portfolio'
 import { useCardHoverAnimation } from '~/composables/useGsapAnimations'
+import { useApiError } from '~/composables/useApiError'
 
 const config = useRuntimeConfig()
 const filter = ref('all')
@@ -11,6 +12,8 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
 }, { server: false })
+
+const { isMissingApiBase } = useApiError(error)
 
 const isMounted = ref(false)
 const frozenProjects = ref<PortfolioRepoDto[]>([])
@@ -155,7 +158,8 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
 
     <section class="shell" style="padding-bottom:80px;">
       <div v-if="error" role="alert" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
-        API unavailable — set NUXT_PUBLIC_API_BASE_URL.
+        <span v-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</span>
+        <span v-else>Oops! API failed to load.</span>
       </div>
 
       <div v-else-if="!isMounted || pending" class="proj-grid">

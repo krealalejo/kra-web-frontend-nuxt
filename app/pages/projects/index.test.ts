@@ -94,7 +94,7 @@ describe('pages/projects/index.vue', () => {
     const wrapper = await mountSuspended(ProjectsPage)
     await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('API unavailable')
+    expect(wrapper.text()).toContain('Oops! API failed to load.')
   })
 
   it('links to individual project details', async () => {
