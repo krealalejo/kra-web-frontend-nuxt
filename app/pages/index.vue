@@ -306,7 +306,7 @@ function projectNum(i: number) {
           <span class="sub">Live from GitHub API</span>
         </div>
         <div class="activity-layout reveal-scroll">
-          <LazyAppGithubContributions />
+          <AppGithubContributions />
           <div class="activity-list">
             <template v-for="card in activityCards" :key="card.type">
               <div
