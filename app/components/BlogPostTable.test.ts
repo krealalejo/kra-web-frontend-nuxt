@@ -57,13 +57,13 @@ describe('components/BlogPostTable.vue', () => {
   })
 
   it('renders thumbnail when post has imageUrl', async () => {
-    const postWithImage = { ...mockPosts[0], imageUrl: 'images/cover.jpg' }
+    const postWithImage = { ...mockPosts[0], imageUrl: 'blog/my-post-cover.webp' }
     const wrapper = await mountSuspended(BlogPostTable, {
       props: { posts: [postWithImage] }
     })
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toContain('thumbnails/cover-thumb.webp')
+    expect(img.attributes('src')).toContain('blog/my-post-cover.webp')
   })
 
   it('renders empty state when posts array is empty', async () => {

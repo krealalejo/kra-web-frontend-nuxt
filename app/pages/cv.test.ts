@@ -99,14 +99,14 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
 
   it('renders portrait image when profileData is populated', async () => {
     mockData['cv-profile'] = {
-      cvPortraitUrl: 'images/portrait.jpg'
+      cvPortraitUrl: 'portraits/cv.webp'
     }
 
     const wrapper = await mountSuspended(CvPage)
 
     const img = wrapper.find('img[alt="Kevin Real Alejo"]')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toContain('thumbnails/portrait-thumb.webp')
+    expect(img.attributes('src')).toContain('portraits/cv.webp')
   })
 
   it('renders placeholder when profileData has no portrait', async () => {

@@ -192,13 +192,13 @@ describe('pages/blog/[slug].vue', () => {
   it('renders thumbnail when imageUrl is present', async () => {
     mockFetch.mockResolvedValue({
       ...mockPost,
-      imageUrl: 'images/header.jpg'
+      imageUrl: 'blog/header-cover.webp'
     })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
 
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toContain('thumbnails/header-thumb.webp')
+    expect(img.attributes('src')).toContain('blog/header-cover.webp')
   })
 })

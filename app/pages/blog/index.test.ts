@@ -164,14 +164,14 @@ describe('pages/blog/index.vue', () => {
   it('renders thumbnail when post has imageUrl', async () => {
     mockFetch.mockResolvedValue([{
       ...mockPost,
-      imageUrl: 'images/post-1.png'
+      imageUrl: 'blog/post-1-cover.webp'
     }])
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
 
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
-    expect(img.attributes('src')).toContain('thumbnails/post-1-thumb.webp')
+    expect(img.attributes('src')).toContain('blog/post-1-cover.webp')
   })
 
   it('returns raw date string on formatting error', async () => {
