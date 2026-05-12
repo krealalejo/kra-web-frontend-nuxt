@@ -50,7 +50,7 @@ async function handleImageUpload(event: Event) {
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
       method: 'POST',
-      body: { filename: file.name, contentType: file.type },
+      body: { filename: file.name, contentType: file.type, entitySlug: slug.value },
     })
 
     await $fetch(uploadUrl, {
@@ -92,10 +92,18 @@ async function handleImageUpload(event: Event) {
   }
 }
 
-function removeImage() {
+async function removeImage() {
+  const key = imageUrl.value
   imageUrl.value = null
   imageFile.value = null
   thumbReady.value = false
+  if (key) {
+    try {
+      await $fetch(`/api/admin/s3?key=${encodeURIComponent(key)}`, { method: 'DELETE' })
+    } catch {
+      // best-effort cleanup; post save will also handle stale keys
+    }
+  }
 }
 
 const previewHtml = ref('')
