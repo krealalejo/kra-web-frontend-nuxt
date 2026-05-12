@@ -75,7 +75,7 @@ async function uploadPortrait(
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
       method: 'POST',
-      body: { filename: file.name, contentType: file.type, uploadType: 'portrait' },
+      body: { filename: file.name, contentType: file.type, uploadType: 'portrait', entitySlug: portraitType },
     })
 
     await $fetch(uploadUrl, {
