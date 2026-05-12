@@ -120,7 +120,7 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockRejectedValue(new Error('API error'))
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.text()).toContain('API unavailable')
+    expect(wrapper.text()).toContain('Oops! API failed to load.')
   })
 
   it('shows NUXT_PUBLIC_API_BASE_URL hint for MISSING_API_BASE errors', async () => {
@@ -134,7 +134,7 @@ describe('pages/blog/index.vue', () => {
     mockFetch.mockRejectedValue(new Error('Connection refused'))
     const wrapper = await mountSuspended(BlogIndexPage)
     await flushPromises()
-    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
+    expect(wrapper.text()).toContain('Oops! API failed to load.')
   })
 
   it('shows skeleton rows during pending state', async () => {

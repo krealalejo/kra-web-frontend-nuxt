@@ -2,6 +2,7 @@
 import { onMounted, watch, nextTick } from 'vue'
 import type { BlogPostDto } from '~/types/blog'
 import { useMarkdown } from '~/composables/useMarkdown'
+import { useApiError } from '~/composables/useApiError'
 
 const config = useRuntimeConfig()
 
@@ -10,6 +11,8 @@ const { data: posts, error, pending } = useAsyncData('blog-list', async () => {
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<BlogPostDto[]>(`${apiBase}/posts`)
 })
+
+const { isMissingApiBase } = useApiError(error)
 
 function formatDate(iso: string) {
   const d = new Date(iso)
@@ -73,7 +76,8 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
 
     <section class="shell" style="padding-bottom:80px;">
       <div v-if="error" style="color:var(--fg-muted);font-family:var(--font-mono);font-size:12px;padding:40px 0;">
-        API unavailable — set NUXT_PUBLIC_API_BASE_URL.
+        <span v-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</span>
+        <span v-else>Oops! API failed to load.</span>
       </div>
 
       <div v-else-if="pending" class="blog-list">
