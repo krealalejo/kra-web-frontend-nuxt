@@ -42,23 +42,37 @@ describe('api/admin/image-status.get', () => {
     }
   })
 
-  it('returns ready: true if thumbnail exists', async () => {
+  it('returns ready: true if final key exists', async () => {
     vi.mocked(getCookie).mockReturnValue('valid-token')
-    vi.mocked(getQuery).mockReturnValue({ key: 'images/test.jpg' })
+    vi.mocked(getQuery).mockReturnValue({ key: 'blog/my-post-cover.webp' })
     mockFetch.mockResolvedValue({})
 
     const result = await handler({} as any)
 
     expect(result).toEqual({ ready: true })
     expect(mockFetch).toHaveBeenCalledWith(
-      'http://localhost:8080/images/thumbnails/test-thumb.webp',
+      'http://localhost:8080/images/blog/my-post-cover.webp',
       { method: 'HEAD' }
     )
   })
 
-  it('returns ready: false if thumbnail fetch fails', async () => {
+  it('returns ready: true for portrait key', async () => {
     vi.mocked(getCookie).mockReturnValue('valid-token')
-    vi.mocked(getQuery).mockReturnValue({ key: 'images/test.jpg' })
+    vi.mocked(getQuery).mockReturnValue({ key: 'portraits/home.webp' })
+    mockFetch.mockResolvedValue({})
+
+    const result = await handler({} as any)
+
+    expect(result).toEqual({ ready: true })
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8080/images/portraits/home.webp',
+      { method: 'HEAD' }
+    )
+  })
+
+  it('returns ready: false if key fetch fails', async () => {
+    vi.mocked(getCookie).mockReturnValue('valid-token')
+    vi.mocked(getQuery).mockReturnValue({ key: 'blog/my-post-cover.webp' })
     mockFetch.mockRejectedValue(new Error('Not found'))
 
     const result = await handler({} as any)

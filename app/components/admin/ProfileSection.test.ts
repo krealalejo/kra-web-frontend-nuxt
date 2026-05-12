@@ -12,8 +12,8 @@ describe('ProfileSection', () => {
     vi.clearAllMocks()
     vi.useFakeTimers()
     mockFetch.mockResolvedValue({
-      homePortraitUrl: 'images/home.jpg',
-      cvPortraitUrl: 'images/cv.jpg',
+      homePortraitUrl: 'portraits/home.webp',
+      cvPortraitUrl: 'portraits/cv.webp',
       cvPdfUrl: null
     })
   })
@@ -23,8 +23,8 @@ describe('ProfileSection', () => {
 
     const imgs = wrapper.findAll('img')
     expect(imgs.length).toBe(2)
-    expect(imgs[0].attributes('src')).toContain('thumbnails/home-thumb.webp')
-    expect(imgs[1].attributes('src')).toContain('thumbnails/cv-thumb.webp')
+    expect(imgs[0].attributes('src')).toContain('portraits/home.webp')
+    expect(imgs[1].attributes('src')).toContain('portraits/cv.webp')
   })
 
   it('renders placeholders when data is null', async () => {
@@ -84,7 +84,7 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     mockFetch.mockImplementation((url) => {
-      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/new-home.jpg' })
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'portraits/home.webp' })
       if (url === 's3://url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
       if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
@@ -102,7 +102,7 @@ describe('ProfileSection', () => {
     await nextTick()
 
     const img = wrapper.find('img[alt="Home portrait"]')
-    expect(img.attributes('src')).toContain('thumbnails/new-home-thumb.webp')
+    expect(img.attributes('src')).toContain('portraits/home.webp')
     vi.useRealTimers()
   })
 
@@ -114,7 +114,7 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     mockFetch.mockImplementation((url) => {
-      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://cv-url', s3Key: 'images/new-cv.jpg' })
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://cv-url', s3Key: 'portraits/cv.webp' })
       if (url === 's3://cv-url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
       if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: true })
@@ -132,7 +132,7 @@ describe('ProfileSection', () => {
     await nextTick()
 
     const img = wrapper.find('img[alt="CV portrait"]')
-    expect(img.attributes('src')).toContain('thumbnails/new-cv-thumb.webp')
+    expect(img.attributes('src')).toContain('portraits/cv.webp')
     vi.useRealTimers()
   })
 
@@ -164,7 +164,7 @@ describe('ProfileSection', () => {
       method: 'PUT',
       body: {
         homePortraitUrl: null,
-        cvPortraitUrl: 'images/cv.jpg',
+        cvPortraitUrl: 'portraits/cv.webp',
         cvPdfUrl: null
       }
     }))
@@ -186,7 +186,7 @@ describe('ProfileSection', () => {
     expect(mockFetch).toHaveBeenCalledWith('/api/admin/profile', expect.objectContaining({
       method: 'PUT',
       body: {
-        homePortraitUrl: 'images/home.jpg',
+        homePortraitUrl: 'portraits/home.webp',
         cvPortraitUrl: null,
         cvPdfUrl: null
       }
@@ -214,7 +214,7 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     mockFetch.mockImplementation((url: string) => {
-      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/x.jpg' })
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'portraits/home.webp' })
       if (url === 's3://url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
       if (url.includes('/api/admin/image-status')) return Promise.resolve({ ready: false })
@@ -275,7 +275,7 @@ describe('ProfileSection', () => {
 
     let pollCount = 0
     mockFetch.mockImplementation((url: string) => {
-      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'images/x.jpg' })
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 's3://url', s3Key: 'portraits/home.webp' })
       if (url === 's3://url') return Promise.resolve({})
       if (url === '/api/admin/profile') return Promise.resolve({})
       if (url.includes('/api/admin/image-status')) {
