@@ -17,4 +17,4 @@ Disallow: /
 User-Agent: OAI-SearchBot
 Disallow: /
 
-Sitemap: https://krealalejo.dev/sitemap.xml
+Sitemap: https://www.krealalejo.dev/sitemap.xml

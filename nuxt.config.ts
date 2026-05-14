@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     },
   },
   site: {
-    url: 'https://krealalejo.dev',
+    url: 'https://www.krealalejo.dev',
   },
   sitemap: {
     exclude: ['/admin/**'],
