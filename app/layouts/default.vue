@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const route = useRoute()
+const isReady = ref(false)
 
 const currentYear = format(new Date(), 'yyyy')
 
@@ -22,6 +23,9 @@ const navItems = [
 ]
 
 onMounted(async () => {
+  await nextTick()
+  isReady.value = true
+
   const { gsap } = await useGsap()
 
   gsap.fromTo('.kra-nav-logo, .kra-nav-link',
@@ -42,6 +46,7 @@ watch(isMobileMenuOpen, (open) => {
 </script>
 
 <template>
+  <div v-if="!isReady" class="page-loader" aria-hidden="true" />
   <div class="min-h-screen relative">
     <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">
@@ -171,4 +176,11 @@ watch(isMobileMenuOpen, (open) => {
 
 <style scoped>
 .nav-sheet-link { display: grid; }
+.page-loader {
+  background: var(--bg);
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 9999;
+}
 </style>
