@@ -41,6 +41,7 @@ watch(isMobileMenuOpen, (open) => {
 </script>
 
 <template>
+  <div class="page-loader" aria-hidden="true" />
   <div class="min-h-screen relative">
     <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">

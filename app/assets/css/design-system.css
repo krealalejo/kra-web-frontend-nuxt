@@ -1,4 +1,15 @@
 
+.page-loader {
+  position: fixed;
+  inset: 0;
+  background: var(--bg, #1a1a1c);
+  z-index: 9999;
+  pointer-events: none;
+  animation: page-loader-out 0s forwards;
+}
+@keyframes page-loader-out {
+  to { visibility: hidden; }
+}
 
 :root {
   
