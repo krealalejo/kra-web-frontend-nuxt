@@ -22,7 +22,7 @@ export default defineNuxtConfig({
   },
   sitemap: {
     exclude: ['/admin/**'],
-    zeroRuntime: true,
+    sources: ['/api/_sitemap/posts'],
   },
   vite: {
     optimizeDeps: {
