@@ -76,6 +76,29 @@ onMounted(async () => {
 const { getThumbUrl } = useS3()
 const thumbUrl = computed(() => getThumbUrl(post.value?.imageUrl))
 
+const requestUrl = useRequestURL()
+
+const pageTitle = computed(() => {
+  if (pending.value) return 'Posts · Kevin Real Alejo'
+  if (isNotFound.value) return 'Post not found · Kevin Real Alejo'
+  if (error.value) return 'Posts · Kevin Real Alejo'
+  return post.value ? `${post.value.title} · Kevin Real Alejo` : 'Posts · Kevin Real Alejo'
+})
+
+const pageDescription = computed(() => {
+  if (pending.value) return 'Loading post…'
+  if (isNotFound.value) return 'This post does not exist.'
+  if (error.value) return 'Could not load the post.'
+  const plain = post.value ? stripMarkdown(post.value.content) : ''
+  return plain.length > 160 ? `${plain.slice(0, 157)}…` : plain
+})
+
+const ogImageUrl = computed(() => {
+  const key = post.value?.imageUrl
+  if (!key) return undefined
+  return `${requestUrl.origin}/api/images/${key}`
+})
+
 function formatDate(iso: string) {
   try {
     const d = new Date(iso)
@@ -86,19 +109,17 @@ function formatDate(iso: string) {
 }
 
 useSeoMeta({
-  title: computed(() => {
-    if (pending.value) return 'Posts · Kevin Real Alejo'
-    if (isNotFound.value) return 'Post not found · Kevin Real Alejo'
-    if (error.value) return 'Posts · Kevin Real Alejo'
-    return post.value ? `${post.value.title} · Kevin Real Alejo` : 'Posts · Kevin Real Alejo'
-  }),
-  description: computed(() => {
-    if (pending.value) return 'Loading post…'
-    if (isNotFound.value) return 'This post does not exist.'
-    if (error.value) return 'Could not load the post.'
-    const plain = post.value ? stripMarkdown(post.value.content) : ''
-    return plain.length > 160 ? `${plain.slice(0, 157)}…` : plain
-  }),
+  title: pageTitle,
+  description: pageDescription,
+  ogTitle: pageTitle,
+  ogDescription: pageDescription,
+  ogType: 'article',
+  ogUrl: computed(() => post.value ? `${requestUrl.origin}/blog/${post.value.slug}` : undefined),
+  ogImage: ogImageUrl,
+  twitterCard: 'summary_large_image',
+  twitterTitle: pageTitle,
+  twitterDescription: pageDescription,
+  twitterImage: ogImageUrl,
 })
 </script>
 
