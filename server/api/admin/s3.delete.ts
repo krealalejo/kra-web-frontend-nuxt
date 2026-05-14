@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing key parameter' })
   }
 
-  const apiBase = (config.apiBase as string).replace(/\/$/, '')
+  const apiBase = config.apiBase.replace(/\/$/, '')
 
   await $fetch(`${apiBase}/admin/s3?key=${encodeURIComponent(key)}`, {
     method: 'DELETE',

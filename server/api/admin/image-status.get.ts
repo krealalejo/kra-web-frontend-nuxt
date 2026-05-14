@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Missing key parameter' })
   }
 
-  const apiBase = (config.apiBase as string).replace(/\/$/, '')
+  const apiBase = config.apiBase.replace(/\/$/, '')
 
   try {
     await $fetch(`${apiBase}/images/${key}`, { method: 'HEAD' })
