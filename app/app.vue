@@ -11,7 +11,7 @@ useHead({
   },
   style: [
     {
-      innerHTML: `:root{--bg:#1a1a1c;--fg:#ededec;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;}[data-theme="light"]{--bg:#f6f5f1;--fg:#0b0b0c;}html,body{background:var(--bg);color:var(--fg);font-family:var(--font-sans);}`,
+      innerHTML: `:root{--bg:#1a1a1c;--fg:#ededec;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;}[data-theme="light"]{--bg:#f6f5f1;--fg:#0b0b0c;}html,body{background:var(--bg);color:var(--fg);font-family:var(--font-sans);}.page-loader{position:fixed;inset:0;background:var(--bg,#1a1a1c);z-index:9999;pointer-events:none;transition:opacity 0.25s ease;}`,
       tagPosition: 'head',
     }
   ],
@@ -25,6 +25,18 @@ useHead({
 
 onMounted(() => {
   init()
+
+  const loader = document.querySelector<HTMLElement>('.page-loader')
+  if (loader) {
+    const hide = () => {
+      loader.style.opacity = '0'
+      loader.addEventListener('transitionend', () => { loader.style.visibility = 'hidden' }, { once: true })
+    }
+    Promise.race([
+      document.fonts.ready,
+      new Promise<void>(r => setTimeout(r, 300)),
+    ]).then(hide)
+  }
 })
 </script>
 
