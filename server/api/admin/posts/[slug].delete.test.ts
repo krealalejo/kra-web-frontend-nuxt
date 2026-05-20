@@ -41,6 +41,18 @@ describe('admin/posts/[slug].delete', () => {
     await expect(handler({})).rejects.toMatchObject({ statusCode: 400 })
   })
 
+  it('propagates upstream error status when $fetch throws', async () => {
+    const upstreamError = Object.assign(new Error('Not Found'), { statusCode: 404, statusMessage: 'Not Found', data: null })
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('missing-post'))
+    vi.stubGlobal('$fetch', vi.fn().mockRejectedValue(upstreamError))
+
+    const mod = await import('./[slug].delete')
+    const handler = mod.default as Function
+
+    await expect(handler({})).rejects.toMatchObject({ statusCode: 404 })
+  })
+
   it('calls DELETE on the upstream API and returns success', async () => {
     const mockFetch = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
