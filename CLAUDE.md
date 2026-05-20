@@ -10,10 +10,10 @@
 ## Frontend-Specific Rules
 
 - **Runtime:** Nuxt 4 with `app/` layout convention — all pages, components, and composables live under `app/`, not the repo root.
-- **Package manager:** Yarn (not npm or pnpm). Always use `yarn` commands.
+- **Package manager:** pnpm (not npm or yarn). Always use `pnpm` commands.
 - **State management:** Pinia stores for global shared state; `useAsyncData`/`useFetch` for SSR data fetching.
 - **Forms:** VeeValidate + Zod schemas for all form validation.
-- **Tests:** Vitest for unit and component tests. `yarn test` (or equivalent vitest command) must pass before any commit.
+- **Tests:** Vitest for unit and component tests. `pnpm test` must pass before any commit.
 - **Admin routes:** `/admin/**` are SPA-only (`ssr: false` in `nuxt.config.ts` routeRules); protected by auth middleware that checks the `kra_session` httpOnly cookie.
 - **Auth:** Cognito OAuth2 code flow handled in Nuxt server routes (`server/api/auth/`). Only `cognitoClientSecret` is private runtimeConfig; `cognitoClientId` and `cognitoRedirectUri` are public runtimeConfig.
 - **No backend calls from browser for admin writes:** Use same-origin Nuxt server routes (`/api/admin/posts`) that forward `Authorization: Bearer` from `kra_session` cookie to the Spring Boot API.
