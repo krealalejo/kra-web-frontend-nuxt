@@ -21,6 +21,7 @@ export const blogPostSchema = z.object({
     url: z.url({ error: 'Must be a valid URL' }),
   })).optional(),
   imageUrl: z.string().nullable().optional(),
+  publishedAt: z.string().nullable().optional(),
 })
 
 export type CreateBlogPostFormData = z.infer<typeof blogPostSchema>
@@ -38,6 +39,7 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
       content: options.initialValues?.content ?? '',
       references: options.initialValues?.references ?? [],
       imageUrl: options.initialValues?.imageUrl ?? null,
+      publishedAt: options.initialValues?.publishedAt ?? null,
     },
   })
 
@@ -45,6 +47,7 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
   const { value: title, errorMessage: titleError } = useField<string>('title')
   const { value: content, errorMessage: contentError } = useField<string>('content')
   const { value: imageUrl } = useField<string | null>('imageUrl')
+  const { value: publishedAt } = useField<string | null>('publishedAt')
 
   return {
     slug,
@@ -54,6 +57,7 @@ export function useBlogPostForm(options: UseBlogPostFormOptions = {}) {
     titleError,
     contentError,
     imageUrl,
+    publishedAt,
     isSubmitting: form.isSubmitting,
     handleSubmit: form.handleSubmit,
     resetForm: form.resetForm,
