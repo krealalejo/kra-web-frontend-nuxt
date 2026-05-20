@@ -42,7 +42,6 @@ const isNotFound = computed(() => {
 const { stripMarkdown, sanitizeMarkdown } = useMarkdown()
 const { renderDiagrams } = useMermaid()
 const contentRef = ref<HTMLElement | null>(null)
-
 const sanitizedContent = ref<string>('')
 
 async function updateSanitizedContent() {
@@ -56,21 +55,73 @@ async function updateSanitizedContent() {
 
 await updateSanitizedContent()
 
+// Reading progress
+const scrollProgress = ref(0)
+function onScroll() {
+  const doc = document.documentElement
+  const total = doc.scrollHeight - doc.clientHeight
+  scrollProgress.value = total > 0 ? (doc.scrollTop / total) * 100 : 0
+}
+
+// TOC
+interface TocItem { id: string; text: string; level: number }
+const tocItems = ref<TocItem[]>([])
+const activeTocId = ref('')
+let tocObserver: IntersectionObserver | null = null
+
+function buildToc() {
+  if (!contentRef.value) return
+  const headings = Array.from(contentRef.value.querySelectorAll('h2, h3'))
+  headings.forEach((h, i) => { if (!h.id) h.id = `h-${i}` })
+  tocItems.value = headings.map(h => ({
+    id: h.id,
+    text: h.textContent?.trim() ?? '',
+    level: parseInt(h.tagName[1])
+  }))
+  tocObserver?.disconnect()
+  if (!headings.length) return
+  tocObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) { activeTocId.value = entry.target.id; break }
+      }
+    },
+    { rootMargin: '-64px 0px -70% 0px', threshold: 0 }
+  )
+  headings.forEach(h => tocObserver!.observe(h))
+}
+
+// Reading time (~200 wpm technical content)
+const readingTime = computed(() => {
+  const words = post.value?.content?.trim().split(/\s+/).length ?? 0
+  return Math.max(1, Math.ceil(words / 200))
+})
+
 watch(post, async () => {
   await updateSanitizedContent()
   await nextTick()
   if (contentRef.value) renderDiagrams(contentRef.value)
+  buildToc()
 })
 
 onMounted(async () => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+
   document.querySelectorAll<HTMLElement>('.post-head, .post-body').forEach(el => {
     el.style.opacity = '0'
   })
 
   if (contentRef.value) renderDiagrams(contentRef.value)
+  buildToc()
+
   const { gsap } = await useGsap()
   gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
+})
+
+onUnmounted(() => {
+  if (import.meta.client) window.removeEventListener('scroll', onScroll)
+  tocObserver?.disconnect()
 })
 
 const { getThumbUrl } = useS3()
@@ -125,6 +176,8 @@ useSeoMeta({
 
 <template>
   <div>
+    <div v-if="post" class="post-progress" :style="{ width: scrollProgress + '%' }" />
+
     <div v-if="error" role="alert" class="shell" style="padding:64px 0;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);">
         <div v-if="isNotFound">Post not found.</div>
@@ -148,6 +201,8 @@ useSeoMeta({
             <span>§03 · Writing</span>
             <span class="dot" />
             <span>{{ formatDate(post.createdAt) }}</span>
+            <span class="dot" />
+            <span>{{ readingTime }} min read</span>
             <span v-if="post.updatedAt !== post.createdAt">
               <span class="dot" />
               Updated {{ formatDate(post.updatedAt) }}
@@ -155,7 +210,6 @@ useSeoMeta({
           </div>
 
           <h1>{{ post.title }}</h1>
-
         </div>
 
         <div v-if="thumbUrl" class="post-thumb">
@@ -165,16 +219,14 @@ useSeoMeta({
         <div class="post-body">
           <div class="content drop-p" ref="contentRef" v-html="sanitizedContent" />
 
-          <aside>
-            <section v-if="post.references?.length" aria-label="References" class="post-toc">
-              <h5>References</h5>
-              <ul>
-                <li v-for="(ref, i) in post.references" :key="i">
-                  <a :href="ref.url" target="_blank" rel="noopener noreferrer">{{ ref.label }}</a>
-                </li>
-              </ul>
-            </section>
-          </aside>
+          <BlogPostSidebar
+            :toc-items="tocItems"
+            :active-toc-id="activeTocId"
+            :reading-time="readingTime"
+            :published-at="formatDate(post.createdAt)"
+            :updated-at="formatDate(post.updatedAt)"
+            :references="post.references ?? null"
+          />
         </div>
       </section>
     </template>

@@ -117,15 +117,15 @@ describe('pages/blog/[slug].vue', () => {
     })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    expect(wrapper.find('section[aria-label="References"]').exists()).toBe(true)
-    expect(wrapper.text()).toContain('References')
+    expect(wrapper.find('.pd-sidebar').exists()).toBe(true)
+    expect(wrapper.text()).toContain('REFERENCES')
   })
 
   it('does not render references section when post has no references', async () => {
     mockFetch.mockResolvedValue({ ...mockPost, references: [] })
     const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
     await flushPromises()
-    expect(wrapper.find('section[aria-label="References"]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('REFERENCES')
   })
 
   it('shows error alert when fetch fails', async () => {
