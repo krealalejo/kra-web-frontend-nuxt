@@ -16,7 +16,7 @@ const emit = defineEmits<{
 
 const store = useBlogStore()
 const { sanitizeMarkdown } = useMarkdown()
-const { slug, title, content, imageUrl, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
+const { slug, title, content, imageUrl, publishedAt, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
 const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
 
 const formError = ref<string | null>(null)
@@ -122,7 +122,8 @@ watch(() => props.post, (newPost) => {
       title: newPost.title,
       content: newPost.content,
       references: newPost.references ? [...newPost.references] : [],
-      imageUrl: newPost.imageUrl ?? null
+      imageUrl: newPost.imageUrl ?? null,
+      publishedAt: newPost.createdAt ? newPost.createdAt.slice(0, 16) : null,
     })
     thumbReady.value = !!newPost.imageUrl
   }
@@ -139,12 +140,14 @@ watch(() => props.open, (isOpen) => {
 const onSubmit = handleSubmit(async (values) => {
   formError.value = null
   try {
+    const publishedAtIso = values.publishedAt ? new Date(values.publishedAt + 'Z').toISOString() : undefined
     if (isEditMode.value && props.post) {
       await store.updatePost(props.post.slug, {
         title: values.title,
         content: values.content,
         references: values.references ?? [],
-        imageUrl: values.imageUrl
+        imageUrl: values.imageUrl,
+        publishedAt: publishedAtIso ?? null,
       })
     } else {
       await store.createPost({
@@ -152,7 +155,8 @@ const onSubmit = handleSubmit(async (values) => {
         title: values.title,
         content: values.content,
         references: values.references ?? [],
-        imageUrl: values.imageUrl
+        imageUrl: values.imageUrl,
+        publishedAt: publishedAtIso ?? null,
       })
     }
     emit('saved')
@@ -198,7 +202,7 @@ const onSubmit = handleSubmit(async (values) => {
         </div>
 
         <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
-          <div class="grid grid-cols-2 gap-6">
+          <div class="grid grid-cols-3 gap-6">
             <div class="flex flex-col gap-2">
               <label for="post-slug" class="t-label" style="font-size: 10px">Slug</label>
               <input
@@ -225,6 +229,17 @@ const onSubmit = handleSubmit(async (values) => {
                 style="background: var(--bg-sunken); border: 1px solid var(--hairline); color: var(--fg)"
               />
               <span v-if="titleError" class="text-[10px] text-red-400 font-mono">{{ titleError }}</span>
+            </div>
+
+            <div class="flex flex-col gap-2">
+              <label for="post-published-at" class="t-label" style="font-size: 10px">Publish Date (UTC)</label>
+              <input
+                id="post-published-at"
+                v-model="publishedAt"
+                type="datetime-local"
+                class="rounded-lg px-4 py-2.5 text-sm transition-all focus:border-[var(--accent)] outline-none"
+                style="background: var(--bg-sunken); border: 1px solid var(--hairline); color: var(--fg)"
+              />
             </div>
           </div>
 
