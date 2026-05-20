@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
     ...(body.location !== undefined && { location: body.location }),
     ...(body.years !== undefined && { years: body.years }),
     ...(body.description !== undefined && { description: body.description }),
+    ...(body.sortOrder !== undefined && { sortOrder: body.sortOrder }),
   }
 
   const response = await $fetch(`${config.apiBase}/cv/experience/${id}`, {
