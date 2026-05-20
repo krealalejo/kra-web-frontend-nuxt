@@ -43,7 +43,7 @@ onMounted(async () => {
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
 
   if (gsap.utils.toArray('.blog-row').length > 0) {
-    gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08 })
+    gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2, stagger: 0.08, clearProps: 'transform' })
   }
 })
 
@@ -55,7 +55,7 @@ watch(pending, (isPending) => {
     nextTick(async () => {
       const { gsap } = await useGsap()
       if (gsap.utils.toArray('.blog-row').length > 0) {
-        gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08 })
+        gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08, clearProps: 'transform' })
       }
     })
   }
