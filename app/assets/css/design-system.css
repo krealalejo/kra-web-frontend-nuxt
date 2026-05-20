@@ -1074,7 +1074,6 @@ em, .emph {
   height: 56px;
   border-radius: 3px;
   overflow: hidden;
-  background: var(--bg-elev);
 }
 .blog-thumb {
   width: 100%;
