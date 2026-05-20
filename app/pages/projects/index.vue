@@ -98,17 +98,14 @@ async function applyFilter(k: string) {
 
 onMounted(async () => {
   isMounted.value = true
-  document.querySelectorAll<HTMLElement>('.page-head .overline, .page-head h1, .page-head .kicker').forEach(el => {
-    el.style.opacity = '0'
-  })
 
   const { gsap } = await useGsap()
-  gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
-  gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
-  gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
+  gsap.fromTo('.page-head .overline', { opacity: 0 }, { opacity: 1, duration: 0.6 })
+  gsap.fromTo('.page-head h1', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.1, ease: 'power3.out' })
+  gsap.fromTo('.page-head .kicker', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.3 })
 
   if (gsap.utils.toArray('.proj-card').length > 0) {
-    gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.3, stagger: 0.1 })
+    gsap.fromTo('.proj-card', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.3, stagger: 0.1 })
   }
 })
 
@@ -118,7 +115,7 @@ watch(pending, (isPending) => {
     nextTick(async () => {
       const { gsap } = await useGsap()
       if (gsap.utils.toArray('.proj-card').length > 0) {
-        gsap.fromTo('.proj-card', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.1 })
+        gsap.fromTo('.proj-card', { opacity: 0 }, { opacity: 1, duration: 0.9, stagger: 0.1 })
       }
     })
   }
@@ -126,7 +123,21 @@ watch(pending, (isPending) => {
 
 const { handleCardHover, handleCardHoverOut } = useCardHoverAnimation()
 
-useHead({ title: 'Projects · Kevin Real Alejo' })
+useSeoMeta({
+  title: 'Projects · Kevin Real Alejo',
+  description: 'A complete archive of Kevin Real Alejo\'s projects — from CLI toys to enterprise services. Spring Boot, Nuxt, AWS, and more.',
+  ogTitle: 'Projects · Kevin Real Alejo',
+  ogDescription: 'Full archive of open-source and production projects by Kevin Real Alejo.',
+})
+
+useHead({
+  style: [{
+    id: 'projects-init',
+    children: `@media (prefers-reduced-motion: no-preference) {
+      .page-head .overline, .page-head h1, .page-head .kicker { opacity: 0; }
+    }`,
+  }],
+})
 </script>
 
 <template>
@@ -186,7 +197,7 @@ useHead({ title: 'Projects · Kevin Real Alejo' })
             <span>{{ String(i + 1).padStart(2, '0') }} · {{ projectKind(repo) }}</span>
             <span>{{ projectYear(repo) }}</span>
           </div>
-          <h3 class="title">{{ repo.name }}</h3>
+          <h2 class="title">{{ repo.name }}</h2>
           <p class="desc">{{ repo.description || '—' }}</p>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
             <span v-for="t in (repo.topics || []).slice(0, 4)" :key="t" class="chip" style="font-size:10px;">{{ t }}</span>

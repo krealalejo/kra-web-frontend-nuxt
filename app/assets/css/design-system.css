@@ -612,8 +612,7 @@ em, .emph {
   gap: 8px;
 }
 
-.dl { display: inline-block; }
-.reveal-scroll { will-change: transform, opacity; }
+.reveal-scroll { will-change: opacity; }
 
 .hero-portrait {
   position: relative;

@@ -107,16 +107,12 @@ watch(post, async () => {
 onMounted(async () => {
   window.addEventListener('scroll', onScroll, { passive: true })
 
-  document.querySelectorAll<HTMLElement>('.post-head, .post-body').forEach(el => {
-    el.style.opacity = '0'
-  })
-
   if (contentRef.value) renderDiagrams(contentRef.value)
   buildToc()
 
   const { gsap } = await useGsap()
-  gsap.fromTo('.post-head', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
-  gsap.fromTo('.post-body', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
+  gsap.fromTo('.post-head', { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'power3.out' })
+  gsap.fromTo('.post-body', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.2 })
 })
 
 onUnmounted(() => {
@@ -158,6 +154,15 @@ function formatDate(iso: string) {
   /* v8 ignore next 1 */
   } catch { return iso }
 }
+
+useHead({
+  style: [{
+    id: 'post-init',
+    children: `@media (prefers-reduced-motion: no-preference) {
+      .post-head, .post-body { opacity: 0; }
+    }`,
+  }],
+})
 
 useSeoMeta({
   title: pageTitle,

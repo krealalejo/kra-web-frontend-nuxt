@@ -91,41 +91,22 @@ const heroRef = ref<HTMLElement | null>(null)
 onMounted(async () => {
   isMounted.value = true
   const hero = heroRef.value
-  const noMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-
   const { gsap } = await useGsap()
 
   const display = hero?.querySelector('.display-name') as HTMLElement | null
   if (display) {
-    const lockedH = display.offsetHeight
-    display.style.height = `${lockedH}px`
-    display.style.overflow = 'hidden'
-    const text = display.textContent ?? ''
-    display.innerHTML = text.split('').map(c =>
-      c === ' ' ? `<span class="dl">&nbsp;</span>` : `<span class="dl">${c}</span>`
-    ).join('')
-    display.style.removeProperty('opacity')
-    gsap.fromTo('.dl',
-      { yPercent: 110, opacity: 0 },
-      {
-        yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out',
-        onComplete: () => {
-          display.style.removeProperty('height')
-          display.style.removeProperty('overflow')
-        }
-      }
-    )
+    gsap.fromTo(display, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'power3.out' })
   }
 
-  gsap.fromTo('.hero-role',           { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5 })
-  gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.7, stagger: 0.12 })
-  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.0, stagger: 0.04 })
-  gsap.fromTo('.hero-portrait',       { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.0, delay: 1.1 })
+  gsap.fromTo('.hero-role',           { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.4 })
+  gsap.fromTo('.hero-paragraphs > *', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.6, stagger: 0.12 })
+  gsap.fromTo('.hero-stack .chip',    { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.9, stagger: 0.04 })
+  gsap.fromTo('.hero-portrait',       { opacity: 0 }, { opacity: 1, duration: 1.0, delay: 1.0 })
 
   gsap.utils.toArray<HTMLElement>('.reveal-scroll').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0, y: 32 },
-      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
+      { opacity: 0 },
+      { opacity: 1, duration: 0.9, ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
     )
   })
@@ -210,7 +191,7 @@ function projectNum(i: number) {
                 v-if="homePortraitThumbUrl"
                 :src="homePortraitThumbUrl"
                 alt="Kevin Real Alejo"
-                fetchpriority="low"
+                fetchpriority="high"
                 width="600"
                 height="800"
                 style="width:100%;height:100%;object-fit:cover;display:block;"

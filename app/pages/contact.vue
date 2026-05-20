@@ -78,7 +78,7 @@ onMounted(async () => {
 
 
         <div class="contact-form">
-          <div class="form-num">Nº01</div>
+          <div class="form-num" aria-hidden="true">Nº01</div>
 
           <div v-if="success" class="form-success-state">
             <div class="success-title">Message <br>sent.</div>
