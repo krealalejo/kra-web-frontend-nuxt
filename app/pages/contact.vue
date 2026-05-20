@@ -37,6 +37,15 @@ async function onSubmit() {
   }
 }
 
+useHead({
+  style: [{
+    id: 'contact-init',
+    children: `@media (prefers-reduced-motion: no-preference) {
+      .page-head .overline, .page-head h1, .page-head .kicker, .contact-form, .contact-facts { opacity: 0; }
+    }`,
+  }],
+})
+
 useSeoMeta({
   title: 'Contact · Kevin Real Alejo',
   description: 'Get in touch with Kevin Real Alejo — full-stack engineer.',
@@ -45,16 +54,12 @@ useSeoMeta({
 })
 
 onMounted(async () => {
-  document.querySelectorAll<HTMLElement>('.page-head .overline, .page-head h1, .page-head .kicker, .contact-form, .contact-facts').forEach(el => {
-    el.style.opacity = '0'
-  })
-
   const { gsap } = await useGsap()
-  gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
-  gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
-  gsap.fromTo('.page-head .kicker', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.25 })
-  gsap.fromTo('.contact-form', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.4 })
-  gsap.fromTo('.contact-facts', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.5 })
+  gsap.fromTo('.page-head .overline', { opacity: 0 }, { opacity: 1, duration: 0.6 })
+  gsap.fromTo('.page-head h1', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.1, ease: 'power3.out' })
+  gsap.fromTo('.page-head .kicker', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.25 })
+  gsap.fromTo('.contact-form', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.4 })
+  gsap.fromTo('.contact-facts', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.5 })
 })
 </script>
 
@@ -252,11 +257,11 @@ onMounted(async () => {
   right: 40px;
   font-family: var(--font-display);
   font-size: 72px;
-  color: var(--hairline-strong);
+  color: var(--fg-dim);
   line-height: 1;
   pointer-events: none;
   font-weight: 500;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .form-field {

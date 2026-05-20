@@ -1082,15 +1082,15 @@ em, .emph {
 }
 
 .post-thumb {
+  aspect-ratio: 16 / 7;
+  max-height: 480px;
   margin-bottom: 48px;
   border-radius: 4px;
   overflow: hidden;
-  max-height: 480px;
 }
 .post-thumb img {
   width: 100%;
-  height: auto;
-  max-height: 480px;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
