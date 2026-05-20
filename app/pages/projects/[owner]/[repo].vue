@@ -132,7 +132,15 @@ watch(pending, async (isPending) => {
   }
 })
 
+const scrollProgress = ref(0)
+function onScroll() {
+  const doc = document.documentElement
+  const total = doc.scrollHeight - doc.clientHeight
+  scrollProgress.value = total > 0 ? (doc.scrollTop / total) * 100 : 0
+}
+
 onMounted(async () => {
+  window.addEventListener('scroll', onScroll, { passive: true })
   if (!pending.value && detail.value && !error.value) {
     animateIn()
     /* v8 ignore next 3 */
@@ -142,10 +150,16 @@ onMounted(async () => {
     }
   }
 })
+
+onUnmounted(() => {
+  if (import.meta.client) window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <template>
   <div>
+    <div v-if="detail" class="post-progress" :style="{ width: scrollProgress + '%' }" />
+
     <output v-if="pending" aria-label="Loading repository" style="display:flex;align-items:center;justify-content:center;min-height:40vh;">
       <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.14em;text-transform:uppercase;">Loading repository…</span>
     </output>
