@@ -156,9 +156,6 @@ useSeoMeta({
 
           <h1>{{ post.title }}</h1>
 
-          <div v-if="post.content" class="lede">
-            {{ stripMarkdown(post.content).slice(0, 200) }}{{ stripMarkdown(post.content).length > 200 ? '…' : '' }}
-          </div>
         </div>
 
         <div v-if="thumbUrl" class="post-thumb">
