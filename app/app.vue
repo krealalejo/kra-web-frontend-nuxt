@@ -1,10 +1,10 @@
 <script setup lang="ts">
-const { init } = useTheme()
+const { init, isDark } = useTheme()
 
 useHead({
   htmlAttrs: {
     lang: 'en',
-    'data-theme': 'dark',
+    'data-theme': computed(() => isDark.value ? 'dark' : 'light'),
   },
   bodyAttrs: {
     style: 'margin:0;padding:0;'
