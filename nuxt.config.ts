@@ -79,7 +79,7 @@ export default defineNuxtConfig({
       '/api/skills/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/skills/**` },
       '/api/upload': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/upload` },
       '/api/projects/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/projects/**` },
-      '/api/images/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/images/**`, cache: { maxAge: 86400 } },
+      '/api/images/**': { proxy: `${process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'}/images/**`, cache: { maxAge: 604800 } },
     }
   },
   runtimeConfig: {

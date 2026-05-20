@@ -39,8 +39,7 @@ const { data: profileData } = useAsyncData(
     } catch {
       return null
     }
-  },
-  { server: false }
+  }
 )
 
 const { getThumbUrl } = useS3()
@@ -213,6 +212,8 @@ function projectNum(i: number) {
                 :src="homePortraitThumbUrl"
                 alt="Kevin Real Alejo"
                 fetchpriority="high"
+                width="600"
+                height="800"
                 style="width:100%;height:100%;object-fit:cover;display:block;"
               />
               <div v-else class="ph-center">
