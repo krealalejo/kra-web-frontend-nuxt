@@ -114,7 +114,7 @@ async function saveModal() {
   }
 }
 
-const KIND_OPTIONS = ['Backend', 'Frontend', 'Fullstack', 'Infrastructure', 'Library', 'CLI', 'Serverless']
+const KIND_OPTIONS = ['Frontend', 'Backend', 'Serverless', 'AI', 'Other']
 </script>
 
 <template>
