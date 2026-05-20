@@ -24,7 +24,7 @@ const displayProjects = computed(() => {
   return filtered.value
 })
 
-const kinds = ['all', 'frontend', 'backend', 'serverless']
+const kinds = ['all', 'frontend', 'backend', 'serverless', 'AI', 'other']
 
 const filtered = computed(() => {
   if (!projects?.value) return []
