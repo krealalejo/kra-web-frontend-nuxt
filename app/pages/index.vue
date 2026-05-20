@@ -59,7 +59,15 @@ useHead(() => {
   if (s3Origin.value) {
     links.push({ rel: 'preconnect', href: s3Origin.value, crossorigin: '' })
   }
-  return { link: links }
+  return {
+    link: links,
+    style: [{
+      id: 'hero-init',
+      children: `@media (prefers-reduced-motion: no-preference) {
+        .display-name, .hero-role, .hero-paragraphs > *, .hero-stack .chip, .hero-portrait { opacity: 0; }
+      }`,
+    }],
+  }
 })
 
 const featuredProjects = computed(() => {
@@ -85,15 +93,6 @@ onMounted(async () => {
   const hero = heroRef.value
   const noMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
-  // Pre-hide animated elements before the async GSAP import resolves to prevent flash
-  if (hero && !noMotion) {
-    const displayEl = hero.querySelector('.display-name') as HTMLElement | null
-    if (displayEl) displayEl.style.opacity = '0'
-    hero.querySelectorAll<HTMLElement>('.hero-role, .hero-paragraphs > *, .hero-stack .chip, .hero-portrait').forEach(el => {
-      el.style.opacity = '0'
-    })
-  }
-
   const { gsap } = await useGsap()
 
   const display = hero?.querySelector('.display-name') as HTMLElement | null
@@ -118,10 +117,10 @@ onMounted(async () => {
     )
   }
 
-  gsap.fromTo('.hero-role',    { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5 })
+  gsap.fromTo('.hero-role',           { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5 })
   gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.7, stagger: 0.12 })
-  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1, stagger: 0.04 })
-  gsap.fromTo('.hero-portrait', { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.2, delay: 0.3 })
+  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.0, stagger: 0.04 })
+  gsap.fromTo('.hero-portrait',       { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.0, delay: 1.1 })
 
   gsap.utils.toArray<HTMLElement>('.reveal-scroll').forEach(el => {
     gsap.fromTo(el,
@@ -211,7 +210,7 @@ function projectNum(i: number) {
                 v-if="homePortraitThumbUrl"
                 :src="homePortraitThumbUrl"
                 alt="Kevin Real Alejo"
-                fetchpriority="high"
+                fetchpriority="low"
                 width="600"
                 height="800"
                 style="width:100%;height:100%;object-fit:cover;display:block;"
