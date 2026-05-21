@@ -177,18 +177,6 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section v-if="skillsData?.length" class="cv-section">
-        <div class="title">Skills</div>
-        <div>
-          <div v-for="category in skillsData" :key="category.id" class="skill-group">
-            <h4>{{ category.name }}</h4>
-            <div class="skill-row">
-              <span v-for="s in category.skills" :key="s" class="chip">{{ s }}</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section v-if="educationData?.length" class="cv-section">
         <div class="title">Education</div>
         <div>
@@ -202,6 +190,18 @@ onMounted(async () => {
               <div class="rd">{{ edu.description }}</div>
             </div>
             <div class="ryears">{{ edu.years }}</div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="skillsData?.length" class="cv-section">
+        <div class="title">Skills</div>
+        <div>
+          <div v-for="category in skillsData" :key="category.id" class="skill-group">
+            <h4>{{ category.name }}</h4>
+            <div class="skill-row">
+              <span v-for="s in category.skills" :key="s" class="chip">{{ s }}</span>
+            </div>
           </div>
         </div>
       </section>
