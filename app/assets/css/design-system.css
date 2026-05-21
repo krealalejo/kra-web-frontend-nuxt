@@ -187,9 +187,7 @@ em, .emph {
   width: 100%;
   z-index: 50;
   padding: 22px 0;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  background: var(--bg);
   border-bottom: 1px solid var(--hairline);
   transition: background 0.4s var(--ease-out);
 }
