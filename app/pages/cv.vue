@@ -38,11 +38,11 @@ const cvPdfDownloadUrl = computed(() => {
 
 interface ExperienceEntry {
   id: string; title: string; company: string; location: string
-  years: string; description: string; sortOrder: number
+  years: string; description: string; sortOrder: number; logoUrl?: string | null
 }
 interface EducationEntry {
   id: string; title: string; institution: string; location: string
-  years: string; description: string; sortOrder: number
+  years: string; description: string; sortOrder: number; logoUrl?: string | null
 }
 interface SkillCategory {
   id: string; name: string; skills: string[]; sortOrder: number
@@ -165,7 +165,10 @@ onMounted(async () => {
         <div>
           <div v-for="exp in experienceData" :key="exp.id" class="role-row">
             <div>
-              <div class="rt">{{ exp.title }} · {{ exp.company }}</div>
+              <div class="rt" style="display:flex;align-items:center;gap:8px">
+                <img v-if="getThumbUrl(exp.logoUrl)" :src="getThumbUrl(exp.logoUrl)!" :alt="exp.company" style="width:20px;height:20px;object-fit:contain;flex-shrink:0" />
+                {{ exp.title }} · {{ exp.company }}
+              </div>
               <div class="rc">{{ exp.location }}</div>
               <div class="rd">{{ exp.description }}</div>
             </div>
@@ -192,7 +195,10 @@ onMounted(async () => {
           <div v-for="edu in educationData" :key="edu.id" class="role-row">
             <div>
               <div class="rt">{{ edu.title }}</div>
-              <div class="rc">{{ edu.institution }}</div>
+              <div class="rc" style="display:flex;align-items:center;gap:8px">
+                <img v-if="getThumbUrl(edu.logoUrl)" :src="getThumbUrl(edu.logoUrl)!" :alt="edu.institution" style="width:18px;height:18px;object-fit:contain;flex-shrink:0" />
+                {{ edu.institution }}
+              </div>
               <div class="rd">{{ edu.description }}</div>
             </div>
             <div class="ryears">{{ edu.years }}</div>
