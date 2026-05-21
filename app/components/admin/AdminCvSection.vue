@@ -51,6 +51,63 @@ const newCategoryName = ref('')
 const addCategorySaving = ref(false)
 const addCategoryError = ref<string | null>(null)
 
+const dragState = reactive({
+  section: null as 'exp' | 'edu' | 'cat' | null,
+  srcIdx: null as number | null,
+  overIdx: null as number | null,
+})
+const reorderSaving = ref(false)
+
+function onDragStart(section: 'exp' | 'edu' | 'cat', idx: number, e: DragEvent) {
+  dragState.section = section
+  dragState.srcIdx = idx
+  dragState.overIdx = idx
+  if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
+}
+
+function onDragOver(section: 'exp' | 'edu' | 'cat', idx: number, e: DragEvent) {
+  e.preventDefault()
+  if (dragState.section !== section) return
+  dragState.overIdx = idx
+  if (e.dataTransfer) e.dataTransfer.dropEffect = 'move'
+}
+
+function onDragEnd() {
+  dragState.section = null
+  dragState.srcIdx = null
+  dragState.overIdx = null
+}
+
+async function onDrop(section: 'exp' | 'edu' | 'cat', toIdx: number) {
+  const srcIdx = dragState.srcIdx
+  dragState.section = null
+  dragState.srcIdx = null
+  dragState.overIdx = null
+  if (srcIdx === null || srcIdx === toIdx) return
+
+  const arr = section === 'exp' ? experience : section === 'edu' ? education : skillCategories
+  const endpoint = section === 'exp'
+    ? '/api/admin/cv/experience'
+    : section === 'edu'
+      ? '/api/admin/cv/education'
+      : '/api/admin/cv/skills/categories'
+
+  const [moved] = arr.value.splice(srcIdx, 1)
+  arr.value.splice(toIdx, 0, moved)
+  arr.value.forEach((it, i) => { it.sortOrder = i + 1 })
+
+  reorderSaving.value = true
+  try {
+    await Promise.all(arr.value.map((it, i) =>
+      $fetch(`${endpoint}/${it.id}`, { method: 'PUT', body: { sortOrder: i + 1 } })
+    ))
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : 'Reorder failed'
+  } finally {
+    reorderSaving.value = false
+  }
+}
+
 onMounted(async () => {
   loading.value = true
   error.value = null
@@ -60,9 +117,9 @@ onMounted(async () => {
       $fetch<EducationEntry[]>('/api/admin/cv/education'),
       $fetch<SkillCategory[]>('/api/admin/cv/skills/categories'),
     ])
-    experience.value = exp
-    education.value = edu
-    skillCategories.value = skills
+    experience.value = exp.sort((a, b) => a.sortOrder - b.sortOrder)
+    education.value = edu.sort((a, b) => a.sortOrder - b.sortOrder)
+    skillCategories.value = skills.sort((a, b) => a.sortOrder - b.sortOrder)
     for (const cat of skills) {
       categorySkills[cat.id] = [...cat.skills]
       categoryNewSkill[cat.id] = ''
@@ -407,14 +464,22 @@ async function submitAddCategory() {
         No experience entries yet. Click Add to create one.
       </div>
       <div
-        v-for="item in experience"
+        v-for="(item, idx) in experience"
         :key="item.id"
+        draggable="true"
         class="mb-3 flex items-center justify-between rounded-xl px-4 py-3"
-        style="background: var(--bg-elev); border: 1px solid var(--hairline)"
+        :style="`background: var(--bg-elev); border: 1px solid ${dragState.section === 'exp' && dragState.overIdx === idx && dragState.srcIdx !== idx ? 'var(--accent)' : 'var(--hairline)'}; transition: border-color 0.15s`"
+        @dragstart="onDragStart('exp', idx, $event)"
+        @dragover="onDragOver('exp', idx, $event)"
+        @drop.prevent="onDrop('exp', idx)"
+        @dragend="onDragEnd"
       >
-        <div>
-          <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.company }}</div>
-          <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="cursor:grab;color:var(--fg-faint);user-select:none;font-size:18px;line-height:1" title="Drag to reorder">⠿</span>
+          <div>
+            <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.company }}</div>
+            <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+          </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button
@@ -432,6 +497,7 @@ async function submitAddCategory() {
           >✕</button>
         </div>
       </div>
+      <div v-if="reorderSaving && activeTab === 'experience'" class="text-xs mt-2" style="color: var(--fg-faint)">Saving order…</div>
     </div>
 
     <div v-show="activeTab === 'education'">
@@ -448,14 +514,22 @@ async function submitAddCategory() {
         No education entries yet. Click Add to create one.
       </div>
       <div
-        v-for="item in education"
+        v-for="(item, idx) in education"
         :key="item.id"
+        draggable="true"
         class="mb-3 flex items-center justify-between rounded-xl px-4 py-3"
-        style="background: var(--bg-elev); border: 1px solid var(--hairline)"
+        :style="`background: var(--bg-elev); border: 1px solid ${dragState.section === 'edu' && dragState.overIdx === idx && dragState.srcIdx !== idx ? 'var(--accent)' : 'var(--hairline)'}; transition: border-color 0.15s`"
+        @dragstart="onDragStart('edu', idx, $event)"
+        @dragover="onDragOver('edu', idx, $event)"
+        @drop.prevent="onDrop('edu', idx)"
+        @dragend="onDragEnd"
       >
-        <div>
-          <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.institution }}</div>
-          <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="cursor:grab;color:var(--fg-faint);user-select:none;font-size:18px;line-height:1" title="Drag to reorder">⠿</span>
+          <div>
+            <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.institution }}</div>
+            <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
+          </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <button
@@ -473,6 +547,7 @@ async function submitAddCategory() {
           >✕</button>
         </div>
       </div>
+      <div v-if="reorderSaving && activeTab === 'education'" class="text-xs mt-2" style="color: var(--fg-faint)">Saving order…</div>
     </div>
 
     <div v-show="activeTab === 'skills'">
@@ -480,15 +555,24 @@ async function submitAddCategory() {
         <h3 class="t-h3" style="color: var(--fg)">Skills</h3>
       </div>
 
+      <div v-if="reorderSaving && activeTab === 'skills'" class="text-xs mb-4" style="color: var(--fg-faint)">Saving order…</div>
       <div class="grid gap-8 grid-cols-1 md:grid-cols-3 mb-8">
         <div
-          v-for="cat in skillCategories"
+          v-for="(cat, idx) in skillCategories"
           :key="cat.id"
+          draggable="true"
           class="rounded-2xl p-6"
-          style="background: var(--bg-elev); border: 1px solid var(--hairline); display: flex; flex-direction: column;"
+          :style="`background: var(--bg-elev); border: 1px solid ${dragState.section === 'cat' && dragState.overIdx === idx && dragState.srcIdx !== idx ? 'var(--accent)' : 'var(--hairline)'}; display: flex; flex-direction: column; transition: border-color 0.15s`"
+          @dragstart="onDragStart('cat', idx, $event)"
+          @dragover="onDragOver('cat', idx, $event)"
+          @drop.prevent="onDrop('cat', idx)"
+          @dragend="onDragEnd"
         >
           <div class="mb-4 flex items-center justify-between">
-            <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="cursor:grab;color:var(--fg-faint);user-select:none;font-size:18px;line-height:1" title="Drag to reorder">⠿</span>
+              <div class="t-overline" style="color: var(--fg-dim)">{{ cat.name }}</div>
+            </div>
             <button
               style="background: none; border: none; cursor: pointer; color: #dc2626; font-size: 14px; padding: 0;"
               :disabled="deletingCategoryId === cat.id"
