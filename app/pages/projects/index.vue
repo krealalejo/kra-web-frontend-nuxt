@@ -17,6 +17,7 @@ const { isMissingApiBase } = useApiError(error)
 
 const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)
+let animId = 0
 
 const displayProjects = computed(() => {
   if (isAnimating.value) return frozenProjects.value
@@ -48,12 +49,15 @@ function projectYear(repo: PortfolioRepoDto) {
 }
 
 async function applyFilter(k: string) {
-  if (filter.value === k || isAnimating.value) return
-
-  isAnimating.value = true
-  frozenProjects.value = [...displayProjects.value]
+  if (filter.value === k) return
 
   const { gsap } = await useGsap()
+  const id = ++animId
+
+  gsap.killTweensOf('.proj-card')
+  frozenProjects.value = isAnimating.value ? [...frozenProjects.value] : [...filtered.value]
+  isAnimating.value = true
+
   const cards = gsap.utils.toArray('.proj-card')
   if (cards.length > 0) {
     await gsap.to(cards, {
@@ -69,15 +73,18 @@ async function applyFilter(k: string) {
     })
   }
 
+  if (id !== animId) return
+
   filter.value = k
-  frozenProjects.value = filtered.value
-  
+  frozenProjects.value = [...filtered.value]
+
   await nextTick()
-  
+  if (id !== animId) return
+
   const newCards = gsap.utils.toArray('.proj-card')
   if (newCards.length > 0) {
     gsap.set(newCards, { opacity: 0, scale: 1.05, y: -15 })
-    
+
     await gsap.to(newCards, {
       opacity: 1,
       scale: 1,
@@ -91,8 +98,8 @@ async function applyFilter(k: string) {
       clearProps: 'all'
     })
   }
-  
-  isAnimating.value = false
+
+  if (id === animId) isAnimating.value = false
 }
 
 onMounted(async () => {
