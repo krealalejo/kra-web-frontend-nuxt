@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
-import { flushPromises } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
@@ -25,7 +24,7 @@ function setupDataFetch() {
 
 async function mountWithData() {
   const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-  const wrapper = await mountSuspended(AdminCvSection)
+  const wrapper = mount(AdminCvSection)
   await flushPromises()
   await nextTick()
   return wrapper
@@ -40,13 +39,13 @@ describe('AdminCvSection', () => {
 
   it('renders Experience tab initially', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     expect(wrapper.text()).toContain('Experience')
   })
 
   it('renders Education tab when clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
     await eduTab!.trigger('click')
     expect(wrapper.text()).toContain('Education')
@@ -54,7 +53,7 @@ describe('AdminCvSection', () => {
 
   it('renders Skills tab when clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const skillsTab = wrapper.findAll('button').find(b => b.text().includes('Skills'))
     await skillsTab!.trigger('click')
     expect(wrapper.text()).toContain('Skills')
@@ -62,7 +61,7 @@ describe('AdminCvSection', () => {
 
   it('renders CV PDF tab when clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
     await pdfTab!.trigger('click')
     expect(wrapper.text()).toContain('CV PDF')
@@ -70,7 +69,7 @@ describe('AdminCvSection', () => {
 
   it('opens add experience modal', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
     await addBtn!.trigger('click')
     expect(wrapper.text()).toContain('Add Experience')
@@ -78,7 +77,7 @@ describe('AdminCvSection', () => {
 
   it('opens add education modal', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
     await eduTab!.trigger('click')
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
@@ -88,7 +87,7 @@ describe('AdminCvSection', () => {
 
   it('closes experience modal on cancel', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
     await addBtn!.trigger('click')
     expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(true)
@@ -102,7 +101,7 @@ describe('AdminCvSection', () => {
   it('shows error on fetch failure', async () => {
     mockFetch.mockRejectedValue(new Error('Network error'))
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     await nextTick()
     expect(wrapper.text()).toContain('Network error')
@@ -140,7 +139,7 @@ describe('AdminCvSection — Experience CRUD', () => {
     })
 
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
 
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
@@ -279,7 +278,7 @@ describe('AdminCvSection — Education CRUD', () => {
     })
 
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
 
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
@@ -587,7 +586,7 @@ describe('AdminCvSection — PDF Tab', () => {
 
   async function mountPdfTab() {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     await nextTick()
     const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
@@ -695,7 +694,7 @@ describe('AdminCvSection — PDF Tab', () => {
     })
 
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     await nextTick()
     const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
@@ -728,7 +727,7 @@ describe('AdminCvSection — PDF Tab', () => {
     })
 
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     await nextTick()
     const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
@@ -759,7 +758,7 @@ describe('AdminCvSection — Experience modal field inputs', () => {
 
   it('accepts typed input in exp modal location, years, description fields', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
     await addBtn!.trigger('click')
     await nextTick()
@@ -775,7 +774,7 @@ describe('AdminCvSection — Experience modal field inputs', () => {
 
   it('closes exp modal when backdrop is clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
     await addBtn!.trigger('click')
     await nextTick()
@@ -792,7 +791,7 @@ describe('AdminCvSection — Experience modal field inputs', () => {
 
   it('closes edu modal when backdrop is clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
     await eduTab!.trigger('click')
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
@@ -825,7 +824,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
   it('shows "Failed to load CV data" when onMounted fetch rejects with non-Error', async () => {
     mockFetch.mockRejectedValue('string rejection')
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     expect(wrapper.text()).toContain('Failed to load CV data')
   })
@@ -954,7 +953,7 @@ describe('AdminCvSection — PDF non-Error fallbacks and no-file', () => {
 
   async function mountPdfTab() {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     await flushPromises()
     await nextTick()
     const pdfTab = wrapper.findAll('button').find(b => b.text().includes('CV PDF'))
@@ -1017,6 +1016,191 @@ describe('AdminCvSection — PDF non-Error fallbacks and no-file', () => {
   })
 })
 
+describe('AdminCvSection — Drag-and-drop reordering', () => {
+  const expItem1 = { id: 'exp1', title: 'Job A', company: 'Corp A', location: 'BCN', years: '2020', description: '', sortOrder: 1 }
+  const expItem2 = { id: 'exp2', title: 'Job B', company: 'Corp B', location: 'BCN', years: '2021', description: '', sortOrder: 2 }
+  const eduItem1 = { id: 'edu1', title: 'BSc', institution: 'Uni A', location: 'UK', years: '2018', description: '', sortOrder: 1 }
+  const eduItem2 = { id: 'edu2', title: 'MSc', institution: 'Uni B', location: 'UK', years: '2020', description: '', sortOrder: 2 }
+  const catItem1 = { id: 'cat1', name: 'Backend', skills: ['Java'], sortOrder: 1 }
+  const catItem2 = { id: 'cat2', name: 'Frontend', skills: ['Vue'], sortOrder: 2 }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true))
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem1, expItem2])
+      if (url === '/api/admin/cv/education') return Promise.resolve([eduItem1, eduItem2])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([catItem1, catItem2])
+      return Promise.resolve({})
+    })
+  })
+
+  it('experience items render with draggable attribute', async () => {
+    const wrapper = await mountWithData()
+    const draggables = wrapper.findAll('[draggable="true"]')
+    expect(draggables.length).toBeGreaterThan(0)
+  })
+
+  it('education items render with draggable attribute', async () => {
+    const wrapper = await mountWithData()
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    await nextTick()
+    const draggables = wrapper.findAll('[draggable="true"]')
+    expect(draggables.length).toBeGreaterThan(0)
+  })
+
+  it('skill category cards render with draggable attribute', async () => {
+    const wrapper = await mountWithData()
+    const skillsTab = wrapper.findAll('button').find(b => b.text().includes('Skills'))
+    await skillsTab!.trigger('click')
+    await nextTick()
+    const draggables = wrapper.findAll('[draggable="true"]')
+    expect(draggables.length).toBeGreaterThan(0)
+  })
+
+  it('items are sorted by sortOrder on load', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem2, expItem1])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const text = wrapper.text()
+    expect(text.indexOf('Job A')).toBeLessThan(text.indexOf('Job B'))
+  })
+
+  it('drop on same index does nothing (no PUT calls)', async () => {
+    const putCalls: any[] = []
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem1, expItem2])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') { putCalls.push(opts); return Promise.resolve({}) }
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[0].trigger('drop')
+    await flushPromises()
+    expect(putCalls.length).toBe(0)
+  })
+
+  it('drop on different index reorders and calls PUT for each item', async () => {
+    const putCalls: any[] = []
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem1, expItem2])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') { putCalls.push({ url, body: opts.body }); return Promise.resolve({}) }
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[1].trigger('drop')
+    await flushPromises()
+    expect(putCalls.length).toBe(2)
+    expect(putCalls.every(c => c.body.sortOrder !== undefined)).toBe(true)
+  })
+
+  it('drop reorder shows error on PUT failure', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem1, expItem2])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') return Promise.reject(new Error('Reorder failed'))
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[1].trigger('drop')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Reorder failed')
+  })
+
+  it('education reorder calls PUT on experience/[id] endpoint', async () => {
+    const putUrls: string[] = []
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([eduItem1, eduItem2])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') { putUrls.push(url as string); return Promise.resolve({}) }
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    await nextTick()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[1].trigger('drop')
+    await flushPromises()
+    expect(putUrls.length).toBe(2)
+    expect(putUrls.every(u => u.includes('/api/admin/cv/education/'))).toBe(true)
+  })
+
+  it('skill category reorder calls PUT on categories endpoint', async () => {
+    const putUrls: string[] = []
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([catItem1, catItem2])
+      if (opts?.method === 'PUT') { putUrls.push(url as string); return Promise.resolve({}) }
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const skillsTab = wrapper.findAll('button').find(b => b.text().includes('Skills'))
+    await skillsTab!.trigger('click')
+    await nextTick()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[1].trigger('drop')
+    await flushPromises()
+    expect(putUrls.length).toBe(2)
+    expect(putUrls.every(u => u.includes('/api/admin/cv/skills/categories/'))).toBe(true)
+  })
+
+  it('dragend clears drag state (no highlight after drag ends)', async () => {
+    const wrapper = await mountWithData()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[0].trigger('dragend')
+    await nextTick()
+    const highlighted = wrapper.findAll('[draggable="true"]').filter(el =>
+      el.attributes('style')?.includes('var(--accent)')
+    )
+    expect(highlighted.length).toBe(0)
+  })
+
+  it('drop reorder shows non-Error fallback message', async () => {
+    mockFetch.mockImplementation((url: string, opts?: any) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([expItem1, expItem2])
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/cv/skills/categories') return Promise.resolve([])
+      if (opts?.method === 'PUT') return Promise.reject('string err')
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+    const items = wrapper.findAll('[draggable="true"]')
+    await items[0].trigger('dragstart')
+    await items[1].trigger('dragover')
+    await items[1].trigger('drop')
+    await flushPromises()
+    await nextTick()
+    expect(wrapper.text()).toContain('Reorder failed')
+  })
+})
+
 describe('AdminCvSection — Education modal interactions', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -1031,7 +1215,7 @@ describe('AdminCvSection — Education modal interactions', () => {
 
   it('closes education modal on cancel', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
     await eduTab!.trigger('click')
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
@@ -1046,7 +1230,7 @@ describe('AdminCvSection — Education modal interactions', () => {
 
   it('accepts typed input in education modal fields', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
-    const wrapper = await mountSuspended(AdminCvSection)
+    const wrapper = mount(AdminCvSection)
     const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
     await eduTab!.trigger('click')
     const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))

@@ -21,6 +21,9 @@ export default defineVitestConfig({
       },
     },
     include: ['**/*.test.ts', '**/*.spec.ts'],
+    onConsoleLog(log) {
+      if (log.includes('<Suspense> is an experimental feature')) return false
+    },
     setupFiles: ['./app/tests/setup.ts'],
     coverage: {
       provider: 'v8',

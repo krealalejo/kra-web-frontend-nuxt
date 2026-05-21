@@ -63,10 +63,8 @@ vi.mock('@nuxt/icon', () => ({
 
 const originalConsoleLog = console.log
 const originalConsoleWarn = console.warn
-const originalConsoleError = console.error
 
 const silentLogs = [
-  '<Suspense> is an experimental feature',
   '[Icon] failed to load icon',
   '[Vercel Speed Insights]',
   '[Vercel Web Analytics]',
@@ -88,16 +86,15 @@ console.warn = (...args) => {
   originalConsoleWarn(...args)
 }
 
-console.error = (...args) => {
-  if (shouldSilence(args)) return
-  originalConsoleError(...args)
-}
-
 import { config } from '@vue/test-utils'
 config.global.stubs = {
   ...config.global.stubs,
   Icon: MockIcon,
   NuxtIcon: MockIcon,
+  NuxtLink: { template: '<a :href="to" v-bind="$attrs"><slot /></a>', props: ['to'] },
+  NuxtLayout: { template: '<div><slot /></div>' },
+  NuxtPage: { template: '<div />' },
+  NuxtRouteAnnouncer: { template: '<div />' },
   ClientOnly: { template: '<div><slot /></div>' },
 }
 

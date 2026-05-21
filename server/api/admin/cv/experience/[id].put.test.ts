@@ -56,7 +56,7 @@ describe('server/api/admin/cv/experience/[id].put', () => {
     expect(result).toEqual(updated)
   })
 
-  it('does NOT include sortOrder in forwarded body', async () => {
+  it('includes sortOrder in forwarded body when provided', async () => {
     vi.stubGlobal('readBody', vi.fn().mockResolvedValue({
       title: 'Engineer', company: 'ACME', location: 'BCN', years: '2024', description: 'Work', sortOrder: 99,
     }))
@@ -68,6 +68,6 @@ describe('server/api/admin/cv/experience/[id].put', () => {
     const handler = mod.default as Function
     await handler({})
     const calledBody = mockFetch.mock.calls[0][1].body
-    expect(calledBody).not.toHaveProperty('sortOrder')
+    expect(calledBody).toHaveProperty('sortOrder', 99)
   })
 })
