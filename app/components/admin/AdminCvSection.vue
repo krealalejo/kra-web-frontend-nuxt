@@ -2,11 +2,11 @@
 
 interface ExperienceEntry {
   id: string; title: string; company: string; location: string
-  years: string; description: string; sortOrder: number
+  years: string; description: string; sortOrder: number; logoUrl?: string | null
 }
 interface EducationEntry {
   id: string; title: string; institution: string; location: string
-  years: string; description: string; sortOrder: number
+  years: string; description: string; sortOrder: number; logoUrl?: string | null
 }
 interface SkillCategory {
   id: string; name: string; skills: string[]; sortOrder: number
@@ -30,17 +30,21 @@ const categoryError = reactive<Record<string, string | null>>({})
 const expModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
-  data: { id: '', title: '', company: '', location: '', years: '', description: '' },
+  data: { id: '', title: '', company: '', location: '', years: '', description: '', logoUrl: null as string | null },
   saving: false,
   error: null as string | null,
+  logoUploading: false,
+  logoError: null as string | null,
 })
 
 const eduModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
-  data: { id: '', title: '', institution: '', location: '', years: '', description: '' },
+  data: { id: '', title: '', institution: '', location: '', years: '', description: '', logoUrl: null as string | null },
   saving: false,
   error: null as string | null,
+  logoUploading: false,
+  logoError: null as string | null,
 })
 
 const categorySkills = reactive<Record<string, string[]>>({})
@@ -134,16 +138,18 @@ onMounted(async () => {
 
 function openAddExpModal() {
   expModal.mode = 'add'
-  expModal.data = { id: '', title: '', company: '', location: '', years: '', description: '' }
+  expModal.data = { id: '', title: '', company: '', location: '', years: '', description: '', logoUrl: null }
   expModal.open = true
   expModal.error = null
+  expModal.logoError = null
 }
 
 function openEditExpModal(item: ExperienceEntry) {
   expModal.mode = 'edit'
-  expModal.data = { ...item }
+  expModal.data = { ...item, logoUrl: item.logoUrl ?? null }
   expModal.open = true
   expModal.error = null
+  expModal.logoError = null
 }
 
 async function saveExpModal() {
@@ -166,6 +172,7 @@ async function saveExpModal() {
           location: expModal.data.location,
           years: expModal.data.years,
           description: expModal.data.description,
+          ...(expModal.data.logoUrl !== undefined && { logoUrl: expModal.data.logoUrl }),
         },
       })
       const idx = experience.value.findIndex(e => e.id === expModal.data.id)
@@ -197,18 +204,41 @@ async function deleteExp(id: string) {
 }
 
 
+async function handleExpLogoUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  expModal.logoUploading = true
+  expModal.logoError = null
+  try {
+    const slug = expModal.data.id || `exp-${Date.now()}`
+    const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
+      method: 'POST',
+      body: { filename: file.name, contentType: file.type, uploadType: 'logo', entitySlug: slug },
+    })
+    await $fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file })
+    expModal.data.logoUrl = s3Key
+  } catch (e: unknown) {
+    expModal.logoError = e instanceof Error ? e.message : 'Logo upload failed'
+  } finally {
+    expModal.logoUploading = false
+    ;(event.target as HTMLInputElement).value = ''
+  }
+}
+
 function openAddEduModal() {
   eduModal.mode = 'add'
-  eduModal.data = { id: '', title: '', institution: '', location: '', years: '', description: '' }
+  eduModal.data = { id: '', title: '', institution: '', location: '', years: '', description: '', logoUrl: null }
   eduModal.open = true
   eduModal.error = null
+  eduModal.logoError = null
 }
 
 function openEditEduModal(item: EducationEntry) {
   eduModal.mode = 'edit'
-  eduModal.data = { ...item }
+  eduModal.data = { ...item, logoUrl: item.logoUrl ?? null }
   eduModal.open = true
   eduModal.error = null
+  eduModal.logoError = null
 }
 
 async function saveEduModal() {
@@ -231,6 +261,7 @@ async function saveEduModal() {
           location: eduModal.data.location,
           years: eduModal.data.years,
           description: eduModal.data.description,
+          ...(eduModal.data.logoUrl !== undefined && { logoUrl: eduModal.data.logoUrl }),
         },
       })
       const idx = education.value.findIndex(e => e.id === eduModal.data.id)
@@ -242,6 +273,27 @@ async function saveEduModal() {
     eduModal.error = e instanceof Error ? e.message : 'Save failed'
   } finally {
     eduModal.saving = false
+  }
+}
+
+async function handleEduLogoUpload(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  eduModal.logoUploading = true
+  eduModal.logoError = null
+  try {
+    const slug = eduModal.data.id || `edu-${Date.now()}`
+    const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
+      method: 'POST',
+      body: { filename: file.name, contentType: file.type, uploadType: 'logo', entitySlug: slug },
+    })
+    await $fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file })
+    eduModal.data.logoUrl = s3Key
+  } catch (e: unknown) {
+    eduModal.logoError = e instanceof Error ? e.message : 'Logo upload failed'
+  } finally {
+    eduModal.logoUploading = false
+    ;(event.target as HTMLInputElement).value = ''
   }
 }
 
@@ -315,6 +367,7 @@ async function deleteCategory(id: string) {
 }
 
 
+const { getThumbUrl } = useS3()
 const runtimeConfig = useRuntimeConfig()
 const cvPdfKey = ref<string | null>(null)
 const homePortraitKey = ref<string | null>(null)
@@ -476,6 +529,12 @@ async function submitAddCategory() {
       >
         <div style="display:flex;align-items:center;gap:12px">
           <span style="cursor:grab;color:var(--fg-faint);user-select:none;font-size:18px;line-height:1" title="Drag to reorder">⠿</span>
+          <img
+            v-if="getThumbUrl(item.logoUrl)"
+            :src="getThumbUrl(item.logoUrl)!"
+            :alt="item.company"
+            style="width:28px;height:28px;object-fit:contain;border-radius:4px;background:var(--bg)"
+          />
           <div>
             <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.company }}</div>
             <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
@@ -526,6 +585,12 @@ async function submitAddCategory() {
       >
         <div style="display:flex;align-items:center;gap:12px">
           <span style="cursor:grab;color:var(--fg-faint);user-select:none;font-size:18px;line-height:1" title="Drag to reorder">⠿</span>
+          <img
+            v-if="getThumbUrl(item.logoUrl)"
+            :src="getThumbUrl(item.logoUrl)!"
+            :alt="item.institution"
+            style="width:28px;height:28px;object-fit:contain;border-radius:4px;background:var(--bg)"
+          />
           <div>
             <div class="text-sm font-medium" style="color: var(--fg)">{{ item.title }} · {{ item.institution }}</div>
             <div class="text-xs mt-1" style="color: var(--fg-dim)">{{ item.location }} · {{ item.years }}</div>
@@ -754,6 +819,30 @@ async function submitAddCategory() {
               placeholder="Brief description of responsibilities…"
             />
           </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Company Logo</label>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <img
+                v-if="getThumbUrl(expModal.data.logoUrl)"
+                :src="getThumbUrl(expModal.data.logoUrl)!"
+                alt="logo preview"
+                style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:var(--bg);border:1px solid var(--hairline)"
+              />
+              <label class="rounded-lg px-3 py-1.5 text-xs font-medium" style="background:var(--overlay);color:var(--fg);border:1px solid var(--hairline);cursor:pointer;display:inline-block">
+                <span v-if="expModal.logoUploading">Uploading…</span>
+                <span v-else>{{ expModal.data.logoUrl ? 'Replace' : 'Upload logo' }}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" :disabled="expModal.logoUploading" @change="handleExpLogoUpload" />
+              </label>
+              <button
+                v-if="expModal.data.logoUrl"
+                type="button"
+                class="text-xs px-2 py-1 rounded"
+                style="color:#dc2626;border:1px solid rgba(220,38,38,0.3);background:none;cursor:pointer"
+                @click="expModal.data.logoUrl = null"
+              >Remove</button>
+            </div>
+            <p v-if="expModal.logoError" class="mt-1 text-xs" style="color:#dc2626">{{ expModal.logoError }}</p>
+          </div>
         </div>
 
         <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)">
@@ -836,6 +925,30 @@ async function submitAddCategory() {
               style="background:var(--bg);border:1px solid var(--hairline);color:var(--fg);outline:none;resize:vertical"
               placeholder="Specialisation or relevant details…"
             />
+          </div>
+          <div>
+            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution Logo</label>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <img
+                v-if="getThumbUrl(eduModal.data.logoUrl)"
+                :src="getThumbUrl(eduModal.data.logoUrl)!"
+                alt="logo preview"
+                style="width:40px;height:40px;object-fit:contain;border-radius:6px;background:var(--bg);border:1px solid var(--hairline)"
+              />
+              <label class="rounded-lg px-3 py-1.5 text-xs font-medium" style="background:var(--overlay);color:var(--fg);border:1px solid var(--hairline);cursor:pointer;display:inline-block">
+                <span v-if="eduModal.logoUploading">Uploading…</span>
+                <span v-else>{{ eduModal.data.logoUrl ? 'Replace' : 'Upload logo' }}</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" :disabled="eduModal.logoUploading" @change="handleEduLogoUpload" />
+              </label>
+              <button
+                v-if="eduModal.data.logoUrl"
+                type="button"
+                class="text-xs px-2 py-1 rounded"
+                style="color:#dc2626;border:1px solid rgba(220,38,38,0.3);background:none;cursor:pointer"
+                @click="eduModal.data.logoUrl = null"
+              >Remove</button>
+            </div>
+            <p v-if="eduModal.logoError" class="mt-1 text-xs" style="color:#dc2626">{{ eduModal.logoError }}</p>
           </div>
         </div>
 
