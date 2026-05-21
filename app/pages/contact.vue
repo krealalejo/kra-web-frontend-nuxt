@@ -55,11 +55,11 @@ useSeoMeta({
 
 onMounted(async () => {
   const { gsap } = await useGsap()
-  gsap.fromTo('.page-head .overline', { opacity: 0 }, { opacity: 1, duration: 0.6 })
-  gsap.fromTo('.page-head h1', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.1, ease: 'power3.out' })
-  gsap.fromTo('.page-head .kicker', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.25 })
-  gsap.fromTo('.contact-form', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.4 })
-  gsap.fromTo('.contact-facts', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.5 })
+  gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
+  gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
+  gsap.fromTo('.page-head .kicker', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.25 })
+  gsap.fromTo('.contact-form', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.4 })
+  gsap.fromTo('.contact-facts', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.5 })
 })
 </script>
 
