@@ -11,11 +11,10 @@ const { data: projects, error, pending } = useAsyncData('all-portfolio-repos', a
   const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
   if (!apiBase) throw new Error('MISSING_API_BASE')
   return await $fetch<PortfolioRepoDto[]>(`${apiBase}/portfolio/repos`)
-}, { server: false })
+})
 
 const { isMissingApiBase } = useApiError(error)
 
-const isMounted = ref(false)
 const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)
 
@@ -97,8 +96,6 @@ async function applyFilter(k: string) {
 }
 
 onMounted(async () => {
-  isMounted.value = true
-
   const { gsap } = await useGsap()
   gsap.fromTo('.page-head .overline', { opacity: 0 }, { opacity: 1, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.1, ease: 'power3.out' })
@@ -173,7 +170,7 @@ useHead({
         <span v-else>Oops! API failed to load.</span>
       </div>
 
-      <div v-else-if="!isMounted || pending" class="proj-grid">
+      <div v-else-if="pending" class="proj-grid">
         <SkeletonProjectCard v-for="i in 6" :key="i" />
       </div>
 
