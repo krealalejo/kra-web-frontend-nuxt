@@ -101,6 +101,11 @@ config.global.stubs = {
   ClientOnly: { template: '<div><slot /></div>' },
 }
 
+if (typeof globalThis.requestAnimationFrame === 'undefined') {
+  globalThis.requestAnimationFrame = (cb: FrameRequestCallback) => setTimeout(cb, 16) as unknown as number
+  globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id)
+}
+
 if (globalThis.window !== undefined) {
   Object.defineProperty(globalThis, 'matchMedia', {
     writable: true,
