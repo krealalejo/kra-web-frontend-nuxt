@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 import ProjectSidebar from './ProjectSidebar.vue'
 
 describe('components/ProjectSidebar.vue', () => {
   it('renders fixed README link in TOC', async () => {
-    const wrapper = await mountSuspended(ProjectSidebar)
+    const wrapper = mount(ProjectSidebar)
     const readmeLink = wrapper.find('a[href="#readme"]')
     expect(readmeLink.exists()).toBe(true)
     expect(readmeLink.text()).toBe('README')
@@ -15,7 +15,7 @@ describe('components/ProjectSidebar.vue', () => {
       { title: 'Introduction', id: 'intro' },
       { title: 'Usage', id: 'usage' }
     ]
-    const wrapper = await mountSuspended(ProjectSidebar, {
+    const wrapper = mount(ProjectSidebar, {
       props: { headings }
     })
     const links = wrapper.findAll('.toc li a')
@@ -25,7 +25,7 @@ describe('components/ProjectSidebar.vue', () => {
   })
 
   it('renders project facts when provided', async () => {
-    const wrapper = await mountSuspended(ProjectSidebar, {
+    const wrapper = mount(ProjectSidebar, {
       props: {
         role: 'Architect',
         year: '2024',
@@ -43,7 +43,7 @@ describe('components/ProjectSidebar.vue', () => {
 
   it('renders stack chips when provided', async () => {
     const stack = ['Nuxt', 'Vitest', 'Tailwind']
-    const wrapper = await mountSuspended(ProjectSidebar, {
+    const wrapper = mount(ProjectSidebar, {
       props: { stack }
     })
     const chips = wrapper.findAll('.stack-chip')
@@ -52,7 +52,7 @@ describe('components/ProjectSidebar.vue', () => {
   })
 
   it('does not render stack section if empty', async () => {
-    const wrapper = await mountSuspended(ProjectSidebar, {
+    const wrapper = mount(ProjectSidebar, {
       props: { stack: [] }
     })
     expect(wrapper.find('.stack').exists()).toBe(false)

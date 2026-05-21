@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { flushPromises } from '@vue/test-utils'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mount, flushPromises } from '@vue/test-utils'
 import { ref, nextTick } from 'vue'
 import ActivitySection from './ActivitySection.vue'
 
@@ -32,14 +32,14 @@ describe('ActivitySection', () => {
   })
 
   it('renders all three activity cards', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     expect(wrapper.text()).toContain('SHIPPING')
     expect(wrapper.text()).toContain('READING')
     expect(wrapper.text()).toContain('PLAYING')
   })
 
   it('isolates saving state per card', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
 
     let resolveSave: (val: any) => void
     const savePromise = new Promise((resolve) => { resolveSave = resolve })
@@ -64,7 +64,7 @@ describe('ActivitySection', () => {
   })
 
   it('isolates error state per card', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
 
     mockUpdateCard.mockRejectedValue(new Error('Failed to save SHIPPING'))
 
@@ -78,7 +78,8 @@ describe('ActivitySection', () => {
   })
 
   it('saves READING card', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
+    await flushPromises()
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     const readingBtn = saveButtons[1]!
     await readingBtn.trigger('click')
@@ -86,7 +87,7 @@ describe('ActivitySection', () => {
   })
 
   it('saves PLAYING card', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     const playingBtn = saveButtons[2]!
     await playingBtn.trigger('click')
@@ -94,7 +95,7 @@ describe('ActivitySection', () => {
   })
 
   it('adds tag via Enter key and renders it', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
     await tagInput.setValue('NewTag')
     await tagInput.trigger('keydown.enter')
@@ -102,7 +103,7 @@ describe('ActivitySection', () => {
   })
 
   it('does not add duplicate tag', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
     await tagInput.setValue('tag1')
     await tagInput.trigger('keydown.enter')
@@ -111,7 +112,8 @@ describe('ActivitySection', () => {
   })
 
   it('does not add empty tag', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
+    await flushPromises()
     const chipsBefore = wrapper.findAll('.chip').length
     const tagInput = wrapper.find('input[placeholder="Add tag… (Enter to add)"]')
     await tagInput.setValue('   ')
@@ -120,7 +122,8 @@ describe('ActivitySection', () => {
   })
 
   it('removes tag via ✕ button', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
+    await flushPromises()
     expect(wrapper.text()).toContain('tag1')
     const removeBtn = wrapper.find('.chip button')
     await removeBtn.trigger('click')
@@ -129,13 +132,13 @@ describe('ActivitySection', () => {
 
   it('shows error message when fetchCards throws', async () => {
     mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     await flushPromises()
     expect(wrapper.text()).toContain('Failed to load activity cards')
   })
 
   it('updates shipping title and description via input setValue', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     await flushPromises()
     await wrapper.find('#shipping-title').setValue('My Ship Title')
     await wrapper.find('#shipping-description').setValue('My Ship Desc')
@@ -144,7 +147,7 @@ describe('ActivitySection', () => {
   })
 
   it('updates reading title and description via input setValue', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     await flushPromises()
     await wrapper.find('#reading-title').setValue('Clean Code')
     await wrapper.find('#reading-description').setValue('Robert C. Martin')
@@ -154,7 +157,7 @@ describe('ActivitySection', () => {
 
   it('shows READING error when READING save fails', async () => {
     mockUpdateCard.mockRejectedValue(new Error('Reading save error'))
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     await saveButtons[1]!.trigger('click')
     await flushPromises()
@@ -163,7 +166,7 @@ describe('ActivitySection', () => {
 
   it('shows PLAYING error when PLAYING save fails', async () => {
     mockUpdateCard.mockRejectedValue(new Error('Playing save error'))
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     await saveButtons[2]!.trigger('click')
     await flushPromises()
@@ -172,7 +175,7 @@ describe('ActivitySection', () => {
 
   it('shows "Save failed" when rejection is not an Error instance', async () => {
     mockUpdateCard.mockRejectedValue('string rejection')
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const saveButton = wrapper.findAll('button').find(b => b.text().includes('Save'))
     await saveButton!.trigger('click')
     await flushPromises()
@@ -182,13 +185,13 @@ describe('ActivitySection', () => {
   it('uses store.error message when fetchCards throws and store.error is set', async () => {
     mockStoreError = 'Store reported an error'
     mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     await flushPromises()
     expect(wrapper.text()).toContain('Store reported an error')
   })
 
   it('has correct layout classes for bottom alignment', async () => {
-    const wrapper = await mountSuspended(ActivitySection)
+    const wrapper = mount(ActivitySection)
     const cards = wrapper.findAll('.rounded-2xl')
 
     cards.forEach(card => {

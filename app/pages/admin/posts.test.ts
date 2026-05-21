@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 import { setActivePinia, createPinia } from 'pinia'
 import { h } from 'vue'
 
@@ -41,20 +41,20 @@ describe('pages/admin/posts.vue', () => {
 
   it('renders the page heading', async () => {
     mockFetch.mockResolvedValue([mockPost])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     expect(wrapper.find('h1').text()).toBe('Blog Posts')
   })
 
   it('renders the Create Post button', async () => {
     mockFetch.mockResolvedValue([])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     const btns = wrapper.findAll('button').filter(b => b.text().includes('Create Post'))
     expect(btns.length).toBeGreaterThan(0)
   })
 
   it('shows empty state when no posts exist', async () => {
     mockFetch.mockResolvedValue([])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     await new Promise(r => setTimeout(r, 50))
     await wrapper.vm.$nextTick()
     expect(wrapper.text()).toContain('No blog posts yet')
@@ -62,7 +62,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('renders posts table when posts exist', async () => {
     mockFetch.mockResolvedValue([mockPost])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     await new Promise(r => setTimeout(r, 50))
     await wrapper.vm.$nextTick()
     expect(wrapper.find('table').exists()).toBe(true)
@@ -70,7 +70,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('opens create modal when Create Post button is clicked', async () => {
     mockFetch.mockResolvedValue([])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     const createBtn = wrapper.findAll('button').find(b => b.text().includes('Create Post'))
     if (createBtn) {
       await createBtn.trigger('click')
@@ -82,7 +82,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('sets editingPost when edit is emitted from table', async () => {
     mockFetch.mockResolvedValue([mockPost])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     await new Promise(r => setTimeout(r, 50))
     await wrapper.vm.$nextTick()
 
@@ -96,7 +96,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('sets deletingPost when delete is emitted from table', async () => {
     mockFetch.mockResolvedValue([mockPost])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     await new Promise(r => setTimeout(r, 50))
     await wrapper.vm.$nextTick()
 
@@ -110,7 +110,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('closeFormModal resets form state', async () => {
     mockFetch.mockResolvedValue([])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
 
     const form = wrapper.findComponent({ name: 'BlogPostForm' })
     const createBtn = wrapper.findAll('button').find(b => b.text().includes('Create Post'))
@@ -124,7 +124,7 @@ describe('pages/admin/posts.vue', () => {
 
   it('closeDeleteModal resets delete state', async () => {
     mockFetch.mockResolvedValue([mockPost])
-    const wrapper = await mountSuspended(AdminPostsPage)
+    const wrapper = mount(AdminPostsPage)
     await new Promise(r => setTimeout(r, 50))
     await wrapper.vm.$nextTick()
 

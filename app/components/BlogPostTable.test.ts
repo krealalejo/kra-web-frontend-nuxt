@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 import BlogPostTable from './BlogPostTable.vue'
 
 describe('components/BlogPostTable.vue', () => {
@@ -21,7 +21,7 @@ describe('components/BlogPostTable.vue', () => {
   ]
 
   it('renders a list of posts', async () => {
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: mockPosts }
     })
     expect(wrapper.text()).toContain('Test Post 1')
@@ -31,7 +31,7 @@ describe('components/BlogPostTable.vue', () => {
   })
 
   it('formats dates correctly', async () => {
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: [mockPosts[0]] }
     })
     expect(wrapper.text()).toContain('2023')
@@ -39,7 +39,7 @@ describe('components/BlogPostTable.vue', () => {
   })
 
   it('emits edit when Edit button is clicked', async () => {
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: [mockPosts[0]] }
     })
     const editBtn = wrapper.findAll('button').find(b => b.text().includes('Edit'))
@@ -48,7 +48,7 @@ describe('components/BlogPostTable.vue', () => {
   })
 
   it('emits delete when Delete button is clicked', async () => {
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: [mockPosts[0]] }
     })
     const deleteBtn = wrapper.findAll('button').find(b => b.text().includes('Delete'))
@@ -58,7 +58,7 @@ describe('components/BlogPostTable.vue', () => {
 
   it('renders thumbnail when post has imageUrl', async () => {
     const postWithImage = { ...mockPosts[0], imageUrl: 'blog/my-post-cover.webp' }
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: [postWithImage] }
     })
     const img = wrapper.find('img')
@@ -67,7 +67,7 @@ describe('components/BlogPostTable.vue', () => {
   })
 
   it('renders empty state when posts array is empty', async () => {
-    const wrapper = await mountSuspended(BlogPostTable, {
+    const wrapper = mount(BlogPostTable, {
       props: { posts: [] }
     })
     expect(wrapper.findAll('tbody tr').length).toBe(0)

@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { shallowMount } from '@vue/test-utils'
 import CvPage from './cv.vue'
 
 describe('pages/admin/cv.vue', () => {
   it('renders the admin CV section component', async () => {
-    const wrapper = await mountSuspended(CvPage)
+    const wrapper = shallowMount(CvPage)
     expect(wrapper.findComponent({ name: 'AdminCvSection' })).toBeDefined()
   })
 })

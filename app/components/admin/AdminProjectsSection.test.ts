@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
 import AdminProjectsSection from './AdminProjectsSection.vue'
-import { flushPromises } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
+import { nextTick } from 'vue'
 
 const mockRepos = [
   { owner: 'owner1', name: 'repo1', fullName: 'owner1/repo1', description: 'Desc 1' },
@@ -27,7 +27,8 @@ describe('components/admin/AdminProjectsSection.vue', () => {
 
   it('renders loading state initially', async () => {
     mockFetch.mockReturnValue(new Promise(() => {}))
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
+    await nextTick()
     expect(wrapper.text()).toContain('Loading repositories')
   })
 
@@ -37,7 +38,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockResolvedValueOnce(mockMetadata)
       .mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     expect(wrapper.text()).toContain('owner1/repo1')
@@ -50,7 +51,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     const addBtn = wrapper.find('button')
@@ -63,7 +64,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -85,7 +86,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockRejectedValueOnce(new Error('Not found'))
       .mockResolvedValueOnce(mockMetadata)
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -101,7 +102,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockRejectedValueOnce(new Error('Not found'))
       .mockRejectedValueOnce(new Error('Save failed'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -116,7 +117,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockResolvedValueOnce([mockRepos[0]])
       .mockResolvedValueOnce(mockMetadata)
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     const editBtn = wrapper.find('button[aria-label*="Edit metadata"]')
@@ -133,7 +134,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockResolvedValueOnce([mockRepos[1]])
       .mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -158,7 +159,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
       .mockResolvedValueOnce([mockRepos[1]])
       .mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -172,7 +173,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
   it('shows empty repos message when no repos found', async () => {
     mockFetch.mockResolvedValueOnce([])
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     expect(wrapper.text()).toContain('No repositories found')
@@ -181,7 +182,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
   it('shows error when loading repos fails', async () => {
     mockFetch.mockRejectedValueOnce(new Error('Load failed'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     expect(wrapper.text()).toContain('Could not load repositories')
@@ -191,7 +192,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -207,7 +208,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')
@@ -225,7 +226,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     mockFetch.mockResolvedValueOnce([mockRepos[1]])
     mockFetch.mockRejectedValueOnce(new Error('Not found'))
 
-    const wrapper = await mountSuspended(AdminProjectsSection)
+    const wrapper = mount(AdminProjectsSection)
     await flushPromises()
 
     await wrapper.find('button').trigger('click')

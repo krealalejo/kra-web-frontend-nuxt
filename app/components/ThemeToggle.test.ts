@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 import ThemeToggle from './ThemeToggle.vue'
 
 const mockToggle = vi.fn()
@@ -19,7 +19,7 @@ describe('components/ThemeToggle.vue', () => {
   })
 
   it('renders correctly when light mode is active', async () => {
-    const wrapper = await mountSuspended(ThemeToggle)
+    const wrapper = mount(ThemeToggle)
     await nextTick()
 
     expect(wrapper.attributes('aria-label')).toBe('Switch to dark mode')
@@ -28,21 +28,21 @@ describe('components/ThemeToggle.vue', () => {
 
   it('renders correctly when dark mode is active', async () => {
     mockIsDark.value = true
-    const wrapper = await mountSuspended(ThemeToggle)
+    const wrapper = mount(ThemeToggle)
     await nextTick()
 
     expect(wrapper.attributes('aria-label')).toBe('Switch to light mode')
   })
 
   it('calls toggle function when clicked', async () => {
-    const wrapper = await mountSuspended(ThemeToggle)
+    const wrapper = mount(ThemeToggle)
     await wrapper.trigger('click')
 
     expect(mockToggle).toHaveBeenCalled()
   })
 
   it('shows fallback during SSR/hydration', async () => {
-    const wrapper = await mountSuspended(ThemeToggle)
+    const wrapper = mount(ThemeToggle)
     expect(wrapper.find('button').exists()).toBe(true)
   })
 })

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 
 const { MockKonami, mockUnload } = vi.hoisted(() => {
   const mockUnload = vi.fn()
@@ -19,13 +19,13 @@ describe('components/AppKonamiListener.vue', () => {
   })
 
   it('instantiates Konami on mount', async () => {
-    await mountSuspended(AppKonamiListener)
+    mount(AppKonamiListener)
     expect(MockKonami).toHaveBeenCalledTimes(1)
     expect(typeof MockKonami.mock.calls[0][0]).toBe('function')
   })
 
   it('toggles isRickRolled state when Konami callback fires', async () => {
-    await mountSuspended(AppKonamiListener)
+    mount(AppKonamiListener)
     const cb = MockKonami.mock.calls[0][0] as () => void
     const isRickRolled = useState<boolean>('isRickRolled')
     expect(isRickRolled.value).toBe(false)
@@ -36,14 +36,14 @@ describe('components/AppKonamiListener.vue', () => {
   })
 
   it('calls unload on beforeUnmount when instance exists', async () => {
-    const wrapper = await mountSuspended(AppKonamiListener)
+    const wrapper = mount(AppKonamiListener)
     wrapper.unmount()
     expect(mockUnload).toHaveBeenCalledTimes(1)
   })
 
   it('does not throw on unmount when instance is null', async () => {
     MockKonami.mockImplementationOnce(function () { throw new Error('init failed') })
-    const wrapper = await mountSuspended(AppKonamiListener)
+    const wrapper = mount(AppKonamiListener)
     expect(() => wrapper.unmount()).not.toThrow()
     expect(mockUnload).not.toHaveBeenCalled()
   })

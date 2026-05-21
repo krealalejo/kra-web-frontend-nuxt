@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mount } from '@vue/test-utils'
 import { ref } from 'vue'
 
 const mockInit = vi.fn()
@@ -38,19 +39,19 @@ describe('app.vue', () => {
 
   it('mounts and calls theme init on mount', async () => {
     mockInit.mockClear()
-    const wrapper = await mountSuspended(AppVue)
+    const wrapper = mount(AppVue)
     expect(wrapper.exists()).toBe(true)
     expect(mockInit).toHaveBeenCalled()
   })
 
   it('renders layout slot container', async () => {
-    const wrapper = await mountSuspended(AppVue)
+    const wrapper = mount(AppVue)
     expect(wrapper.html()).toBeTruthy()
   })
 
   describe('data-theme head attribute', () => {
     it('is a computed ref not a static string', async () => {
-      await mountSuspended(AppVue)
+      mount(AppVue)
       const headOpts = useHeadSpy.mock.calls[0]?.[0]
       const dataTheme = headOpts?.htmlAttrs?.['data-theme']
       expect(typeof dataTheme).not.toBe('string')
@@ -59,7 +60,7 @@ describe('app.vue', () => {
 
     it('resolves to light when isDark is false', async () => {
       mockIsDark.value = false
-      await mountSuspended(AppVue)
+      mount(AppVue)
       const headOpts = useHeadSpy.mock.calls[0]?.[0]
       const dataTheme = headOpts?.htmlAttrs?.['data-theme']
       expect(dataTheme?.value).toBe('light')
@@ -67,7 +68,7 @@ describe('app.vue', () => {
 
     it('resolves to dark when isDark is true', async () => {
       mockIsDark.value = true
-      await mountSuspended(AppVue)
+      mount(AppVue)
       const headOpts = useHeadSpy.mock.calls[0]?.[0]
       const dataTheme = headOpts?.htmlAttrs?.['data-theme']
       expect(dataTheme?.value).toBe('dark')
@@ -75,7 +76,7 @@ describe('app.vue', () => {
 
     it('updates reactively when isDark changes after mount', async () => {
       mockIsDark.value = false
-      await mountSuspended(AppVue)
+      mount(AppVue)
       const headOpts = useHeadSpy.mock.calls[0]?.[0]
       const dataTheme = headOpts?.htmlAttrs?.['data-theme']
       expect(dataTheme?.value).toBe('light')

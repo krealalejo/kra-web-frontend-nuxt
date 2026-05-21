@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
-import { flushPromises } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import ProfileSection from './ProfileSection.vue'
 
 const mockFetch = vi.fn()
@@ -19,7 +19,8 @@ describe('ProfileSection', () => {
   })
 
   it('renders both portrait previews when data is available', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
 
     const imgs = wrapper.findAll('img')
     expect(imgs.length).toBe(2)
@@ -29,7 +30,7 @@ describe('ProfileSection', () => {
 
   it('renders placeholders when data is null', async () => {
     mockFetch.mockResolvedValue({ homePortraitUrl: null, cvPortraitUrl: null })
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
 
     expect(wrapper.findAll('img').length).toBe(0)
     expect(wrapper.text()).toContain('No portrait')
@@ -40,7 +41,8 @@ describe('ProfileSection', () => {
     ;(error as any).response = { status: 500 }
     mockFetch.mockRejectedValue(error)
 
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
     expect(wrapper.text()).toContain('Failed to load current portraits')
   })
 
@@ -49,12 +51,12 @@ describe('ProfileSection', () => {
     ;(error as any).response = { status: 404 }
     mockFetch.mockRejectedValue(error)
 
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     expect(wrapper.text()).not.toContain('Failed to load current portraits')
   })
 
   it('validates file type on upload', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.pdf', { type: 'application/pdf' })
@@ -65,7 +67,7 @@ describe('ProfileSection', () => {
   })
 
   it('validates file size on upload', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
@@ -77,7 +79,8 @@ describe('ProfileSection', () => {
   })
 
   it('performs full upload flow for home portrait', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
@@ -92,6 +95,7 @@ describe('ProfileSection', () => {
     })
 
     await input.trigger('change')
+    await flushPromises()
 
     expect(wrapper.text()).toContain('Processing')
 
@@ -107,7 +111,8 @@ describe('ProfileSection', () => {
   })
 
   it('performs full upload flow for CV portrait', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
     const input = wrapper.findAll('input[type="file"]')[1]
 
     const file = new File([''], 'test-cv.jpg', { type: 'image/jpeg' })
@@ -122,6 +127,7 @@ describe('ProfileSection', () => {
     })
 
     await input.trigger('change')
+    await flushPromises()
 
     expect(wrapper.text()).toContain('Processing')
 
@@ -137,7 +143,7 @@ describe('ProfileSection', () => {
   })
 
   it('handles upload error', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
@@ -149,7 +155,8 @@ describe('ProfileSection', () => {
   })
 
   it('handles portrait deletion', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
 
     expect(wrapper.findAll('img').length).toBe(2)
 
@@ -174,7 +181,8 @@ describe('ProfileSection', () => {
   })
 
   it('handles CV portrait deletion', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
 
     const deleteBtns = wrapper.findAll('button[title="Remove portrait"]')
     expect(deleteBtns.length).toBe(2)
@@ -197,7 +205,8 @@ describe('ProfileSection', () => {
   })
 
   it('handles removal error', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
     const deleteBtn = wrapper.find('button[title="Remove portrait"]')
 
     mockFetch.mockRejectedValue(new Error('Removal failed'))
@@ -207,7 +216,7 @@ describe('ProfileSection', () => {
   })
 
   it('stops polling after 15 failed not-ready responses', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
@@ -234,21 +243,22 @@ describe('ProfileSection', () => {
   })
 
   it('does nothing when no file is selected for home upload', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
     await input.trigger('change')
     expect(mockFetch).not.toHaveBeenCalledWith('/api/admin/upload', expect.anything())
   })
 
   it('does nothing when no file is selected for cv upload', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.findAll('input[type="file"]')[1]
     await input.trigger('change')
     expect(mockFetch).not.toHaveBeenCalledWith('/api/admin/upload', expect.anything())
   })
 
   it('shows "Removal failed" when removePortrait rejection is not an Error', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
+    await flushPromises()
     const deleteBtn = wrapper.find('button[title="Remove portrait"]')
     mockFetch.mockRejectedValue('string rejection')
     await deleteBtn.trigger('click')
@@ -261,13 +271,13 @@ describe('ProfileSection', () => {
     delete error.response
     error.statusCode = 500
     mockFetch.mockRejectedValue(error)
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     await flushPromises()
     expect(wrapper.text()).toContain('Failed to load current portraits')
   })
 
   it('stops polling after 15 fetch errors in polling', async () => {
-    const wrapper = await mountSuspended(ProfileSection)
+    const wrapper = mount(ProfileSection)
     const input = wrapper.find('input[type="file"]')
 
     const file = new File([''], 'test.jpg', { type: 'image/jpeg' })

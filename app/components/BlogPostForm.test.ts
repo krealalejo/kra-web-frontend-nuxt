@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { flushPromises } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import BlogPostForm from './BlogPostForm.vue'
 import { useBlogStore, type BlogPost } from '~/stores/blog'
@@ -16,7 +15,7 @@ describe('components/BlogPostForm.vue', () => {
   }
 
   it('renders create mode correctly', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -31,7 +30,7 @@ describe('components/BlogPostForm.vue', () => {
   })
 
   it('renders edit mode correctly', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: mockPost },
       global: {
         stubs: {
@@ -46,7 +45,7 @@ describe('components/BlogPostForm.vue', () => {
   })
 
   it('emits close when Cancel is clicked', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -62,7 +61,7 @@ describe('components/BlogPostForm.vue', () => {
   })
 
   it('validates required fields on submit', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -84,7 +83,7 @@ describe('components/BlogPostForm.vue', () => {
     const store = useBlogStore()
     const spy = vi.spyOn(store, 'createPost').mockImplementation(async () => mockPost)
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -109,7 +108,7 @@ describe('components/BlogPostForm.vue', () => {
 
   it('removes thumbnail when Remove button is clicked', async () => {
     const postWithImage: BlogPost = { ...mockPost, imageUrl: 'images/test.jpg' }
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: postWithImage },
       global: {
         stubs: {
@@ -133,7 +132,7 @@ describe('components/BlogPostForm.vue', () => {
     const store = useBlogStore()
     const spy = vi.spyOn(store, 'updatePost').mockImplementation(async () => mockPost)
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: mockPost },
       global: {
         stubs: {
@@ -159,7 +158,7 @@ describe('components/BlogPostForm.vue', () => {
     const store = useBlogStore()
     vi.spyOn(store, 'createPost').mockRejectedValue(new Error('Server error'))
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -187,7 +186,7 @@ describe('components/BlogPostForm.vue', () => {
   })
 
   it('adds and removes references', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: {
         stubs: {
@@ -227,7 +226,7 @@ describe('BlogPostForm — image upload', () => {
       .mockResolvedValueOnce({})
       .mockResolvedValue({ ready: true })
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs }
     })
@@ -246,7 +245,7 @@ describe('BlogPostForm — image upload', () => {
     vi.stubGlobal('$fetch', mockFetch)
     mockFetch.mockRejectedValue(new Error('Upload failed'))
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs }
     })
@@ -271,7 +270,7 @@ describe('BlogPostForm — image upload', () => {
 
     vi.useFakeTimers()
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs }
     })
@@ -311,7 +310,7 @@ describe('BlogPostForm — thumbnail polling timer', () => {
       .mockResolvedValueOnce({})
       .mockResolvedValue({ ready: true })
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
@@ -335,7 +334,7 @@ describe('BlogPostForm — thumbnail polling timer', () => {
       .mockResolvedValueOnce({})
       .mockResolvedValue({ ready: false })
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
@@ -361,7 +360,7 @@ describe('BlogPostForm — thumbnail polling timer', () => {
       .mockResolvedValueOnce({})
       .mockRejectedValue(new Error('Network error'))
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
@@ -389,7 +388,7 @@ describe('BlogPostForm — dialog open watcher', () => {
   }
 
   it('resets form state when dialog closes', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
@@ -401,7 +400,7 @@ describe('BlogPostForm — dialog open watcher', () => {
   })
 
   it('does not reset form when dialog opens (open: false to true)', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: false, post: null },
       global: { stubs: dialogStubs },
     })
@@ -426,7 +425,7 @@ describe('BlogPostForm — post watch edge cases', () => {
       createdAt: '2023-01-01', updatedAt: '2023-01-01',
       references: null as any
     }
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: postWithNullRefs },
       global: { stubs: dialogStubs },
     })
@@ -438,7 +437,7 @@ describe('BlogPostForm — post watch edge cases', () => {
     vi.spyOn(store, 'createPost').mockRejectedValue('non-error-string')
     store.error = null
 
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
@@ -462,7 +461,7 @@ describe('BlogPostForm — reference field inputs', () => {
   }
 
   it('allows editing reference label and url', async () => {
-    const wrapper = await mountSuspended(BlogPostForm, {
+    const wrapper = mount(BlogPostForm, {
       props: { open: true, post: null },
       global: { stubs: dialogStubs },
     })
