@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event)
 
-  const { title, company, location, years, description, sortOrder } = body
+  const { title, company, location, years, description, sortOrder, logoUrl } = body
 
   if (!title || !company || !location || !years || !description) {
     throw createError({ statusCode: 422, statusMessage: 'Missing required fields' })
@@ -24,6 +24,7 @@ export default defineEventHandler(async (event) => {
     years,
     description,
     ...(sortOrder !== undefined && { sortOrder }),
+    ...(logoUrl !== undefined && { logoUrl }),
   }
 
   const response = await $fetch(`${config.apiBase}/cv/experience`, {

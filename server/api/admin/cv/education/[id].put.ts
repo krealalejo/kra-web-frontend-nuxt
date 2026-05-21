@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     ...(body.years !== undefined && { years: body.years }),
     ...(body.description !== undefined && { description: body.description }),
     ...(body.sortOrder !== undefined && { sortOrder: body.sortOrder }),
+    ...(body.logoUrl !== undefined && { logoUrl: body.logoUrl }),
   }
 
   const response = await $fetch(`${config.apiBase}/cv/education/${id}`, {
