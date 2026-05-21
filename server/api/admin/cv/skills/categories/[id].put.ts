@@ -22,6 +22,7 @@ export default defineEventHandler(async (event) => {
   const safeBody = {
     ...(body.name !== undefined && { name: body.name }),
     ...(body.skills !== undefined && { skills: body.skills }),
+    ...(body.sortOrder !== undefined && { sortOrder: body.sortOrder }),
   }
 
   const response = await $fetch(`${config.apiBase}/cv/skills/categories/${id}`, {
