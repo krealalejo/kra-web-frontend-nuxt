@@ -65,6 +65,7 @@ useHead(() => {
       id: 'hero-init',
       children: `@media (prefers-reduced-motion: no-preference) {
         .display-name, .hero-role, .hero-paragraphs > *, .hero-stack .chip, .hero-portrait { opacity: 0; }
+        .display-name { overflow: hidden; }
       }`,
     }],
   }
@@ -95,18 +96,23 @@ onMounted(async () => {
 
   const display = hero?.querySelector('.display-name') as HTMLElement | null
   if (display) {
-    gsap.fromTo(display, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'power3.out' })
+    const text = display.innerText
+    gsap.set(display, { opacity: 1 })
+    display.innerHTML = text.split('').map(c =>
+      c === ' ' ? `<span class="dl" style="display:inline-block">&nbsp;</span>` : `<span class="dl">${c}</span>`
+    ).join('')
+    gsap.fromTo('.dl', { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' })
   }
 
-  gsap.fromTo('.hero-role',           { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.4 })
-  gsap.fromTo('.hero-paragraphs > *', { opacity: 0 }, { opacity: 1, duration: 0.8, delay: 0.6, stagger: 0.12 })
-  gsap.fromTo('.hero-stack .chip',    { opacity: 0 }, { opacity: 1, duration: 0.6, delay: 0.9, stagger: 0.04 })
-  gsap.fromTo('.hero-portrait',       { opacity: 0 }, { opacity: 1, duration: 1.0, delay: 1.0 })
+  gsap.fromTo('.hero-role',           { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'power2.out' })
+  gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.7, stagger: 0.12, ease: 'power2.out' })
+  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.0, stagger: 0.04, ease: 'power2.out' })
+  gsap.fromTo('.hero-portrait',       { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.2, delay: 0.3, ease: 'power2.out' })
 
   gsap.utils.toArray<HTMLElement>('.reveal-scroll').forEach(el => {
     gsap.fromTo(el,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.9, ease: 'power2.out',
+      { opacity: 0, y: 32 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 88%', once: true } }
     )
   })
@@ -313,6 +319,10 @@ function projectNum(i: number) {
 </template>
 
 <style scoped>
+:deep(.display-name .dl) {
+  display: inline-block;
+}
+
 .activity-layout {
   display: grid;
   grid-template-columns: 1.4fr 1fr;

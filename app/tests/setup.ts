@@ -1,5 +1,13 @@
 import { vi } from 'vitest'
 
+// Must be set before any module loads — ScrollTrigger.js registers a setTimeout on import
+// that calls requestAnimationFrame. happy-dom tears down window between test files, leaving
+// the bare name undefined when that timer fires.
+globalThis.requestAnimationFrame = globalThis.requestAnimationFrame
+  ?? ((cb: FrameRequestCallback) => setTimeout(cb, 16) as unknown as number)
+globalThis.cancelAnimationFrame = globalThis.cancelAnimationFrame
+  ?? ((id: number) => clearTimeout(id))
+
 vi.mock('gsap', () => {
   const gsapMock = {
     from: vi.fn().mockReturnThis(),
@@ -40,6 +48,22 @@ vi.mock('gsap/ScrollTrigger', () => ({
 vi.mock('gsap/ScrollToPlugin', () => ({
   ScrollToPlugin: {},
 }))
+
+vi.mock('~/composables/useGsap', async () => {
+  const gsapModule = await import('gsap')
+  const gsap = (gsapModule as any).default ?? gsapModule
+  return {
+    useGsap: vi.fn().mockResolvedValue({
+      gsap,
+      ScrollTrigger: {
+        create: vi.fn(),
+        refresh: vi.fn(),
+        getAll: vi.fn().mockReturnValue([]),
+        batch: vi.fn(),
+      },
+    }),
+  }
+})
 
 vi.mock('#app', async (importOriginal) => {
   const actual = await importOriginal<typeof import('#app')>()
@@ -97,11 +121,6 @@ config.global.stubs = {
   NuxtPage: { template: '<div />' },
   NuxtRouteAnnouncer: { template: '<div />' },
   ClientOnly: { template: '<div><slot /></div>' },
-}
-
-if (typeof globalThis.requestAnimationFrame === 'undefined') {
-  globalThis.requestAnimationFrame = (cb: FrameRequestCallback) => setTimeout(cb, 16) as unknown as number
-  globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id)
 }
 
 if (globalThis.window !== undefined) {

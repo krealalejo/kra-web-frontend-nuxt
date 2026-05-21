@@ -17,6 +17,7 @@ const { isMissingApiBase } = useApiError(error)
 
 const frozenProjects = ref<PortfolioRepoDto[]>([])
 const isAnimating = ref(false)
+const cardsReady = ref(false)
 let animId = 0
 
 const displayProjects = computed(() => {
@@ -102,6 +103,23 @@ async function applyFilter(k: string) {
   if (id === animId) isAnimating.value = false
 }
 
+async function animateCardsIn() {
+  const { gsap } = await useGsap()
+  const cards = gsap.utils.toArray('.proj-card')
+  if (cards.length === 0) return
+  gsap.set(cards, { opacity: 0, scale: 1.05, y: -15 })
+  cardsReady.value = true
+  gsap.to(cards, {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    stagger: { each: 0.07, from: 'start' },
+    duration: 0.6,
+    ease: 'back.out(1.2)',
+    clearProps: 'all'
+  })
+}
+
 onMounted(async () => {
   const { gsap } = await useGsap()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
@@ -109,19 +127,14 @@ onMounted(async () => {
   gsap.fromTo('.page-head .kicker', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.3 })
 
   if (gsap.utils.toArray('.proj-card').length > 0) {
-    gsap.fromTo('.proj-card', { opacity: 0 }, { opacity: 1, duration: 0.9, delay: 0.3, stagger: 0.1 })
+    animateCardsIn()
   }
 })
 
 watch(pending, (isPending) => {
   if (!import.meta.client) return
   if (!isPending) {
-    nextTick(async () => {
-      const { gsap } = await useGsap()
-      if (gsap.utils.toArray('.proj-card').length > 0) {
-        gsap.fromTo('.proj-card', { opacity: 0 }, { opacity: 1, duration: 0.9, stagger: 0.1 })
-      }
-    })
+    nextTick(() => animateCardsIn())
   }
 })
 
@@ -139,6 +152,7 @@ useHead({
     id: 'projects-init',
     children: `@media (prefers-reduced-motion: no-preference) {
       .page-head .overline, .page-head h1, .page-head .kicker { opacity: 0; }
+      .proj-grid:not(.proj-grid--ready) .proj-card { opacity: 0; }
     }`,
   }],
 })
@@ -185,7 +199,7 @@ useHead({
         No projects found.
       </div>
 
-      <div v-else class="proj-grid">
+      <div v-else class="proj-grid" :class="{ 'proj-grid--ready': cardsReady }">
         <NuxtLink
           v-for="(repo, i) in displayProjects"
           :key="repo.fullName"
