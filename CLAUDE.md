@@ -1,32 +1,94 @@
-# CLAUDE.md — kra-web-frontend-nuxt
+# CLAUDE.md
 
-## Interaction Rules
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-- **Language:** All code, comments, variable names, and documentation files must be written in English.
-- **Git Strategy:** Trunk Based Development. Each GSD phase executes on a dedicated branch `feat/phase-NN-<slug>` branched from `main`. Never commit directly to `main`.
-- **Commits:** Conventional Commits — `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`.
-- **Atomic:** Split commits at the component or page level — one new component/page = one commit. Do not bundle multiple concerns into a single commit.
+## Commands
 
-## Frontend-Specific Rules
+```bash
+pnpm install
+pnpm dev              # localhost:3000
+pnpm build
+pnpm generate         # SSG
+pnpm typecheck
+pnpm test             # Vitest run (also runs on pre-push via lefthook)
+pnpm test:watch       # watch mode
+pnpm test:coverage    # coverage report (80% threshold: lines/statements/functions/branches)
+```
 
-- **Runtime:** Nuxt 4 with `app/` layout convention — all pages, components, and composables live under `app/`, not the repo root.
-- **Package manager:** pnpm (not npm or yarn). Always use `pnpm` commands.
-- **State management:** Pinia stores for global shared state; `useAsyncData`/`useFetch` for SSR data fetching.
-- **Forms:** VeeValidate + Zod schemas for all form validation.
-- **Tests:** Vitest for unit and component tests. `pnpm test` must pass before any commit.
-- **Admin routes:** `/admin/**` are SPA-only (`ssr: false` in `nuxt.config.ts` routeRules); protected by auth middleware that checks the `kra_session` httpOnly cookie.
-- **Auth:** Cognito OAuth2 code flow handled in Nuxt server routes (`server/api/auth/`). Only `cognitoClientSecret` is private runtimeConfig; `cognitoClientId` and `cognitoRedirectUri` are public runtimeConfig.
-- **No backend calls from browser for admin writes:** Use same-origin Nuxt server routes (`/api/admin/posts`) that forward `Authorization: Bearer` from `kra_session` cookie to the Spring Boot API.
+To run a single test file: `pnpm vitest run app/composables/useMarkdown.test.ts`
 
-## Repository Context
+## Architecture
 
-Nuxt 4 / Vue 3 portfolio frontend (SSR public pages + SPA admin):
-- **Public pages (SSR):** `/` (hero + portfolio), `/blog` (post list), `/blog/[slug]` (Markdown rendered with marked + DOMPurify), `/portfolio/[owner]/[repo]` (GitHub detail), `/contact`, `/cv`
-- **Admin SPA (`/admin`):** Blog post CRUD dashboard (Pinia `useBlogStore`), Markdown split-pane editor, quality metrics widget (SonarCloud badges)
-- **Auth flow:** Cognito Hosted UI → `/api/auth/callback` (code exchange → id_token in httpOnly cookie) → `/api/auth/logout` (federated logout)
+### API routing: Nitro proxy vs direct
 
-See [kra-docs-architecture](https://github.com/krealalejo/kra-docs-architecture) for the full system C4 diagrams.
+In **production** all frontend → backend calls go through Nitro proxy rules (`/api/*` → `kra-api`). The browser never sees the backend URL. In **development** `runtimeConfig.public.apiBase` resolves to `http://localhost:8080` directly (bypassing the proxy). This is controlled in `nuxt.config.ts`:
 
-## Current Phase: 21 — C4 Final & Launch
+```ts
+public: {
+  apiBase: process.env.NODE_ENV === "production"
+    ? "/api"
+    : "http://localhost:8080";
+}
+```
 
-All features complete. This phase adds README badges and this CLAUDE.md only. No component or page changes.
+Cached proxy routes: `/api/portfolio/**` (5 min), `/api/config/**` (5 min), `/api/images/**` (7 days), `/api/activity` (1 min).
+
+### Auth flow (Cognito OAuth2 code flow)
+
+The Cognito client secret **never leaves the server**. Full flow:
+
+1. `/admin/login` redirects browser to Cognito Hosted UI
+2. Cognito redirects back to `/api/auth/callback` (Nitro server route)
+3. `server/api/auth/callback.get.ts` exchanges the code for tokens using `config.cognitoClientSecret` (private runtimeConfig)
+4. Sets two cookies: `kra_session` (httpOnly, contains `access_token`, 1h) and `kra_user` (readable by JS, contains email)
+5. Redirects to `/admin/quality`
+
+`server/api/auth/session.get.ts` checks `kra_session` cookie and decodes the JWT expiry client-side to return `{ authenticated: true/false }`.
+
+`app/middleware/auth.ts` calls `/api/auth/session` on every `/admin/**` navigation (except `/admin/login` and `/admin/callback`).
+
+### SSR vs SPA split
+
+`routeRules` in `nuxt.config.ts`:
+
+- `/admin/**` → `ssr: false` (client-side SPA, auth happens client-side after hydration)
+- `/admin/login` → `ssr: true` (override — login page is server-rendered)
+- All public pages default to SSR
+
+### Admin server routes
+
+`server/api/admin/**` are **authenticated Nitro routes** that proxy to `kra-api` with the `kra_session` cookie forwarded as a `Bearer` token. They handle: posts CRUD, projects CRUD, CV (experience/education/skills), activity cards, profile config, image upload/delete, cache management, metrics.
+
+### Pinia stores
+
+- `blog.ts` — blog post CRUD (used by admin pages); calls `/api/admin/posts`
+- `activity.ts` — activity cards (used by admin `/admin/activity`)
+
+Public pages use `useAsyncData`/`useFetch` composables directly (no store).
+
+### Key composables
+
+| Composable             | Purpose                                                                    |
+| ---------------------- | -------------------------------------------------------------------------- |
+| `useMarkdown.ts`       | Renders markdown via `marked` + sanitizes with `DOMPurify`/`sanitize-html` |
+| `useMermaid.ts`        | Lazy-loads and renders Mermaid diagrams in blog posts                      |
+| `useGsapAnimations.ts` | Reusable GSAP animation presets for page/component transitions             |
+| `useS3.ts`             | Polls `/api/admin/image-status` after upload to wait for S3 thumbnail      |
+| `useTheme.ts`          | Light/dark theme toggle persisted to localStorage                          |
+| `useBlogPostForm.ts`   | VeeValidate + Zod form logic for blog post creation/edit                   |
+| `useApiError.ts`       | Normalises API error responses for display                                 |
+
+### Test setup
+
+Tests use `@nuxt/test-utils` with `environment: 'nuxt'` and `happy-dom`. The vitest config overrides `runtimeConfig` with test values so composables that call `useRuntimeConfig()` work without a real env. Setup file: `app/tests/setup.ts`. Coverage includes `app/**/*.ts`, `app/**/*.vue`, `server/**/*.ts`.
+
+## Required env vars (`.env`)
+
+| Variable                     | Notes                                                                             |
+| ---------------------------- | --------------------------------------------------------------------------------- |
+| `NUXT_PUBLIC_API_BASE_URL`   | `kra-api` base URL (used by both proxy rules and dev direct calls)                |
+| `NUXT_COGNITO_CLIENT_ID`     | Cognito App Client ID                                                             |
+| `NUXT_COGNITO_CLIENT_SECRET` | Cognito App Client Secret — **server-only** (`runtimeConfig.cognitoClientSecret`) |
+| `NUXT_PUBLIC_COGNITO_DOMAIN` | Cognito Hosted UI domain                                                          |
+| `NUXT_COGNITO_REDIRECT_URI`  | Must match Cognito allowed callback URL (`.../api/auth/callback`)                 |
+| `NUXT_COGNITO_LOGOUT_URI`    | Must match Cognito allowed sign-out URL                                           |
