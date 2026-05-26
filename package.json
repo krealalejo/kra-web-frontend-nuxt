@@ -39,7 +39,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@iconify-json/lucide": "^1.2.103",
+    "@iconify-json/lucide": "^1.2.109",
     "@nuxt/test-utils": "^4.0.2",
     "@nuxtjs/sitemap": "^8.0.15",
     "@pinia/testing": "^1.0.3",
