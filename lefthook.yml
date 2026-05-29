@@ -2,4 +2,3 @@ pre-push:
   commands:
     tests:
       run: pnpm test
-
