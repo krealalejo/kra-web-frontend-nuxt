@@ -52,16 +52,15 @@ vi.mock('gsap/ScrollToPlugin', () => ({
 vi.mock('~/composables/useGsap', async () => {
   const gsapModule = await import('gsap')
   const gsap = (gsapModule as any).default ?? gsapModule
+  const scrollTriggerMock = {
+    create: vi.fn(),
+    refresh: vi.fn(),
+    getAll: vi.fn().mockReturnValue([]),
+    batch: vi.fn(),
+  }
   return {
-    useGsap: vi.fn().mockResolvedValue({
-      gsap,
-      ScrollTrigger: {
-        create: vi.fn(),
-        refresh: vi.fn(),
-        getAll: vi.fn().mockReturnValue([]),
-        batch: vi.fn(),
-      },
-    }),
+    useGsap: vi.fn().mockResolvedValue({ gsap, ScrollTrigger: scrollTriggerMock }),
+    useGsapBase: vi.fn().mockResolvedValue({ gsap }),
   }
 })
 
