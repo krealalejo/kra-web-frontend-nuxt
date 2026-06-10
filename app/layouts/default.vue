@@ -21,7 +21,7 @@ const navItems = [
 ]
 
 onMounted(async () => {
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
 
   gsap.fromTo('.kra-nav-logo, .kra-nav-link',
     { opacity: 0 },

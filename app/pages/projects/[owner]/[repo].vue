@@ -161,7 +161,7 @@ function animateIn() {
       .forEach((el) => {
         el.style.opacity = "0";
       });
-    const { gsap } = await useGsap();
+    const { gsap } = await useGsapBase();
     gsap.fromTo(
       ".pd-head",
       { opacity: 0, y: 24 },

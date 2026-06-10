@@ -97,7 +97,7 @@ watch(displayWeeks, () => {
   /* v8 ignore next 1 */
   if (!import.meta.client) return
   nextTick(async () => {
-    const { gsap } = await useGsap()
+    const { gsap } = await useGsapBase()
     /* v8 ignore next 1 */
     if (gsap.utils.toArray('.gh-graph .cell:not(.is-empty)').length > 0) {
       gsap.fromTo('.gh-graph .cell:not(.is-empty)',

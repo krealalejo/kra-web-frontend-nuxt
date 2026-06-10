@@ -4,7 +4,7 @@ export function useGsapHeroAnimation() {
   onMounted(async () => {
     if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll('.gsap-hero-item').length === 0) return
-    const { gsap } = await useGsap()
+    const { gsap } = await useGsapBase()
     gsap.from('.gsap-hero-item', {
       opacity: 0,
       y: 10,
@@ -19,7 +19,7 @@ export function useGsapCardStagger(selector: string = 'li') {
   onMounted(async () => {
     if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll(selector).length === 0) return
-    const { gsap } = await useGsap()
+    const { gsap } = await useGsapBase()
     gsap.from(selector, {
       opacity: 0,
       y: 10,
@@ -35,7 +35,7 @@ export function useGsapNavAnimation() {
   onMounted(async () => {
     if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll('header nav a').length === 0) return
-    const { gsap } = await useGsap()
+    const { gsap } = await useGsapBase()
     gsap.from('header nav a', { opacity: 0, duration: 0.4, ease: 'power1.out', stagger: 0.05 })
   })
 }
@@ -44,20 +44,20 @@ export function useGsapContentAnimation() {
   onMounted(async () => {
     if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     if (document.querySelectorAll('article').length === 0) return
-    const { gsap } = await useGsap()
+    const { gsap } = await useGsapBase()
     gsap.from('article', { opacity: 0, y: 10, duration: 0.5, ease: 'power2.out' })
   })
 }
 
 async function handleCardHover(e: MouseEvent) {
   if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   gsap.to(e.currentTarget, { y: -4, duration: 0.3, ease: 'power1.out' })
 }
 
 async function handleCardHoverOut(e: MouseEvent) {
   if (globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   gsap.to(e.currentTarget, { y: 0, duration: 0.3, ease: 'power1.out' })
 }
 

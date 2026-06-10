@@ -101,7 +101,7 @@ onMounted(async () => {
     el.style.opacity = '0'
   })
 
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   gsap.fromTo('.cv-head h1',  { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.cv-head .role', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.2 })
   gsap.fromTo('.cv-head .actions', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, delay: 0.35 })

@@ -110,7 +110,7 @@ onMounted(async () => {
   if (contentRef.value) renderDiagrams(contentRef.value)
   buildToc()
 
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   gsap.fromTo('.post-head', { opacity: 0 }, { opacity: 1, duration: 0.9, ease: 'power3.out' })
   gsap.fromTo('.post-body', { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.2 })
 })

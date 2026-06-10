@@ -38,7 +38,7 @@ onMounted(async () => {
     el.style.opacity = '0'
   })
 
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   gsap.fromTo('.page-head .overline', { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: 0.6 })
   gsap.fromTo('.page-head h1', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.9, delay: 0.1, ease: 'power3.out' })
 
@@ -53,7 +53,7 @@ watch(pending, (isPending) => {
   /* v8 ignore next 1 */
   if (!isPending) {
     nextTick(async () => {
-      const { gsap } = await useGsap()
+      const { gsap } = await useGsapBase()
       if (gsap.utils.toArray('.blog-row').length > 0) {
         gsap.fromTo('.blog-row', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7, stagger: 0.08, clearProps: 'transform' })
       }

@@ -13,7 +13,7 @@ watch(() => route.path, () => {
 })
 
 const onBeforeEnter = async (el: Element) => {
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
   if (sidebar) gsap.set(sidebar, { x: '-100%' })
@@ -21,7 +21,7 @@ const onBeforeEnter = async (el: Element) => {
 }
 
 const onEnter = async (el: Element, done: () => void) => {
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
 
@@ -36,7 +36,7 @@ const onEnter = async (el: Element, done: () => void) => {
 }
 
 const onLeave = async (el: Element, done: () => void) => {
-  const { gsap } = await useGsap()
+  const { gsap } = await useGsapBase()
   const sidebar = el.querySelector('.mobile-sidebar')
   const overlay = el.querySelector('.mobile-overlay')
 
