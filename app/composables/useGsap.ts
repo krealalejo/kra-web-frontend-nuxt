@@ -9,3 +9,7 @@ export function useGsap() {
     return { gsap, ScrollTrigger }
   })
 }
+
+export function useGsapBase() {
+  return import('gsap').then(({ default: gsap }) => ({ gsap }))
+}
