@@ -104,10 +104,10 @@ onMounted(async () => {
     gsap.fromTo('.dl', { yPercent: 110, opacity: 0 }, { yPercent: 0, opacity: 1, duration: 0.9, stagger: 0.025, ease: 'power3.out' })
   }
 
-  gsap.fromTo('.hero-role',           { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'power2.out' })
-  gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.7, stagger: 0.12, ease: 'power2.out' })
-  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, delay: 1.0, stagger: 0.04, ease: 'power2.out' })
-  gsap.fromTo('.hero-portrait',       { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.2, delay: 0.3, ease: 'power2.out' })
+  gsap.fromTo('.hero-role',           { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.15, ease: 'power2.out' })
+  gsap.fromTo('.hero-paragraphs > *', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.7, delay: 0.25, stagger: 0.1, ease: 'power2.out' })
+  gsap.fromTo('.hero-stack .chip',    { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, delay: 0.4,  stagger: 0.04, ease: 'power2.out' })
+  gsap.fromTo('.hero-portrait',       { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 1.0, delay: 0.05, ease: 'power2.out' })
 
   gsap.utils.toArray<HTMLElement>('.reveal-scroll').forEach(el => {
     gsap.fromTo(el,
@@ -172,7 +172,7 @@ function projectNum(i: number) {
       <div class="shell">
         <div class="hero-grid">
           <div class="hero-left">
-            <h1 class="t-display display-name" style="margin-bottom:28px;">Kevin Real Alejo</h1>
+            <h1 class="t-display display-name" style="margin-bottom:28px;opacity:0;">Kevin Real Alejo</h1>
             <div class="hero-role">
               <span class="emph">Full-stack engineer</span> — shipping calm,<br> reliable software for the cloud.
             </div>
