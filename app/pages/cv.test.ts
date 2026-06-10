@@ -25,7 +25,7 @@ describe('pages/cv.vue', () => {
 
   it('renders without crashing', async () => {
     const wrapper = await mountSuspended(CvPage)
-    expect(wrapper.exists()).toBe(false)
+    expect(wrapper.exists()).toBe(true)
   })
 
   it('renders the main heading with the expected name', async () => {
