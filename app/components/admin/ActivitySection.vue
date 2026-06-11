@@ -18,6 +18,7 @@ const shippingDescription = ref('')
 
 const readingTitle = ref('')
 const readingDescription = ref('')
+const readingUrl = ref('')
 
 const playingTags = ref<string[]>([])
 const newTag = ref('')
@@ -32,6 +33,7 @@ onMounted(async () => {
       } else if (card.type === 'READING') {
         readingTitle.value = card.title ?? ''
         readingDescription.value = card.description ?? ''
+        readingUrl.value = card.url ?? ''
       } else if (card.type === 'PLAYING') {
         playingTags.value = card.tags ?? []
       }
@@ -41,7 +43,7 @@ onMounted(async () => {
   }
 })
 
-interface ShippingReadingPayload { title: string; description: string }
+interface ShippingReadingPayload { title: string; description: string; url?: string }
 interface PlayingPayload { tags: string[] }
 type ActivityPayload = ShippingReadingPayload | PlayingPayload
 
@@ -146,6 +148,17 @@ function removeTag(index: number) {
               placeholder="Author · short note…"
             />
           </div>
+          <div>
+            <label for="reading-url" class="t-label mb-1 block" style="color: var(--fg-dim); font-size: 11px">Link (optional)</label>
+            <input
+              id="reading-url"
+              v-model="readingUrl"
+              type="url"
+              class="w-full rounded-lg px-3 py-2 text-sm"
+              style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
+              placeholder="https://…"
+            />
+          </div>
         </div>
         <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
           {{ errors.READING }}
@@ -156,7 +169,7 @@ function removeTag(index: number) {
           class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
           style="background: var(--accent); color: var(--bg); margin-top: auto"
           :style="saving.READING ? 'opacity: 0.5' : ''"
-          @click="saveCard('READING', { title: readingTitle, description: readingDescription })"
+          @click="saveCard('READING', { title: readingTitle, description: readingDescription, url: readingUrl })"
         >
           {{ saving.READING ? 'Saving…' : 'Save' }}
         </button>

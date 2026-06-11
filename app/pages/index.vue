@@ -119,7 +119,7 @@ onMounted(async () => {
 
   try {
     const apiBase = (config.public.apiBase as string).replace(/\/$/, '')
-    activityCards.value = await $fetch<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>(
+    activityCards.value = await $fetch<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null; url?: string | null }>>(
       `${apiBase}/activity`
     )
   } catch {
@@ -146,7 +146,7 @@ watch(pending, (isPending) => {
   }
 }, { immediate: true })
 
-const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null }>>([])
+const activityCards = ref<Array<{ type: string; title: string | null; description: string | null; tags?: string[] | null; url?: string | null }>>([])
 
 function overlineLabel(type: string): string {
   const labels: Record<string, string> = {
@@ -301,7 +301,15 @@ function projectNum(i: number) {
               >
                 <div class="t-overline" style="margin-bottom:14px;">{{ overlineLabel(card.type) }}</div>
                 <template v-if="card.type !== 'PLAYING'">
-                  <div style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
+                  <a
+                    v-if="card.url"
+                    :href="card.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="activity-card-link"
+                    style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;display:inline-block;color:inherit;text-decoration:none;"
+                  >{{ card.title }}</a>
+                  <div v-else style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
                   <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
                 </template>
                 <template v-else>
@@ -334,6 +342,14 @@ function projectNum(i: number) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.activity-card-link {
+  transition: color 0.2s ease;
+}
+
+.activity-card-link:hover {
+  color: var(--accent) !important;
 }
 
 @media (max-width: 1000px) {

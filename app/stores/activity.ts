@@ -6,6 +6,7 @@ export interface ActivityCard {
   title: string | null
   description: string | null
   tags?: string[] | null
+  url?: string | null
 }
 
 export const useActivityStore = defineStore('activity', () => {
@@ -30,7 +31,7 @@ export const useActivityStore = defineStore('activity', () => {
 
   const updateCard = async (
     type: string,
-    data: { title?: string | null; description?: string | null; tags?: string[] | null }
+    data: { title?: string | null; description?: string | null; tags?: string[] | null; url?: string | null }
   ): Promise<ActivityCard> => {
     loading.value = true
     error.value = null

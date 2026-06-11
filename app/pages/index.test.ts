@@ -329,6 +329,22 @@ describe('pages/index.vue', () => {
     await vi.waitFor(() => expect(wrapper.text()).toContain('Currently reading'), { timeout: 3000 })
   })
 
+  it('renders READING title as a link when url is present', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      if (url.includes('/activity')) return Promise.resolve([
+        { type: 'READING', title: 'Clean Code', description: 'Robert C. Martin', tags: null, url: 'https://book.example' }
+      ])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await vi.waitFor(() => {
+      const link = wrapper.find('a.activity-card-link')
+      expect(link.exists()).toBe(true)
+      expect(link.attributes('href')).toBe('https://book.example')
+    }, { timeout: 3000 })
+  })
+
   it('renders PLAYING activity card with tags and overline label', async () => {
     mockFetch.mockImplementation((url: string) => {
       if (url.includes('/portfolio/repos')) return Promise.resolve([])
