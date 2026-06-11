@@ -713,7 +713,7 @@ em, .emph {
   pointer-events: none;
 }
 .proj-row:hover::before { opacity: 1; }
-.proj-row:hover { padding-left: 28px; }
+.proj-row:hover { padding-left: 28px; padding-right: 4px; }
 
 .proj-row .num {
   font-family: var(--font-mono);
