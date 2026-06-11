@@ -8,7 +8,7 @@ const mockFetchCards = vi.fn()
 const mockUpdateCard = vi.fn()
 const mockCards = ref([
   { type: 'SHIPPING', title: 'Ship title', description: 'Ship desc' },
-  { type: 'READING', title: 'Read title', description: 'Read desc' },
+  { type: 'READING', title: 'Read title', description: 'Read desc', url: 'https://book.example' },
   { type: 'PLAYING', tags: ['tag1', 'tag2'] }
 ])
 let mockStoreError: string | null = null
@@ -83,7 +83,17 @@ describe('ActivitySection', () => {
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     const readingBtn = saveButtons[1]!
     await readingBtn.trigger('click')
-    expect(mockUpdateCard).toHaveBeenCalledWith('READING', expect.objectContaining({ title: 'Read title', description: 'Read desc' }))
+    expect(mockUpdateCard).toHaveBeenCalledWith('READING', expect.objectContaining({ title: 'Read title', description: 'Read desc', url: 'https://book.example' }))
+  })
+
+  it('loads and edits the READING url field', async () => {
+    const wrapper = mount(ActivitySection)
+    await flushPromises()
+    expect((wrapper.find('#reading-url').element as HTMLInputElement).value).toBe('https://book.example')
+    await wrapper.find('#reading-url').setValue('https://new.example/book')
+    const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
+    await saveButtons[1]!.trigger('click')
+    expect(mockUpdateCard).toHaveBeenCalledWith('READING', expect.objectContaining({ url: 'https://new.example/book' }))
   })
 
   it('saves PLAYING card', async () => {

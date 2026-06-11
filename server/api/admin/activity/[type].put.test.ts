@@ -64,13 +64,14 @@ describe('server/api/admin/activity/[type].put — additional', () => {
     const mockF = vi.fn().mockResolvedValue({})
     vi.stubGlobal('getCookie', vi.fn().mockReturnValue('token'))
     vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('READING'))
-    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'T', description: 'D', tags: ['x'], extra: 'ignored' }))
+    vi.stubGlobal('readBody', vi.fn().mockResolvedValue({ title: 'T', description: 'D', tags: ['x'], url: 'https://b.com', extra: 'ignored' }))
     vi.stubGlobal('$fetch', mockF)
     const mod = await import('./[type].put')
     const handler = mod.default as Function
     await handler({})
     const body = mockF.mock.calls[0][1].body
     expect(body).toHaveProperty('title', 'T')
+    expect(body).toHaveProperty('url', 'https://b.com')
     expect(body).not.toHaveProperty('extra')
   })
 

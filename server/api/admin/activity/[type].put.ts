@@ -20,6 +20,7 @@ export default defineEventHandler(async (event) => {
     ...(body.title !== undefined && { title: body.title }),
     ...(body.description !== undefined && { description: body.description }),
     ...(body.tags !== undefined && { tags: body.tags }),
+    ...(body.url !== undefined && { url: body.url }),
   }
 
   const response = await $fetch(`${config.apiBase}/activity/${type}`, {
