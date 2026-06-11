@@ -9,12 +9,12 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon', '@nuxtjs/sitemap', '@vercel/speed-insights', '@vercel/analytics', '@nuxt/fonts'],
   fonts: {
     families: [
-      { name: 'Roboto Flex', provider: 'google', weights: ['300..700'], display: 'optional', preload: true },
+      { name: 'Roboto Flex', provider: 'google', weights: [400], display: 'optional', preload: true },
       { name: 'Inter', provider: 'google', weights: [400, 500, 600], display: 'optional', preload: false },
       { name: 'JetBrains Mono', provider: 'google', weights: [400, 500], display: 'optional', preload: false },
     ],
     defaults: {
-      display: 'swap',
+      display: 'optional',
     },
   },
   site: {
@@ -34,7 +34,29 @@ export default defineNuxtConfig({
     },
     build: {
       chunkSizeWarningLimit: 1000,
-    }
+    },
+    plugins: [
+      {
+        // @nuxt/fonts hardcodes `font-display: swap` for provider fonts, which
+        // causes a layout shift when the web font swaps in over the fallback.
+        // Rewrite to `optional`: slow loads keep the metric-matched fallback for
+        // the pageview (no swap, no CLS); cached/fast loads still get the font.
+        name: 'kra-font-display-optional',
+        enforce: 'post',
+        generateBundle(_options: unknown, bundle: Record<string, { type: string; fileName: string; source?: unknown }>) {
+          for (const file of Object.values(bundle)) {
+            if (
+              file.type === 'asset' &&
+              file.fileName.endsWith('.css') &&
+              typeof file.source === 'string' &&
+              /font-display:\s*swap/i.test(file.source)
+            ) {
+              file.source = file.source.replace(/font-display:\s*swap/gi, 'font-display:optional')
+            }
+          }
+        },
+      },
+    ],
   },
   icon: {
     serverBundle: 'local'

@@ -24,10 +24,10 @@
   --accent: #7DD3B3;
   --accent-ink: #0B0B0C;
 
-  --font-display: 'Roboto Flex', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Roboto Flex', 'Roboto Flex Fallback', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-serif: var(--font-display);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  --font-sans: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback', 'SF Mono', Menlo, monospace;
 
   --emphasis-style: normal;
   --emphasis-weight: 500;
