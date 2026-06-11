@@ -165,7 +165,7 @@ onMounted(async () => {
         <div>
           <div v-for="exp in experienceData" :key="exp.id" class="role-row">
             <div>
-              <div class="rt" style="display:flex;align-items:center;gap:8px">
+              <div class="rt rt-withlogo">
                 <img v-if="getThumbUrl(exp.logoUrl)" :src="getThumbUrl(exp.logoUrl)!" :alt="exp.company" style="width:20px;height:20px;object-fit:contain;flex-shrink:0" />
                 {{ exp.title }} · {{ exp.company }}
               </div>

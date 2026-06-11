@@ -63,6 +63,7 @@ body {
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.55;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -1402,6 +1403,11 @@ em, .emph {
   margin-bottom: 6px;
   font-weight: 500;
 }
+.cv-section .role-row .rt-withlogo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .cv-section .role-row .rc {
   font-size: 14px; color: var(--fg-muted);
   margin-bottom: 10px;
@@ -1987,7 +1993,13 @@ em, .emph {
 
   .post-head .lede { font-size: 18px; }
 
+  .cv-head h1 { font-size: clamp(40px, 12vw, 56px); }
   .cv-photo-wrap { width: 160px; }
+
+  .cv-section .role-row { grid-template-columns: 1fr; gap: 6px; }
+  .cv-section .role-row .ryears { order: -1; }
+  .cv-section .role-row .rt { font-size: 19px; }
+  .cv-section .role-row .rt-withlogo { align-items: flex-start; }
 
   .kra-marquee { padding: 18px 0; }
   .kra-marquee-item { font-size: 18px; }
