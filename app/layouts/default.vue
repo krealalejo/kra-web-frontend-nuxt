@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
+const showBackToTop = ref(false)
 const route = useRoute()
 
 const currentYear = new Date().getFullYear()
@@ -11,6 +12,20 @@ const currentYear = new Date().getFullYear()
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })
+
+function onLogoClick() {
+  if (route.path === '/') {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function onScroll() {
+  showBackToTop.value = window.scrollY > 400
+}
 
 const navItems = [
   { path: '/', label: 'Home' },
@@ -27,6 +42,13 @@ onMounted(async () => {
     { opacity: 0 },
     { opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power2.out' }
   )
+
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
 })
 
 watch(isMobileMenuOpen, (open) => {
@@ -45,7 +67,7 @@ watch(isMobileMenuOpen, (open) => {
   <div class="min-h-screen relative">
     <header :class="['sticky top-0 z-50 w-full kra-nav', { '!fixed': isMobileMenuOpen }]">
       <div class="shell kra-nav-inner">
-        <NuxtLink to="/" class="kra-nav-logo">
+        <NuxtLink to="/" class="kra-nav-logo" @click="onLogoClick">
           <span class="dot" />
           <span class="serif">KRA</span>
           <span class="kra-nav-logo-mark">/ Kevin Real Alejo</span>
@@ -137,6 +159,19 @@ watch(isMobileMenuOpen, (open) => {
       <slot />
     </main>
 
+    <ClientOnly>
+      <Transition name="back-to-top">
+        <button
+          v-if="showBackToTop"
+          class="kra-back-to-top"
+          aria-label="Back to top"
+          @click="scrollToTop"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+        </button>
+      </Transition>
+    </ClientOnly>
+
     <footer class="kra-footer">
       <div class="shell">
         <div class="kra-footer-grid">
@@ -171,4 +206,47 @@ watch(isMobileMenuOpen, (open) => {
 
 <style scoped>
 .nav-sheet-link { display: grid; }
+
+.kra-back-to-top {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  background: var(--bg-elev, var(--bg));
+  color: var(--fg);
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.kra-back-to-top:hover {
+  transform: translateY(-2px);
+  color: var(--accent);
+  border-color: var(--hairline-strong);
+}
+
+.back-to-top-enter-active,
+.back-to-top-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.back-to-top-enter-from,
+.back-to-top-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kra-back-to-top,
+  .back-to-top-enter-active,
+  .back-to-top-leave-active {
+    transition: none;
+  }
+}
 </style>
