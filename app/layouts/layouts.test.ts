@@ -346,6 +346,122 @@ describe('default layout — route watcher', () => {
   })
 })
 
+describe('default layout — logo click scroll-to-top', () => {
+  it('scrolls to top when logo is clicked on the home route', async () => {
+    const scrollToSpy = vi.fn()
+    vi.stubGlobal('scrollTo', scrollToSpy)
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+      route: '/',
+    })
+
+    const brand = wrapper.find('header a[href="/"]')
+    await brand.trigger('click')
+
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+
+    vi.unstubAllGlobals()
+  })
+
+  it('does not scroll when logo is clicked on a non-home route', async () => {
+    const scrollToSpy = vi.fn()
+    vi.stubGlobal('scrollTo', scrollToSpy)
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+      route: '/blog',
+    })
+
+    const brand = wrapper.find('header a[href="/"]')
+    await brand.trigger('click')
+
+    expect(scrollToSpy).not.toHaveBeenCalled()
+
+    vi.unstubAllGlobals()
+  })
+})
+
+describe('default layout — back to top button', () => {
+  function setScrollY(value: number) {
+    Object.defineProperty(window, 'scrollY', { value, configurable: true, writable: true })
+  }
+
+  beforeEach(() => {
+    setScrollY(0)
+  })
+
+  it('is hidden when at the top of the page', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(false)
+  })
+
+  it('appears after scrolling past the threshold', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(500)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+  })
+
+  it('hides again when scrolled back above the threshold', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(500)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+
+    setScrollY(100)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(false)
+  })
+
+  it('scrolls to top when clicked', async () => {
+    const scrollToSpy = vi.fn()
+    vi.stubGlobal('scrollTo', scrollToSpy)
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(500)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    await wrapper.find('button.kra-back-to-top').trigger('click')
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' })
+
+    vi.unstubAllGlobals()
+  })
+
+  it('removes the scroll listener on unmount', async () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+    wrapper.unmount()
+
+    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function))
+    removeSpy.mockRestore()
+  })
+})
+
 describe('default layout — theme toggle', () => {
   it('calls toggle when theme button is clicked', async () => {
     const wrapper = await mountSuspended(DefaultLayout, {
