@@ -49,6 +49,27 @@ describe('app.vue', () => {
     expect(wrapper.html()).toBeTruthy()
   })
 
+  it('hides the page loader once fonts are ready', async () => {
+    const loader = document.createElement('div')
+    loader.className = 'page-loader'
+    document.body.appendChild(loader)
+    Object.defineProperty(document, 'fonts', {
+      configurable: true,
+      value: { ready: Promise.resolve() },
+    })
+
+    mount(AppVue)
+    await Promise.resolve()
+    await Promise.resolve()
+
+    expect(loader.style.opacity).toBe('0')
+
+    loader.dispatchEvent(new Event('transitionend'))
+    expect(loader.style.visibility).toBe('hidden')
+
+    loader.remove()
+  })
+
   describe('data-theme head attribute', () => {
     it('is a computed ref not a static string', async () => {
       mount(AppVue)
