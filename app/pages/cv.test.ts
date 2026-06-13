@@ -11,7 +11,7 @@ let mockData: Record<string, any> = {}
 mockNuxtImport('useAsyncData', () => {
   return vi.fn().mockImplementation((key: string | (() => string), factory: () => Promise<any>) => {
     const resolvedKey = typeof key === 'function' ? key() : key
-    const data = ref(mockData[resolvedKey] !== undefined ? mockData[resolvedKey] : null)
+    const data = ref(Object.prototype.hasOwnProperty.call(mockData, resolvedKey) ? mockData[resolvedKey] : null)
     factory().catch(() => {})
     return { data }
   })
@@ -129,6 +129,49 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
     const wrapper = await mountSuspended(CvPage)
     const downloadLink = wrapper.findAll('a').find(a => a.text().includes('Download CV'))
     expect(downloadLink).toBeUndefined()
+  })
+})
+
+describe('cv.vue — actions row (mobile layout)', () => {
+  beforeEach(() => {
+    mockData = {}
+  })
+
+  it('renders .cv-head .actions container', async () => {
+    const wrapper = await mountSuspended(CvPage)
+    expect(wrapper.find('.cv-head .actions').exists()).toBe(true)
+  })
+
+  it('renders Contact me and GitHub buttons always', async () => {
+    const wrapper = await mountSuspended(CvPage)
+    const actions = wrapper.find('.cv-head .actions')
+    const btns = actions.findAll('.btn')
+    expect(btns.length).toBe(2)
+    expect(btns[0].text()).toContain('Contact me')
+    expect(btns[1].text()).toContain('GitHub')
+  })
+
+  it('renders 3 buttons when cvPdfUrl is set', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' }
+    const wrapper = await mountSuspended(CvPage)
+    const btns = wrapper.find('.cv-head .actions').findAll('.btn')
+    expect(btns.length).toBe(3)
+    expect(btns[2].text()).toContain('Download CV')
+  })
+
+  it('all action buttons have btn class for consistent sizing', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' }
+    const wrapper = await mountSuspended(CvPage)
+    const btns = wrapper.find('.cv-head .actions').findAll('.btn')
+    btns.forEach(btn => expect(btn.classes()).toContain('btn'))
+  })
+
+  it('GitHub and Download CV buttons have btn-ghost class', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null, cvPdfUrl: 'documents/cv.pdf' }
+    const wrapper = await mountSuspended(CvPage)
+    const btns = wrapper.find('.cv-head .actions').findAll('.btn')
+    expect(btns[1].classes()).toContain('btn-ghost')
+    expect(btns[2].classes()).toContain('btn-ghost')
   })
 
   it('triggers mouseover/mouseout on social links', async () => {

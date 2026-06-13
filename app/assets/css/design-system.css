@@ -1954,6 +1954,8 @@ em, .emph {
   .contact-form { padding: 24px; }
 
   .cv-head { grid-template-columns: 1fr; gap: 32px; }
+  .cv-head .actions { flex-wrap: nowrap; width: 100%; }
+  .cv-head .actions .btn { padding: 10px 14px; font-size: 13px; }
   .cv-photo-wrap { width: 200px; justify-self: start; order: -1; }
   .cv-section { grid-template-columns: 1fr; gap: 16px; padding: 28px 0; }
 
