@@ -305,13 +305,7 @@ onUnmounted(() => {
               :href="detail.htmlUrl"
               target="_blank"
               rel="noopener noreferrer"
-              style="
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-                color: var(--accent);
-                margin-left: auto;
-              "
+              class="pd-meta-github"
             >
               <IconBrandGithub style="width: 14px; height: 14px" />
               GitHub ↗
@@ -400,3 +394,23 @@ onUnmounted(() => {
     </template>
   </div>
 </template>
+
+<style scoped>
+.pd-meta-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent);
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .pd-meta-github {
+    margin-left: 0;
+  }
+
+  :deep(.pd-head) {
+    padding-top: 32px;
+  }
+}
+</style>

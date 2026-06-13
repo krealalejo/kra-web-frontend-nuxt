@@ -22,6 +22,18 @@ describe('design-system.css — mobile overflow guards', () => {
   })
 })
 
+describe('design-system.css — project detail mobile spacing', () => {
+  it('.pd-head has margin-bottom: 0 on mobile to remove gap between header and readme content', () => {
+    const mobile = css.match(/@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*?\n\}/)?.[0] ?? ''
+    expect(mobile).toMatch(/\.pd-head\s*\{[^}]*margin-bottom:\s*0/)
+  })
+
+  it('.pd-head has reduced padding-bottom on mobile', () => {
+    const mobile = css.match(/@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*?\n\}/)?.[0] ?? ''
+    expect(mobile).toMatch(/\.pd-head\s*\{[^}]*padding-bottom:\s*24px/)
+  })
+})
+
 describe('design-system.css — project detail sticky sidebar', () => {
   it('.pd-sidebar has position:sticky so it stays fixed on scroll', () => {
     const rule = css.match(/\.pd-sidebar\s*\{[^}]*\}/)?.[0] ?? ''

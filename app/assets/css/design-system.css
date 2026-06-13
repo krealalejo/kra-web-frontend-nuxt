@@ -1837,6 +1837,7 @@ em, .emph {
   .gh-count { font-size: 32px; }
   .gh-head { margin-bottom: 16px; }
 
+  .pd-head { padding-bottom: 24px; margin-bottom: 0; }
   .pd-body { grid-template-columns: 1fr; gap: 32px; }
   .pd-sidebar { display: none; }
 
