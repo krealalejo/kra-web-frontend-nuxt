@@ -57,10 +57,32 @@ vi.mock('marked', () => {
     text = vi.fn((text: string) => text)
   }
   return {
-    marked: { parse: vi.fn().mockImplementation((text: string) => `<p>${text}</p>`), Renderer },
+    marked: {
+      parse: vi.fn().mockImplementation((text: string) =>
+        /^##\s/m.test(text)
+          ? text.replace(/^##\s+(.*)$/gm, (_m, t: string) => `<h2>${t}</h2>`)
+          : `<p>${text}</p>`,
+      ),
+      Renderer,
+    },
     Renderer,
   }
 })
+
+// Capture IntersectionObserver instances so tests can drive the TOC callback.
+const ioInstances: Array<MockIntersectionObserver> = []
+class MockIntersectionObserver {
+  cb: IntersectionObserverCallback
+  observe = vi.fn()
+  disconnect = vi.fn()
+  unobserve = vi.fn()
+  takeRecords = vi.fn(() => [])
+  constructor(cb: IntersectionObserverCallback) {
+    this.cb = cb
+    ioInstances.push(this)
+  }
+}
+vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
 
 vi.mock('dompurify', () => ({
   default: { sanitize: (html: string) => html },
@@ -200,5 +222,50 @@ describe('pages/blog/[slug].vue', () => {
     const img = wrapper.find('img')
     expect(img.exists()).toBe(true)
     expect(img.attributes('src')).toContain('blog/header-cover.webp')
+  })
+
+  it('updates reading progress on scroll and cleans up on unmount', async () => {
+    mockFetch.mockResolvedValue(mockPost)
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
+    await flushPromises()
+    await nextTick()
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', { configurable: true, value: 2000 })
+    Object.defineProperty(document.documentElement, 'clientHeight', { configurable: true, value: 800 })
+    Object.defineProperty(document.documentElement, 'scrollTop', { configurable: true, value: 600 })
+    window.dispatchEvent(new Event('scroll'))
+
+    expect(wrapper.find('h1').exists()).toBe(true)
+
+    wrapper.unmount()
+    expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function))
+    removeSpy.mockRestore()
+  })
+
+  it('builds the TOC and tracks the active heading via IntersectionObserver', async () => {
+    ioInstances.length = 0
+    mockFetch.mockResolvedValue({
+      ...mockPost,
+      content: '## First Section\nbody\n## Second Section\nmore',
+    })
+    const wrapper = await mountSuspended(BlogSlugPage, { route: '/blog/my-post' })
+    await flushPromises()
+    await nextTick()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('ON THIS PAGE')
+
+    const io = ioInstances.at(-1)
+    expect(io).toBeDefined()
+    expect(io!.observe).toHaveBeenCalled()
+
+    // Drive the observer callback to mark a heading active.
+    io!.cb(
+      [{ isIntersecting: true, target: { id: 'h-0' } } as any],
+      io as any,
+    )
+    await nextTick()
+    expect(wrapper.find('.pd-sidebar').exists()).toBe(true)
   })
 })
