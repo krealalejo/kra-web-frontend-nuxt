@@ -3,11 +3,10 @@ import { mount } from '@vue/test-utils'
 import ProjectSidebar from './ProjectSidebar.vue'
 
 describe('components/ProjectSidebar.vue', () => {
-  it('renders fixed README link in TOC', async () => {
+  it('renders empty TOC when no headings provided', async () => {
     const wrapper = mount(ProjectSidebar)
-    const readmeLink = wrapper.find('a[href="#readme"]')
-    expect(readmeLink.exists()).toBe(true)
-    expect(readmeLink.text()).toBe('README')
+    const links = wrapper.findAll('.toc li a')
+    expect(links).toHaveLength(0)
   })
 
   it('renders headings in TOC when provided', async () => {
@@ -19,9 +18,9 @@ describe('components/ProjectSidebar.vue', () => {
       props: { headings }
     })
     const links = wrapper.findAll('.toc li a')
-    expect(links).toHaveLength(3)
-    expect(links[1].text()).toBe('Introduction')
-    expect(links[1].attributes('href')).toBe('#intro')
+    expect(links).toHaveLength(2)
+    expect(links[0].text()).toBe('Introduction')
+    expect(links[0].attributes('href')).toBe('#intro')
   })
 
   it('renders project facts when provided', async () => {

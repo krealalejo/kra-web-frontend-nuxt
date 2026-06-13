@@ -123,7 +123,7 @@ describe("pages/projects/[owner]/[repo].vue", () => {
       route: "/projects/krealalejo/project-kra",
     });
     await flushPromises();
-    expect(wrapper.find("h2").text()).toContain("README");
+    expect(wrapper.find("div.prose").exists()).toBe(true);
   });
 
   it("shows error alert when fetch fails", async () => {
@@ -164,7 +164,6 @@ describe("pages/projects/[owner]/[repo].vue", () => {
     });
     await flushPromises();
 
-    expect(wrapper.text()).toContain("README");
     expect(wrapper.find("div.prose").exists()).toBe(true);
   });
 
