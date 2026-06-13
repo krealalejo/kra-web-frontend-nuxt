@@ -242,6 +242,13 @@ watch(isMobileMenuOpen, (open) => {
   transform: translateY(8px);
 }
 
+@media (max-width: 900px) {
+  .kra-back-to-top {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    right: 1rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .kra-back-to-top,
   .back-to-top-enter-active,

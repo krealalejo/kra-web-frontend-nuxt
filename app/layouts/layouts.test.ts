@@ -460,6 +460,45 @@ describe('default layout — back to top button', () => {
     expect(removeSpy).toHaveBeenCalledWith('scroll', expect.any(Function))
     removeSpy.mockRestore()
   })
+
+  it('has aria-label for screen reader and mobile accessibility', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(500)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    expect(wrapper.find('button.kra-back-to-top').attributes('aria-label')).toBe('Back to top')
+  })
+
+  it('is hidden at exactly the threshold (scrollY = 400)', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(400)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(false)
+  })
+
+  it('appears just above the threshold (scrollY = 401)', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(401)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+  })
 })
 
 describe('default layout — theme toggle', () => {
