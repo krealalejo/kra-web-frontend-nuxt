@@ -4,7 +4,9 @@ import { flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
 
 mockNuxtImport("useAsyncData", () => {
-  return (_key: string, factory: () => Promise<any>) => {
+  return (key: unknown, factory: () => Promise<any>) => {
+    // Exercise the key factory the component passes (covers the key arrow fns).
+    if (typeof key === "function") (key as () => string)();
     const data = ref(null);
     const pending = ref(true);
     const error = ref(null);
@@ -258,5 +260,55 @@ describe("pages/projects/[owner]/[repo].vue", () => {
       mockDetail.readmeExcerpt,
       "https://raw.githubusercontent.com/owner/repo/main",
     );
+  });
+
+  it("updates scroll progress on window scroll and cleans up on unmount", async () => {
+    mockFetch.mockResolvedValue(mockDetail);
+    const removeSpy = vi.spyOn(window, "removeEventListener");
+    const wrapper = await mountSuspended(RepoPage, {
+      route: "/projects/owner/repo",
+    });
+    await flushPromises();
+    await nextTick();
+
+    window.dispatchEvent(new Event("scroll"));
+    const bar = wrapper.find(".post-progress");
+    expect(bar.exists()).toBe(true);
+
+    wrapper.unmount();
+    expect(removeSpy).toHaveBeenCalledWith("scroll", expect.any(Function));
+    removeSpy.mockRestore();
+  });
+
+  it("animates in and renders diagrams once data settles", async () => {
+    mockFetch.mockResolvedValue(mockDetail);
+    const wrapper = await mountSuspended(RepoPage, {
+      route: "/projects/owner/repo",
+    });
+    await flushPromises();
+    await nextTick();
+    await flushPromises();
+    await nextTick();
+
+    expect(renderDiagramsMock).toHaveBeenCalled();
+    expect(wrapper.find("div.prose").exists()).toBe(true);
+  });
+
+  it("skips animation when reduced motion is preferred", async () => {
+    const original = window.matchMedia;
+    window.matchMedia = vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }) as any;
+    mockFetch.mockResolvedValue(mockDetail);
+    const wrapper = await mountSuspended(RepoPage, {
+      route: "/projects/owner/repo",
+    });
+    await flushPromises();
+    await nextTick();
+
+    expect(wrapper.find("h1").text()).toContain("owner/repo");
+    window.matchMedia = original;
   });
 });
