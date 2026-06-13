@@ -90,6 +90,7 @@ const { isDark } = useTheme();
 const readmeRef = ref<HTMLElement | null>(null);
 const sanitizedReadme = ref<string>("");
 const headings = ref<{ title: string; id: string }[]>([]);
+const isReadmeTruncated = ref(false);
 
 watch(isDark, async () => {
   if (readmeRef.value) {
@@ -106,10 +107,17 @@ const imageBaseUrl = computed(() => {
 watch(
   () => detail.value?.readmeExcerpt,
   async (val) => {
-    sanitizedReadme.value = val
-      ? await sanitizeMarkdown(val, imageBaseUrl.value)
-      : "";
-    headings.value = val ? extractHeadings(val) : [];
+    if (!val) {
+      sanitizedReadme.value = "";
+      headings.value = [];
+      isReadmeTruncated.value = false;
+      return;
+    }
+    const truncated = val.trimEnd().endsWith("…");
+    isReadmeTruncated.value = truncated;
+    const clean = truncated ? val.trimEnd().slice(0, -1).trimEnd() : val;
+    sanitizedReadme.value = await sanitizeMarkdown(clean, imageBaseUrl.value);
+    headings.value = extractHeadings(clean);
   },
   { immediate: true },
 );
@@ -334,18 +342,29 @@ onUnmounted(() => {
 
         <div class="pd-body">
           <div v-if="detail.readmeExcerpt" class="pd-content">
-            <h2
-              id="readme"
-              class="t-h2"
-              style="margin-top: 0; margin-bottom: 40px; color: var(--fg)"
-            >
-              README
-            </h2>
             <div
               ref="readmeRef"
               class="markdown-content prose dark:prose-invert"
               v-html="sanitizedReadme"
             />
+            <a
+              v-if="isReadmeTruncated && detail.htmlUrl"
+              :href="`${detail.htmlUrl}#readme`"
+              target="_blank"
+              rel="noopener noreferrer"
+              style="
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                margin-top: 24px;
+                font-family: var(--font-mono);
+                font-size: 11px;
+                color: var(--accent);
+                letter-spacing: 0.06em;
+              "
+            >
+              View full README on GitHub ↗
+            </a>
           </div>
           <div v-else class="pd-content">
             <p

@@ -15,7 +15,6 @@ const props = defineProps<Props>()
   <aside class="pd-sidebar">
     <h5>ON THIS PAGE</h5>
     <ul class="toc">
-      <li><a href="#readme">README</a></li>
       <li v-for="h in props.headings" :key="h.id">
         <a :href="`#${h.id}`">{{ h.title }}</a>
       </li>
