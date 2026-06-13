@@ -426,4 +426,60 @@ describe('pages/index.vue', () => {
 
     expect(wrapper.text()).toContain('2022')
   })
+
+  it('loads more projects when the load-more button is clicked', async () => {
+    const repos = Array.from({ length: 6 }, (_, i) => ({
+      fullName: `o/r${i}`,
+      name: `r${i}`,
+      description: 'desc',
+      owner: 'o',
+      topics: i === 0 ? ['featured'] : [],
+      createdAt: '2024-01-01T00:00:00Z',
+    }))
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/portfolio/repos')) return Promise.resolve(repos)
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    await nextTick()
+
+    const before = wrapper.findAll('.proj-row').length
+    const btn = wrapper.find('.load-more-btn')
+    expect(btn.exists()).toBe(true)
+
+    await btn.trigger('click')
+    await flushPromises()
+    await nextTick()
+
+    const after = wrapper.findAll('.proj-row').length
+    expect(after).toBeGreaterThan(before)
+  })
+
+  it('survives a failed profile fetch and renders the hero', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/config/profile')) return Promise.reject(new Error('boom'))
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+
+    expect(wrapper.find('.display-name').exists()).toBe(true)
+  })
+
+  it('loads activity cards on mount', async () => {
+    const activity = [{ type: 'now', title: 'Building', description: 'stuff', tags: ['ts'], url: null }]
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes('/activity')) return Promise.resolve(activity)
+      if (url.includes('/portfolio/repos')) return Promise.resolve([])
+      return Promise.resolve({ totalContributions: 0, weeks: [] })
+    })
+    const wrapper = await mountSuspended(IndexPage)
+    await flushPromises()
+    await nextTick()
+
+    expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('/activity'))
+    expect(wrapper.find('.display-name').exists()).toBe(true)
+  })
 })
