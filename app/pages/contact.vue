@@ -172,14 +172,16 @@ onMounted(async () => {
 <style scoped>
 .contact-section {
   padding-top: 0;
-  padding-bottom: 120px;
+  padding-bottom: 80px;
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 80px;
-  align-items: flex-start;
+  align-items: start;
+  align-content: start;
+  grid-auto-flow: dense;
 }
 
 
@@ -221,7 +223,6 @@ onMounted(async () => {
 
 .contact-form {
   grid-column: 2;
-  grid-row: 1 / span 2;
   background: var(--bg-elev);
   border: 1px solid var(--hairline);
   padding: 48px;
@@ -301,6 +302,19 @@ onMounted(async () => {
   border-color: var(--accent);
 }
 
+.form-help {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--fg-muted);
+  margin-top: 8px;
+}
+
+.form-help .warn { color: #E8B86D; }
+
 .form-submit {
   display: flex;
   justify-content: space-between;
@@ -360,7 +374,7 @@ onMounted(async () => {
 @media (max-width: 1024px) {
   .contact-grid {
     grid-template-columns: 1fr;
-    gap: 64px;
+    gap: 48px;
   }
   .contact-facts {
     grid-column: auto;
@@ -382,6 +396,9 @@ onMounted(async () => {
   .contact-form {
     padding: 32px 24px;
   }
+  .form-header {
+    margin-bottom: 36px;
+  }
   .form-header h2 {
     font-size: 28px;
   }
@@ -389,6 +406,32 @@ onMounted(async () => {
     font-size: 48px;
     top: 24px;
     right: 24px;
+  }
+
+  /* Submit: stack note above a full-width button so neither gets squeezed */
+  .form-submit {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+    margin-top: 32px;
+  }
+  .form-submit .note {
+    max-width: 100%;
+  }
+  .form-submit .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Facts: label on its own line, value + meta share the row so the
+     monospace meta column ("UTC+1", "EN / ES") stops clipping the edge */
+  .contact-facts .row {
+    grid-template-columns: 1fr auto;
+    gap: 6px 16px;
+    padding: 20px 0;
+  }
+  .contact-facts .k {
+    grid-column: 1 / -1;
   }
 }
 </style>

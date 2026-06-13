@@ -1234,111 +1234,7 @@ em, .emph {
 }
 .post-toc-meta-row .v { color: var(--fg); font-family: var(--font-display); font-size: 15px; font-weight: 500; }
 
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: flex-start;
-  padding: 64px 0 100px;
-}
-.contact-left h2 {
-  font-family: var(--font-display);
-  font-size: clamp(56px, 8vw, 112px);
-  line-height: 0.92;
-  letter-spacing: -0.035em;
-  margin-bottom: 32px;
-  font-weight: 500;
-}
-.contact-left h2 em { font-style: var(--emphasis-style); color: var(--accent); }
-.contact-left p {
-  font-size: 17px;
-  line-height: 1.55;
-  color: var(--fg-dim);
-  max-width: 42ch;
-  margin-bottom: 32px;
-}
-.contact-facts { display: flex; flex-direction: column; gap: 0; margin-top: 40px; grid-column: 1; }
-.contact-facts .row {
-  display: grid;
-  grid-template-columns: 140px 1fr auto;
-  gap: 24px;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--hairline);
-  align-items: center;
-  font-size: 14px;
-}
-.contact-facts .row:last-child { border-bottom: 0; }
-.contact-facts .k {
-  font-family: var(--font-mono); font-size: 11px;
-  color: var(--fg-muted); letter-spacing: 0.08em; text-transform: uppercase;
-}
-.contact-facts .v { color: var(--fg); }
-
-.contact-form {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  padding: 40px;
-  border: 1px solid var(--hairline);
-  border-radius: 4px;
-  background: var(--bg-elev);
-  position: relative;
-}
-.contact-form .form-num {
-  position: absolute;
-  top: 20px; right: 28px;
-  font-family: var(--font-display);
-  font-size: 60px;
-  color: var(--hairline-strong);
-  line-height: 1;
-  pointer-events: none;
-}
-.form-field { margin-bottom: 24px; }
-.form-field label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--fg-muted);
-  margin-bottom: 10px;
-}
-.form-field input, .form-field textarea {
-  width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid var(--hairline-strong);
-  padding: 10px 0;
-  font-family: var(--font-display);
-  font-size: 22px;
-  color: var(--fg);
-  outline: none;
-  transition: border-color 0.2s var(--ease-out);
-  letter-spacing: -0.01em;
-}
-.form-field textarea {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  min-height: 120px;
-  resize: vertical;
-  line-height: 1.5;
-}
-.form-field input::placeholder, .form-field textarea::placeholder {
-  color: var(--fg-faint);
-}
-.form-field input:focus, .form-field textarea:focus {
-  border-color: var(--accent);
-}
-.form-help {
-  display: flex; justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--fg-muted);
-  letter-spacing: 0.06em;
-  margin-top: 8px;
-}
-.form-help .warn { color: #E8B86D; }
-.form-submit { display: flex; justify-content: space-between; align-items: center; margin-top: 32px; }
-.form-submit .note { font-size: 12px; color: var(--fg-muted); max-width: 24ch; }
+/* Contact page layout/form styles live scoped in app/pages/contact.vue */
 
 .cv-wrap { padding: 48px 0 100px; }
 .cv-head {
@@ -1953,9 +1849,6 @@ em, .emph {
   .blog-row .date, .blog-thumb-wrap { display: none; }
   .blog-row .title { font-size: clamp(18px, 5vw, 22px); }
 
-  .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-  .contact-form { padding: 24px; }
-
   .cv-head { grid-template-columns: 1fr; gap: 32px; margin-bottom: 0; }
   .cv-head .actions { flex-wrap: nowrap; width: 100%; }
   .cv-head .actions .btn { padding: 10px 14px; font-size: 13px; }
@@ -2017,8 +1910,6 @@ em, .emph {
   .gh-card { padding: 16px 12px; }
 
   .hero-portrait { max-width: 100%; }
-
-  .contact-facts .row { grid-template-columns: 1fr; gap: 4px; }
 }
 
 @media (hover: none) {
