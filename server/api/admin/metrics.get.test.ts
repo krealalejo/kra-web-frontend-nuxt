@@ -45,4 +45,19 @@ describe('api/admin/metrics.get', () => {
     )
     expect(result).toEqual(fakeMetrics)
   })
+
+  it('logs and rethrows when upstream fetch fails', async () => {
+    vi.mocked(getCookie).mockReturnValue('tok456')
+    const upstreamErr = Object.assign(new Error('boom'), {
+      status: 502,
+      data: { reason: 'bad gateway' },
+    })
+    mockFetch.mockRejectedValue(upstreamErr)
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(handler({} as any)).rejects.toBe(upstreamErr)
+    expect(errSpy).toHaveBeenCalled()
+
+    errSpy.mockRestore()
+  })
 })
