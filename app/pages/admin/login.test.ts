@@ -1,25 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { mount } from '@vue/test-utils'
+import { mount, flushPromises } from '@vue/test-utils'
 import LoginPage from './login.vue'
 
-const { mockQuery } = vi.hoisted(() => ({
-  mockQuery: {} as Record<string, string | undefined>
+const { mockNavigateTo } = vi.hoisted(() => ({
+  mockNavigateTo: vi.fn(),
 }))
 
-mockNuxtImport('useRoute', () => () => ({
-  path: '/admin/login',
-  query: mockQuery,
-  params: {},
-  matched: [],
-  hash: '',
-  meta: {}
-}))
+mockNuxtImport('navigateTo', () => mockNavigateTo)
+
+const mockFetch = vi.fn()
 
 describe('pages/admin/login.vue', () => {
   beforeEach(() => {
-    vi.stubGlobal('location', { origin: 'http://localhost:3000', href: '' })
-    Object.keys(mockQuery).forEach(k => delete mockQuery[k])
+    mockFetch.mockReset()
+    mockNavigateTo.mockReset()
+    vi.stubGlobal('$fetch', mockFetch)
   })
 
   it('renders without crashing', () => {
@@ -29,50 +25,87 @@ describe('pages/admin/login.vue', () => {
 
   it('renders the Sign In button', () => {
     const wrapper = mount(LoginPage)
-    const btn = wrapper.find('button')
+    const btn = wrapper.find('button[type="submit"]')
     expect(btn.exists()).toBe(true)
     expect(btn.text()).toContain('Sign In')
   })
 
-  it('renders no error alert when there is no query error', () => {
+  it('renders email and password inputs', () => {
+    const wrapper = mount(LoginPage)
+    expect(wrapper.find('input[type="email"]').exists()).toBe(true)
+    expect(wrapper.find('input[type="password"]').exists()).toBe(true)
+  })
+
+  it('renders no error alert on initial render', () => {
     const wrapper = mount(LoginPage)
     expect(wrapper.find('[role="alert"]').exists()).toBe(false)
   })
 
-  it('shows access_denied error message', () => {
-    mockQuery.error = 'access_denied'
+  it('shows 401 error message for wrong credentials', async () => {
+    mockFetch.mockRejectedValueOnce({ statusCode: 401 })
     const wrapper = mount(LoginPage)
+    await wrapper.find('input[type="email"]').setValue('a@b.com')
+    await wrapper.find('input[type="password"]').setValue('wrong')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
-    expect(wrapper.find('[role="alert"]').text()).toContain('cancelled')
+    expect(wrapper.find('[role="alert"]').text()).toContain('Incorrect email or password')
   })
 
-  it('shows token_exchange_failed error message', () => {
-    mockQuery.error = 'token_exchange_failed'
+  it('shows 403 error message for password reset required', async () => {
+    mockFetch.mockRejectedValueOnce({ statusCode: 403 })
     const wrapper = mount(LoginPage)
-    expect(wrapper.find('[role="alert"]').text()).toContain('complete login')
+    await wrapper.find('input[type="email"]').setValue('a@b.com')
+    await wrapper.find('input[type="password"]').setValue('pass')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Password reset required')
   })
 
-  it('shows token_fetch_failed error message', () => {
-    mockQuery.error = 'token_fetch_failed'
+  it('shows 503 error message for service unavailable', async () => {
+    mockFetch.mockRejectedValueOnce({ statusCode: 503 })
     const wrapper = mount(LoginPage)
-    expect(wrapper.find('[role="alert"]').text()).toContain('authentication service')
+    await wrapper.find('input[type="email"]').setValue('a@b.com')
+    await wrapper.find('input[type="password"]').setValue('pass')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Authentication service unavailable')
   })
 
-  it('shows missing_code error message', () => {
-    mockQuery.error = 'missing_code'
+  it('shows generic fallback error for unknown status codes', async () => {
+    mockFetch.mockRejectedValueOnce({ statusCode: 500, data: { message: 'Unexpected error' } })
     const wrapper = mount(LoginPage)
-    expect(wrapper.find('[role="alert"]').text()).toContain('Invalid login response')
+    await wrapper.find('input[type="email"]').setValue('a@b.com')
+    await wrapper.find('input[type="password"]').setValue('pass')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Unexpected error')
   })
 
-  it('shows a generic fallback message for unknown error codes', () => {
-    mockQuery.error = 'unknown_code'
+  it('navigates to /admin/quality on successful login', async () => {
+    mockFetch.mockResolvedValueOnce({})
     const wrapper = mount(LoginPage)
-    expect(wrapper.find('[role="alert"]').text()).toContain('Login failed')
+    await wrapper.find('input[type="email"]').setValue('a@b.com')
+    await wrapper.find('input[type="password"]').setValue('correctpass')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(mockNavigateTo).toHaveBeenCalledWith('/admin/quality')
   })
 
-  it('clicking Sign In redirects to Cognito authorize URL', async () => {
+  it('does not submit when email or password is empty', async () => {
     const wrapper = mount(LoginPage)
-    await wrapper.find('button').trigger('click')
-    expect((window.location as Location & { href: string }).href).toContain('oauth2/authorize')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('toggles password visibility when eye button clicked', async () => {
+    const wrapper = mount(LoginPage)
+    const passwordInput = wrapper.find('input#password')
+    expect(passwordInput.attributes('type')).toBe('password')
+    await wrapper.find('button.login-eye').trigger('click')
+    expect(passwordInput.attributes('type')).toBe('text')
+    await wrapper.find('button.login-eye').trigger('click')
+    expect(passwordInput.attributes('type')).toBe('password')
   })
 })
