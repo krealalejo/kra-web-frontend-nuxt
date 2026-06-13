@@ -2,19 +2,18 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { Ref } from 'vue'
 
+const { show: showToast } = useToast()
 const runtimeConfig = useRuntimeConfig()
 
 const homePortraitKey = ref<string | null>(null)
 const homePortraitUploading = ref(false)
 const homeThumbReady = ref(false)
 const isHomeThumbPolling = ref(false)
-const homePortraitError = ref<string | null>(null)
 
 const cvPortraitKey = ref<string | null>(null)
 const cvPortraitUploading = ref(false)
 const cvThumbReady = ref(false)
 const isCvThumbPolling = ref(false)
-const cvPortraitError = ref<string | null>(null)
 const cvPdfKey = ref<string | null>(null)
 
 const { getThumbUrl } = useS3()
@@ -43,7 +42,7 @@ onMounted(async () => {
     const error = e as { response?: { status?: number }; statusCode?: number }
     const status = error.response?.status ?? error.statusCode
     if (status !== 404) {
-      homePortraitError.value = 'Failed to load current portraits'
+      showToast('Failed to load current portraits', 'error')
     }
   }
 })
@@ -55,22 +54,20 @@ async function uploadPortrait(
   file: File,
   portraitType: 'home' | 'cv',
   uploadingRef: Ref<boolean>,
-  errorRef: Ref<string | null>,
   keyRef: Ref<string | null>,
   readyRef: Ref<boolean>,
   pollingRef: Ref<boolean>
 ) {
   if (!ALLOWED_TYPES.has(file.type)) {
-    errorRef.value = 'Only JPEG, PNG, or WebP images are allowed'
+    showToast('Only JPEG, PNG, or WebP images are allowed', 'error')
     return
   }
   if (file.size > MAX_BYTES) {
-    errorRef.value = 'Image must be smaller than 20 MB'
+    showToast('Image must be smaller than 20 MB', 'error')
     return
   }
 
   uploadingRef.value = true
-  errorRef.value = null
 
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
@@ -96,6 +93,7 @@ async function uploadPortrait(
     })
 
     keyRef.value = s3Key
+    showToast('Portrait uploaded')
 
     let attempts = 0
     pollingRef.value = true
@@ -112,7 +110,7 @@ async function uploadPortrait(
         } else if (attempts >= 15) {
           clearInterval(currentPoll)
           pollingRef.value = false
-          errorRef.value = 'Image uploaded but thumbnail is still generating.'
+          showToast('Image uploaded but thumbnail is still generating.', 'error')
         }
       } catch {
         if (attempts >= 15) {
@@ -125,7 +123,7 @@ async function uploadPortrait(
     if (portraitType === 'home') homePoll = currentPoll
     else cvPoll = currentPoll
   } catch (e: unknown) {
-    errorRef.value = e instanceof Error ? e.message : 'Upload failed'
+    showToast(e instanceof Error ? e.message : 'Upload failed', 'error')
   } finally {
     uploadingRef.value = false
   }
@@ -135,23 +133,21 @@ function handleHomeUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   homeThumbReady.value = false
-  uploadPortrait(file, 'home', homePortraitUploading, homePortraitError, homePortraitKey, homeThumbReady, isHomeThumbPolling)
+  uploadPortrait(file, 'home', homePortraitUploading, homePortraitKey, homeThumbReady, isHomeThumbPolling)
 }
 
 function handleCvUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   cvThumbReady.value = false
-  uploadPortrait(file, 'cv', cvPortraitUploading, cvPortraitError, cvPortraitKey, cvThumbReady, isCvThumbPolling)
+  uploadPortrait(file, 'cv', cvPortraitUploading, cvPortraitKey, cvThumbReady, isCvThumbPolling)
 }
 
 async function removePortrait(
   portraitType: 'home' | 'cv',
   keyRef: Ref<string | null>,
-  errorRef: Ref<string | null>,
   readyRef: Ref<boolean>
 ) {
-  errorRef.value = null
   try {
     const payload = {
       homePortraitUrl: portraitType === 'home' ? null : homePortraitKey.value,
@@ -166,17 +162,18 @@ async function removePortrait(
 
     keyRef.value = null
     readyRef.value = false
+    showToast('Portrait removed')
   } catch (e: unknown) {
-    errorRef.value = e instanceof Error ? e.message : 'Removal failed'
+    showToast(e instanceof Error ? e.message : 'Removal failed', 'error')
   }
 }
 
 function handleRemoveHome() {
-  removePortrait('home', homePortraitKey, homePortraitError, homeThumbReady)
+  removePortrait('home', homePortraitKey, homeThumbReady)
 }
 
 function handleRemoveCv() {
-  removePortrait('cv', cvPortraitKey, cvPortraitError, cvThumbReady)
+  removePortrait('cv', cvPortraitKey, cvThumbReady)
 }
 </script>
 
@@ -215,7 +212,6 @@ function handleRemoveCv() {
           <span v-else>Upload Home Portrait</span>
           <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="homePortraitUploading || isHomeThumbPolling" @change="handleHomeUpload" />
         </label>
-        <p v-if="homePortraitError" class="mt-2 text-sm" style="color: #ff4d4d">{{ homePortraitError }}</p>
       </div>
 
       <div class="rounded-2xl p-6" style="background: var(--bg-elev); border: 1px solid var(--hairline)">
@@ -243,7 +239,6 @@ function handleRemoveCv() {
           <span v-else>Upload CV Portrait</span>
           <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" :disabled="cvPortraitUploading || isCvThumbPolling" @change="handleCvUpload" />
         </label>
-        <p v-if="cvPortraitError" class="mt-2 text-sm" style="color: #ff4d4d">{{ cvPortraitError }}</p>
       </div>
     </div>
   </div>

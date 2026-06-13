@@ -16,10 +16,9 @@ const emit = defineEmits<{
 
 const store = useBlogStore()
 const { sanitizeMarkdown } = useMarkdown()
+const { show: showToast } = useToast()
 const { slug, title, content, imageUrl, publishedAt, slugError, titleError, contentError, isSubmitting, handleSubmit, resetForm, setValues } = useBlogPostForm()
 const { fields: references, push: addReference, remove: removeReference } = useFieldArray<{ label: string; url: string }>('references')
-
-const formError = ref<string | null>(null)
 const isEditMode = computed(() => !!props.post)
 
 const imageFile = ref<File | null>(null)
@@ -45,7 +44,6 @@ async function handleImageUpload(event: Event) {
   imageFile.value = file
   imageUploading.value = true
   thumbReady.value = false
-  formError.value = null
 
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
@@ -76,7 +74,7 @@ async function handleImageUpload(event: Event) {
         } else if (attempts >= 15) {
           if (poll) clearInterval(poll)
           isThumbnailPolling.value = false
-          formError.value = 'Image uploaded but thumbnail is still generating.'
+          showToast('Image uploaded but thumbnail is still generating.', 'error')
         }
       } catch {
         if (attempts >= 15) {
@@ -86,7 +84,7 @@ async function handleImageUpload(event: Event) {
       }
     }, 2000)
   } catch (e: unknown) {
-    formError.value = e instanceof Error ? e.message : 'Image upload failed'
+    showToast(e instanceof Error ? e.message : 'Image upload failed', 'error')
   } finally {
     imageUploading.value = false
   }
@@ -132,13 +130,11 @@ watch(() => props.post, (newPost) => {
 watch(() => props.open, (isOpen) => {
   if (!isOpen) {
     resetForm()
-    formError.value = null
     thumbReady.value = false
   }
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  formError.value = null
   try {
     const publishedAtIso = values.publishedAt ? new Date(values.publishedAt + 'Z').toISOString() : undefined
     if (isEditMode.value && props.post) {
@@ -161,8 +157,9 @@ const onSubmit = handleSubmit(async (values) => {
     }
     emit('saved')
     emit('close')
+    showToast('Post saved')
   } catch (e: unknown) {
-    formError.value = store.error ?? (e instanceof Error ? e.message : 'An unexpected error occurred')
+    showToast(store.error ?? (e instanceof Error ? e.message : 'An unexpected error occurred'), 'error')
   }
 })
 </script>
@@ -180,26 +177,7 @@ const onSubmit = handleSubmit(async (values) => {
           {{ isEditMode ? 'Edit Post' : 'Create Post' }}
         </DialogTitle>
 
-        <div
-          v-if="formError"
-          class="mb-6 rounded-xl p-4 text-sm"
-          style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); color: #dc2626"
-        >
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <Icon name="lucide:alert-circle" class="w-5 h-5" />
-              <span>{{ formError }}</span>
-            </div>
-            <button
-              type="button"
-              class="t-label hover:underline"
-              style="font-size: 10px"
-              @click="formError = null"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
+
 
         <form class="flex flex-col gap-6" @submit.prevent="onSubmit">
           <div class="grid grid-cols-3 gap-6">

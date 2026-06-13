@@ -101,4 +101,5 @@ const onLeave = async (el: Element, done: () => void) => {
       </main>
     </div>
   </div>
+  <AdminToast />
 </template>

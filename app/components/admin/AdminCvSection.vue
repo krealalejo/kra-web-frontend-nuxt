@@ -12,6 +12,8 @@ interface SkillCategory {
   id: string; name: string; skills: string[]; sortOrder: number
 }
 
+const { show: showToast } = useToast()
+
 const activeTab = ref<'experience' | 'education' | 'skills' | 'pdf'>('experience')
 
 const experience = ref<ExperienceEntry[]>([])
@@ -25,14 +27,12 @@ const deletingId = ref<string | null>(null)
 const deletingCategoryId = ref<string | null>(null)
 
 const categorySaving = reactive<Record<string, boolean>>({})
-const categoryError = reactive<Record<string, string | null>>({})
 
 const expModal = reactive({
   open: false,
   mode: 'add' as 'add' | 'edit',
   data: { id: '', title: '', company: '', location: '', years: '', description: '', logoUrl: null as string | null },
   saving: false,
-  error: null as string | null,
   logoUploading: false,
   logoError: null as string | null,
 })
@@ -42,7 +42,6 @@ const eduModal = reactive({
   mode: 'add' as 'add' | 'edit',
   data: { id: '', title: '', institution: '', location: '', years: '', description: '', logoUrl: null as string | null },
   saving: false,
-  error: null as string | null,
   logoUploading: false,
   logoError: null as string | null,
 })
@@ -53,7 +52,6 @@ const categoryNewSkill = reactive<Record<string, string>>({})
 const addCategoryOpen = ref(false)
 const newCategoryName = ref('')
 const addCategorySaving = ref(false)
-const addCategoryError = ref<string | null>(null)
 
 const dragState = reactive({
   section: null as 'exp' | 'edu' | 'cat' | null,
@@ -106,7 +104,7 @@ async function onDrop(section: 'exp' | 'edu' | 'cat', toIdx: number) {
       $fetch(`${endpoint}/${it.id}`, { method: 'PUT', body: { sortOrder: i + 1 } })
     ))
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Reorder failed'
+    showToast(e instanceof Error ? e.message : 'Reorder failed', 'error')
   } finally {
     reorderSaving.value = false
   }
@@ -140,7 +138,6 @@ function openAddExpModal() {
   expModal.mode = 'add'
   expModal.data = { id: '', title: '', company: '', location: '', years: '', description: '', logoUrl: null }
   expModal.open = true
-  expModal.error = null
   expModal.logoError = null
 }
 
@@ -148,13 +145,11 @@ function openEditExpModal(item: ExperienceEntry) {
   expModal.mode = 'edit'
   expModal.data = { ...item, logoUrl: item.logoUrl ?? null }
   expModal.open = true
-  expModal.error = null
   expModal.logoError = null
 }
 
 async function saveExpModal() {
   expModal.saving = true
-  expModal.error = null
   try {
     if (expModal.mode === 'add') {
       const nextSortOrder = Math.max(0, ...experience.value.map(i => i.sortOrder)) + 1
@@ -180,8 +175,9 @@ async function saveExpModal() {
       if (idx !== -1) experience.value[idx] = updated
     }
     expModal.open = false
+    showToast('Experience saved')
   } catch (e: unknown) {
-    expModal.error = e instanceof Error ? e.message : 'Save failed'
+    showToast(e instanceof Error ? e.message : 'Save failed', 'error')
   } finally {
     expModal.saving = false
   }
@@ -197,7 +193,7 @@ async function deleteExp(id: string) {
     /* v8 ignore next 1 */
     if (idx !== -1) experience.value.splice(idx, 1)
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Delete failed'
+    showToast(e instanceof Error ? e.message : 'Delete failed', 'error')
   } finally {
     deletingId.value = null
   }
@@ -229,7 +225,6 @@ function openAddEduModal() {
   eduModal.mode = 'add'
   eduModal.data = { id: '', title: '', institution: '', location: '', years: '', description: '', logoUrl: null }
   eduModal.open = true
-  eduModal.error = null
   eduModal.logoError = null
 }
 
@@ -237,13 +232,11 @@ function openEditEduModal(item: EducationEntry) {
   eduModal.mode = 'edit'
   eduModal.data = { ...item, logoUrl: item.logoUrl ?? null }
   eduModal.open = true
-  eduModal.error = null
   eduModal.logoError = null
 }
 
 async function saveEduModal() {
   eduModal.saving = true
-  eduModal.error = null
   try {
     if (eduModal.mode === 'add') {
       const nextSortOrder = Math.max(0, ...education.value.map(i => i.sortOrder)) + 1
@@ -269,8 +262,9 @@ async function saveEduModal() {
       if (idx !== -1) education.value[idx] = updated
     }
     eduModal.open = false
+    showToast('Education saved')
   } catch (e: unknown) {
-    eduModal.error = e instanceof Error ? e.message : 'Save failed'
+    showToast(e instanceof Error ? e.message : 'Save failed', 'error')
   } finally {
     eduModal.saving = false
   }
@@ -307,7 +301,7 @@ async function deleteEdu(id: string) {
     /* v8 ignore next 1 */
     if (idx !== -1) education.value.splice(idx, 1)
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Delete failed'
+    showToast(e instanceof Error ? e.message : 'Delete failed', 'error')
   } finally {
     deletingId.value = null
   }
@@ -330,7 +324,6 @@ function removeSkill(catId: string, index: number) {
 
 async function saveCategory(catId: string) {
   categorySaving[catId] = true
-  categoryError[catId] = null
   try {
     await $fetch(`/api/admin/cv/skills/categories/${catId}`, {
       method: 'PUT',
@@ -339,8 +332,9 @@ async function saveCategory(catId: string) {
     const idx = skillCategories.value.findIndex(c => c.id === catId)
     /* v8 ignore next 1 */
     if (idx !== -1) skillCategories.value[idx].skills = [...categorySkills[catId]]
+    showToast('Skills saved')
   } catch (e: unknown) {
-    categoryError[catId] = e instanceof Error ? e.message : 'Save failed'
+    showToast(e instanceof Error ? e.message : 'Save failed', 'error')
   } finally {
     categorySaving[catId] = false
   }
@@ -360,7 +354,7 @@ async function deleteCategory(id: string) {
       delete categoryNewSkill[id]
     }
   } catch (e: unknown) {
-    error.value = e instanceof Error ? e.message : 'Delete failed'
+    showToast(e instanceof Error ? e.message : 'Delete failed', 'error')
   } finally {
     deletingCategoryId.value = null
   }
@@ -373,8 +367,6 @@ const cvPdfKey = ref<string | null>(null)
 const homePortraitKey = ref<string | null>(null)
 const cvPortraitKey = ref<string | null>(null)
 const cvPdfUploading = ref(false)
-const cvPdfError = ref<string | null>(null)
-const cvPdfSuccess = ref(false)
 
 const cvPdfUrl = computed(() => {
   if (!cvPdfKey.value) return null
@@ -397,16 +389,14 @@ async function handlePdfUpload(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
   if (file.type !== 'application/pdf') {
-    cvPdfError.value = 'Only PDF files are allowed'
+    showToast('Only PDF files are allowed', 'error')
     return
   }
   if (file.size > 10 * 1024 * 1024) {
-    cvPdfError.value = 'PDF must be smaller than 10 MB'
+    showToast('PDF must be smaller than 10 MB', 'error')
     return
   }
   cvPdfUploading.value = true
-  cvPdfError.value = null
-  cvPdfSuccess.value = false
   try {
     const { uploadUrl, s3Key } = await $fetch<{ uploadUrl: string; s3Key: string }>('/api/admin/upload', {
       method: 'POST',
@@ -426,17 +416,15 @@ async function handlePdfUpload(event: Event) {
       },
     })
     cvPdfKey.value = s3Key
-    cvPdfSuccess.value = true
+    showToast('PDF uploaded')
   } catch (e: unknown) {
-    cvPdfError.value = e instanceof Error ? e.message : 'Upload failed'
+    showToast(e instanceof Error ? e.message : 'Upload failed', 'error')
   } finally {
     cvPdfUploading.value = false
   }
 }
 
 async function removePdf() {
-  cvPdfError.value = null
-  cvPdfSuccess.value = false
   try {
     await $fetch('/api/admin/profile', {
       method: 'PUT',
@@ -447,8 +435,9 @@ async function removePdf() {
       },
     })
     cvPdfKey.value = null
+    showToast('PDF removed')
   } catch (e: unknown) {
-    cvPdfError.value = e instanceof Error ? e.message : 'Removal failed'
+    showToast(e instanceof Error ? e.message : 'Removal failed', 'error')
   }
 }
 
@@ -456,7 +445,6 @@ async function submitAddCategory() {
   const name = newCategoryName.value.trim()
   if (!name) return
   addCategorySaving.value = true
-  addCategoryError.value = null
   try {
     const nextSortOrder = Math.max(0, ...skillCategories.value.map(c => c.sortOrder)) + 1
     const created = await $fetch<SkillCategory>('/api/admin/cv/skills/categories', {
@@ -468,8 +456,9 @@ async function submitAddCategory() {
     categoryNewSkill[created.id] = ''
     newCategoryName.value = ''
     addCategoryOpen.value = false
+    showToast('Category created')
   } catch (e: unknown) {
-    addCategoryError.value = e instanceof Error ? e.message : 'Create failed'
+    showToast(e instanceof Error ? e.message : 'Create failed', 'error')
   } finally {
     addCategorySaving.value = false
   }
@@ -671,10 +660,6 @@ async function submitAddCategory() {
             />
           </div>
 
-          <div v-if="categoryError[cat.id]" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
-            {{ categoryError[cat.id] }}
-          </div>
-
           <button
             :disabled="categorySaving[cat.id]"
             class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
@@ -706,14 +691,11 @@ async function submitAddCategory() {
             @keydown.enter.prevent="submitAddCategory"
           />
         </div>
-        <div v-if="addCategoryError" class="mb-3 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
-          {{ addCategoryError }}
-        </div>
         <div style="display:flex;gap:8px">
           <button
             class="rounded-lg px-4 py-2 text-sm font-medium"
             style="color: var(--fg-dim); border: 1px solid var(--hairline); background: none; cursor: pointer"
-            @click="addCategoryOpen = false; newCategoryName = ''; addCategoryError = null"
+            @click="addCategoryOpen = false; newCategoryName = ''"
           >Cancel</button>
           <button
             :disabled="addCategorySaving"
@@ -754,8 +736,6 @@ async function submitAddCategory() {
           <input type="file" accept="application/pdf" class="sr-only" :disabled="cvPdfUploading" @change="handlePdfUpload" />
         </label>
 
-        <p v-if="cvPdfSuccess" class="mt-3 text-xs" style="color: #4caf50">PDF uploaded successfully.</p>
-        <p v-if="cvPdfError" class="mt-3 text-xs" style="color: #dc2626">{{ cvPdfError }}</p>
       </div>
     </div>
 
@@ -843,10 +823,6 @@ async function submitAddCategory() {
             </div>
             <p v-if="expModal.logoError" class="mt-1 text-xs" style="color:#dc2626">{{ expModal.logoError }}</p>
           </div>
-        </div>
-
-        <div v-if="expModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)">
-          {{ expModal.error }}
         </div>
 
         <div class="mt-6 flex justify-end gap-3">
@@ -950,10 +926,6 @@ async function submitAddCategory() {
             </div>
             <p v-if="eduModal.logoError" class="mt-1 text-xs" style="color:#dc2626">{{ eduModal.logoError }}</p>
           </div>
-        </div>
-
-        <div v-if="eduModal.error" class="mt-4 rounded px-3 py-2 text-xs" style="background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)">
-          {{ eduModal.error }}
         </div>
 
         <div class="mt-6 flex justify-end gap-3">

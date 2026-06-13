@@ -9,6 +9,8 @@ interface ProjectMetadataResponse {
   stack: string[] | null
 }
 
+const { show: showToast } = useToast()
+
 const repos = ref<PortfolioRepoDto[]>([])
 const loading = ref(false)
 const pageError = ref<string | null>(null)
@@ -22,7 +24,6 @@ const modal = reactive({
   repo: '',
   data: { role: '', year: '', kind: '', mainBranch: '', stack: [] as string[] },
   saving: false,
-  error: null as string | null,
 })
 
 const newStackItem = ref('')
@@ -64,7 +65,6 @@ function openAddModal(repo: PortfolioRepoDto) {
   modal.repo = repo.name
   modal.mode = 'add'
   modal.data = { role: '', year: '', kind: '', mainBranch: '', stack: [] }
-  modal.error = null
   modal.saving = false
   newStackItem.value = ''
   modal.open = true
@@ -82,7 +82,6 @@ function openEditModal(repo: PortfolioRepoDto) {
     mainBranch: existing?.mainBranch ?? '',
     stack: existing?.stack ? [...existing.stack] : [],
   }
-  modal.error = null
   modal.saving = false
   newStackItem.value = ''
   modal.open = true
@@ -90,7 +89,6 @@ function openEditModal(repo: PortfolioRepoDto) {
 
 async function saveModal() {
   modal.saving = true
-  modal.error = null
   try {
     const result = await $fetch<ProjectMetadataResponse>(
       `/api/admin/projects/${encodeURIComponent(modal.owner)}/${encodeURIComponent(modal.repo)}`,
@@ -107,8 +105,9 @@ async function saveModal() {
     )
     metadataMap.value[`${modal.owner}/${modal.repo}`] = result
     modal.open = false
+    showToast('Project saved')
   } catch {
-    modal.error = 'Failed to save. Please try again.'
+    showToast('Failed to save. Please try again.', 'error')
   } finally {
     modal.saving = false
   }
@@ -254,14 +253,6 @@ const KIND_OPTIONS = ['Frontend', 'Backend', 'Serverless', 'AI', 'Other']
             style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--hairline-strong);padding:10px 0;font-size:16px;color:var(--fg);outline:none"
             @keydown.enter.prevent="addStackItem"
           />
-        </div>
-
-        <div
-          v-if="modal.error"
-          class="mt-4 rounded px-3 py-2 text-xs"
-          style="background:rgba(220,38,38,0.1);color:#dc2626;border:1px solid rgba(220,38,38,0.25)"
-        >
-          {{ modal.error }}
         </div>
 
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:28px;padding-top:20px;border-top:1px solid var(--hairline)">

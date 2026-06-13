@@ -2,15 +2,12 @@
 import { useActivityStore } from '~/stores/activity'
 
 const store = useActivityStore()
+const { show: showToast } = useToast()
+
 const saving = reactive<Record<string, boolean>>({
   SHIPPING: false,
   READING: false,
   PLAYING: false
-})
-const errors = reactive<Record<string, string | null>>({
-  SHIPPING: null,
-  READING: null,
-  PLAYING: null
 })
 
 const shippingTitle = ref('')
@@ -39,7 +36,7 @@ onMounted(async () => {
       }
     }
   } catch {
-    errors.SHIPPING = store.error ?? 'Failed to load activity cards'
+    showToast(store.error ?? 'Failed to load activity cards', 'error')
   }
 })
 
@@ -49,11 +46,11 @@ type ActivityPayload = ShippingReadingPayload | PlayingPayload
 
 async function saveCard(type: string, payload: ActivityPayload) {
   saving[type] = true
-  errors[type] = null
   try {
     await store.updateCard(type, payload)
+    showToast('Changes saved')
   } catch (e: unknown) {
-    errors[type] = e instanceof Error ? e.message : 'Save failed'
+    showToast(e instanceof Error ? e.message : 'Save failed', 'error')
   } finally {
     saving[type] = false
   }
@@ -109,10 +106,6 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.SHIPPING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
-          {{ errors.SHIPPING }}
-        </div>
-
         <button
           :disabled="saving.SHIPPING"
           class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
@@ -160,10 +153,6 @@ function removeTag(index: number) {
             />
           </div>
         </div>
-        <div v-if="errors.READING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
-          {{ errors.READING }}
-        </div>
-
         <button
           :disabled="saving.READING"
           class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
@@ -202,10 +191,6 @@ function removeTag(index: number) {
             @keydown.enter.prevent="addTag"
           />
         </div>
-        <div v-if="errors.PLAYING" class="mb-4 rounded px-3 py-2 text-xs" style="background: rgba(220, 38, 38, 0.1); color: #dc2626; border: 1px solid rgba(220, 38, 38, 0.25)">
-          {{ errors.PLAYING }}
-        </div>
-
         <button
           :disabled="saving.PLAYING"
           class="rounded-lg px-4 py-2 text-sm font-medium transition-opacity"
