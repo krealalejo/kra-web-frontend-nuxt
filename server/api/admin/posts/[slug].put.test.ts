@@ -63,4 +63,38 @@ describe('admin/posts/[slug].put', () => {
     )
     expect(result).toEqual(updatedPost)
   })
+
+  it('maps upstream error to createError with its status and data', async () => {
+    const upstream = Object.assign(new Error('nope'), {
+      statusCode: 422,
+      statusMessage: 'Unprocessable',
+      data: { field: 'title' },
+    })
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('hello-world'))
+    vi.stubGlobal('$fetch', vi.fn().mockRejectedValue(upstream))
+
+    const mod = await import('./[slug].put')
+    const handler = mod.default as Function
+
+    await expect(handler({})).rejects.toMatchObject({
+      statusCode: 422,
+      statusMessage: 'Unprocessable',
+      data: { field: 'title' },
+    })
+  })
+
+  it('falls back to 500 when upstream error has no status', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('getRouterParam', vi.fn().mockReturnValue('hello-world'))
+    vi.stubGlobal('$fetch', vi.fn().mockRejectedValue(new Error('boom')))
+
+    const mod = await import('./[slug].put')
+    const handler = mod.default as Function
+
+    await expect(handler({})).rejects.toMatchObject({
+      statusCode: 500,
+      statusMessage: 'boom',
+    })
+  })
 })

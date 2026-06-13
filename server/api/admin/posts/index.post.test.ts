@@ -50,4 +50,36 @@ describe('admin/posts/index.post', () => {
     )
     expect(result).toEqual(newPost)
   })
+
+  it('maps upstream error to createError with its status and data', async () => {
+    const upstream = Object.assign(new Error('nope'), {
+      statusCode: 409,
+      statusMessage: 'Conflict',
+      data: { slug: 'taken' },
+    })
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('$fetch', vi.fn().mockRejectedValue(upstream))
+
+    const mod = await import('./index.post')
+    const handler = mod.default as Function
+
+    await expect(handler({})).rejects.toMatchObject({
+      statusCode: 409,
+      statusMessage: 'Conflict',
+      data: { slug: 'taken' },
+    })
+  })
+
+  it('falls back to 500 when upstream error has no status', async () => {
+    vi.stubGlobal('getCookie', vi.fn().mockReturnValue('my-token'))
+    vi.stubGlobal('$fetch', vi.fn().mockRejectedValue(new Error('boom')))
+
+    const mod = await import('./index.post')
+    const handler = mod.default as Function
+
+    await expect(handler({})).rejects.toMatchObject({
+      statusCode: 500,
+      statusMessage: 'boom',
+    })
+  })
 })
