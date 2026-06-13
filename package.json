@@ -15,6 +15,7 @@
     "sonar": "sonar-scanner"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.1068.0",
     "@headlessui/vue": "^1.7.23",
     "@nuxt/fonts": "^0.14.0",
     "@nuxt/icon": "^2.2.3",
