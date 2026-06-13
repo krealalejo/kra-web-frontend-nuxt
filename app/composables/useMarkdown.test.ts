@@ -16,6 +16,13 @@ vi.mock("marked", () => {
       parse: vi
         .fn()
         .mockImplementation((text: string, options?: { renderer?: any }) => {
+          if (options?.renderer?.heading) {
+            text = text.replace(
+              /^(#{1,6})\s+(.*)$/gm,
+              (_, hashes: string, content: string) =>
+                options.renderer.heading({ text: content, depth: hashes.length }),
+            );
+          }
           if (options?.renderer?.image) {
             return text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, (_, alt, href) =>
               options.renderer.image({ href, text: alt, title: undefined }),
@@ -127,6 +134,19 @@ describe("useMarkdown", () => {
       const { sanitizeMarkdown } = useMarkdown();
       const result = await sanitizeMarkdown("");
       expect(typeof result).toBe("string");
+    });
+
+    it("renders headings with slugified id anchors", async () => {
+      const { sanitizeMarkdown } = useMarkdown();
+      const result = await sanitizeMarkdown("## Hello World! @2024");
+      expect(result).toContain('<h2 id="hello-world-2024">');
+      expect(result).toContain("Hello World! @2024</h2>");
+    });
+
+    it("strips HTML tags and trims dashes when building heading id", async () => {
+      const { sanitizeMarkdown } = useMarkdown();
+      const result = await sanitizeMarkdown("### --Edge-- <b>Case</b>");
+      expect(result).toContain('id="edge-case"');
     });
 
     it("uses sanitize-html on server", async () => {
