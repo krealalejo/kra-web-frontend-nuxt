@@ -132,6 +132,43 @@ describe('cv.vue — API-driven sections (CV-04)', () => {
   })
 })
 
+describe('cv.vue — mobile portrait (cv-mobile-portrait)', () => {
+  beforeEach(() => {
+    mockData = {}
+  })
+
+  it('renders .cv-mobile-portrait element inside .cv-head-main', async () => {
+    const wrapper = await mountSuspended(CvPage)
+    expect(wrapper.find('.cv-head-main .cv-mobile-portrait').exists()).toBe(true)
+  })
+
+  it('shows portrait img in .cv-mobile-portrait when cvPortraitUrl is set', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: 'portraits/cv.webp' }
+    const wrapper = await mountSuspended(CvPage)
+    const img = wrapper.find('.cv-mobile-portrait img')
+    expect(img.exists()).toBe(true)
+    expect(img.attributes('src')).toContain('portraits/cv.webp')
+    expect(img.attributes('alt')).toBe('Kevin Real Alejo')
+  })
+
+  it('shows SVG fallback in .cv-mobile-portrait when cvPortraitUrl is null', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: null }
+    const wrapper = await mountSuspended(CvPage)
+    expect(wrapper.find('.cv-mobile-portrait img').exists()).toBe(false)
+    expect(wrapper.find('.cv-mobile-portrait svg').exists()).toBe(true)
+  })
+
+  it('mobile portrait and desktop portrait are separate elements', async () => {
+    mockData['cv-profile'] = { cvPortraitUrl: 'portraits/cv.webp' }
+    const wrapper = await mountSuspended(CvPage)
+    const mobileImg = wrapper.find('.cv-mobile-portrait img')
+    const desktopImg = wrapper.find('.cv-photo-wrap img')
+    expect(mobileImg.exists()).toBe(true)
+    expect(desktopImg.exists()).toBe(true)
+    expect(mobileImg.element).not.toBe(desktopImg.element)
+  })
+})
+
 describe('cv.vue — actions row (mobile layout)', () => {
   beforeEach(() => {
     mockData = {}

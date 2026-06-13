@@ -118,6 +118,17 @@ onMounted(async () => {
     <div class="shell">
       <div class="cv-head">
         <div class="cv-head-main">
+          <div class="cv-mobile-portrait">
+            <img
+              v-if="cvPortraitThumbUrl"
+              :src="cvPortraitThumbUrl"
+              alt="Kevin Real Alejo"
+            />
+            <svg v-else width="28" height="28" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+              <circle cx="22" cy="17" r="7" />
+              <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
+            </svg>
+          </div>
           <h1>Kevin Real <br><em style="color:var(--accent);font-style:normal">Alejo</em></h1>
           <div class="role">Full-stack engineer · Barcelona, ES</div>
           <div class="actions">
@@ -234,9 +245,44 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.cv-mobile-portrait {
+  display: none;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  flex-shrink: 0;
+  background: var(--bg-elev, var(--bg));
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-muted);
+}
+
+.cv-mobile-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 @media (max-width: 700px) {
   .cv-head { grid-template-columns: 1fr !important; }
   .cv-photo-wrap { display: none !important; }
   .cv-section { grid-template-columns: 1fr !important; gap: 16px !important; }
+
+  .cv-head-main { position: relative; }
+
+  .cv-mobile-portrait {
+    display: flex;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  .cv-head-main h1,
+  .cv-head-main .role {
+    padding-right: calc(72px + 16px);
+  }
 }
 </style>
