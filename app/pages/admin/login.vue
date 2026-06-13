@@ -44,7 +44,7 @@ async function submit() {
 
     <header class="login-top-bar">
       <span class="t-overline">krealalejo.dev</span>
-      <NuxtLink to="/" class="login-back-link t-overline">← Portfolio</NuxtLink>
+      <a href="/" class="login-back-link t-overline">← Portfolio</a>
     </header>
 
     <main class="login-center">
