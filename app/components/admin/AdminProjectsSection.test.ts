@@ -1,7 +1,18 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import AdminProjectsSection from './AdminProjectsSection.vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
+
+const mockShowToast = vi.fn()
+
+mockNuxtImport('useToast', () => {
+  return () => ({
+    toast: { value: null },
+    show: mockShowToast,
+    dismiss: vi.fn(),
+  })
+})
 
 const mockRepos = [
   { owner: 'owner1', name: 'repo1', fullName: 'owner1/repo1', description: 'Desc 1' },
@@ -109,7 +120,7 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     await wrapper.find('button.btn-primary').trigger('click')
     await flushPromises()
 
-    expect(wrapper.text()).toContain('Failed to save')
+    expect(mockShowToast).toHaveBeenCalledWith('Failed to save. Please try again.', 'error')
   })
 
   it('opens edit modal with pre-filled data when edit button is clicked', async () => {

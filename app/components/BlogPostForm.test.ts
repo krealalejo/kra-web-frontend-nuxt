@@ -1,8 +1,23 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { mount, flushPromises } from '@vue/test-utils'
 import { nextTick } from 'vue'
 import BlogPostForm from './BlogPostForm.vue'
 import { useBlogStore, type BlogPost } from '~/stores/blog'
+
+const mockShowToast = vi.fn()
+
+mockNuxtImport('useToast', () => {
+  return () => ({
+    toast: { value: null },
+    show: mockShowToast,
+    dismiss: vi.fn(),
+  })
+})
+
+beforeEach(() => {
+  mockShowToast.mockClear()
+})
 
 describe('components/BlogPostForm.vue', () => {
   const mockPost: BlogPost = {
@@ -154,7 +169,7 @@ describe('components/BlogPostForm.vue', () => {
     spy.mockRestore()
   })
 
-  it('dismisses form error when Dismiss button is clicked', async () => {
+  it('shows toast error when form submission fails', async () => {
     const store = useBlogStore()
     vi.spyOn(store, 'createPost').mockRejectedValue(new Error('Server error'))
 
@@ -175,14 +190,8 @@ describe('components/BlogPostForm.vue', () => {
     await wrapper.find('form').trigger('submit.prevent')
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toMatch(/Server error|unexpected error/)
+      expect(mockShowToast).toHaveBeenCalledWith('Server error', 'error')
     })
-
-    const dismissBtn = wrapper.find('button.t-label')
-    if (dismissBtn.exists()) {
-      await dismissBtn.trigger('click')
-      await wrapper.vm.$nextTick()
-    }
   })
 
   it('adds and removes references', async () => {
@@ -254,10 +263,9 @@ describe('BlogPostForm — image upload', () => {
     const file = new File(['img'], 'photo.jpg', { type: 'image/jpeg' })
     Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
     await input.trigger('change')
-    await wrapper.vm.$nextTick()
-    await wrapper.vm.$nextTick()
+    await flushPromises()
 
-    expect(wrapper.text()).toContain('Upload failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Upload failed', 'error')
   })
 
   it('clears poll on unmount', async () => {
@@ -346,7 +354,7 @@ describe('BlogPostForm — thumbnail polling timer', () => {
     }
     await nextTick()
 
-    expect(wrapper.text()).toContain('thumbnail is still generating')
+    expect(mockShowToast).toHaveBeenCalledWith('Image uploaded but thumbnail is still generating.', 'error')
     vi.useRealTimers()
     vi.unstubAllGlobals()
   })
@@ -448,7 +456,7 @@ describe('BlogPostForm — post watch edge cases', () => {
     await wrapper.find('form').trigger('submit.prevent')
 
     await vi.waitFor(() => {
-      expect(wrapper.text()).toContain('An unexpected error occurred')
+      expect(mockShowToast).toHaveBeenCalledWith('An unexpected error occurred', 'error')
     })
   })
 })

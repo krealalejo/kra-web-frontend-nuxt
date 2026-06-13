@@ -7,6 +7,16 @@ import ProfileSection from './ProfileSection.vue'
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
+const mockShowToast = vi.fn()
+
+mockNuxtImport('useToast', () => {
+  return () => ({
+    toast: { value: null },
+    show: mockShowToast,
+    dismiss: vi.fn(),
+  })
+})
+
 describe('ProfileSection', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -43,7 +53,7 @@ describe('ProfileSection', () => {
 
     const wrapper = mount(ProfileSection)
     await flushPromises()
-    expect(wrapper.text()).toContain('Failed to load current portraits')
+    expect(mockShowToast).toHaveBeenCalledWith('Failed to load current portraits', 'error')
   })
 
   it('ignores 404 fetch error', async () => {
@@ -52,7 +62,8 @@ describe('ProfileSection', () => {
     mockFetch.mockRejectedValue(error)
 
     const wrapper = mount(ProfileSection)
-    expect(wrapper.text()).not.toContain('Failed to load current portraits')
+    await flushPromises()
+    expect(mockShowToast).not.toHaveBeenCalled()
   })
 
   it('validates file type on upload', async () => {
@@ -63,7 +74,7 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     await input.trigger('change')
-    expect(wrapper.text()).toContain('Only JPEG, PNG, or WebP images are allowed')
+    expect(mockShowToast).toHaveBeenCalledWith('Only JPEG, PNG, or WebP images are allowed', 'error')
   })
 
   it('validates file size on upload', async () => {
@@ -75,7 +86,7 @@ describe('ProfileSection', () => {
     Object.defineProperty(input.element, 'files', { value: [file] })
 
     await input.trigger('change')
-    expect(wrapper.text()).toContain('Image must be smaller than 20 MB')
+    expect(mockShowToast).toHaveBeenCalledWith('Image must be smaller than 20 MB', 'error')
   })
 
   it('performs full upload flow for home portrait', async () => {
@@ -151,7 +162,8 @@ describe('ProfileSection', () => {
 
     mockFetch.mockRejectedValue(new Error('Network error during upload'))
     await input.trigger('change')
-    expect(wrapper.text()).toContain('Network error during upload')
+    await flushPromises()
+    expect(mockShowToast).toHaveBeenCalledWith('Network error during upload', 'error')
   })
 
   it('handles portrait deletion', async () => {
@@ -212,7 +224,7 @@ describe('ProfileSection', () => {
     mockFetch.mockRejectedValue(new Error('Removal failed'))
     await deleteBtn.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Removal failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Removal failed', 'error')
   })
 
   it('stops polling after 15 failed not-ready responses', async () => {
@@ -238,7 +250,7 @@ describe('ProfileSection', () => {
       await flushPromises()
     }
 
-    expect(wrapper.text()).toContain('Image uploaded but thumbnail is still generating.')
+    expect(mockShowToast).toHaveBeenCalledWith('Image uploaded but thumbnail is still generating.', 'error')
     vi.useRealTimers()
   })
 
@@ -263,7 +275,7 @@ describe('ProfileSection', () => {
     mockFetch.mockRejectedValue('string rejection')
     await deleteBtn.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Removal failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Removal failed', 'error')
   })
 
   it('uses statusCode fallback when error has no response on load', async () => {
@@ -273,7 +285,7 @@ describe('ProfileSection', () => {
     mockFetch.mockRejectedValue(error)
     const wrapper = mount(ProfileSection)
     await flushPromises()
-    expect(wrapper.text()).toContain('Failed to load current portraits')
+    expect(mockShowToast).toHaveBeenCalledWith('Failed to load current portraits', 'error')
   })
 
   it('stops polling after 15 fetch errors in polling', async () => {

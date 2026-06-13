@@ -1,9 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { nextTick } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
+
+const mockShowToast = vi.fn()
+
+mockNuxtImport('useToast', () => {
+  return () => ({
+    toast: { value: null },
+    show: mockShowToast,
+    dismiss: vi.fn(),
+  })
+})
 
 const expItem = { id: 'exp1', title: 'Engineer', company: 'Acme', location: 'Barcelona', years: '2020 — Present', description: 'Built stuff', sortOrder: 1 }
 const eduItem = { id: 'edu1', title: 'BSc CS', institution: 'Uni', location: 'UK', years: '2018', description: 'Studied CS', sortOrder: 1 }
@@ -199,7 +210,7 @@ describe('AdminCvSection — Experience CRUD', () => {
     await flushPromises()
     await nextTick()
 
-    expect(wrapper.text()).toContain('Save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Save failed', 'error')
   })
 
   it('deletes experience entry', async () => {
@@ -342,7 +353,7 @@ describe('AdminCvSection — Education CRUD', () => {
     await flushPromises()
     await nextTick()
 
-    expect(wrapper.text()).toContain('Edu save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Edu save failed', 'error')
   })
 
   it('deletes education entry', async () => {
@@ -466,7 +477,7 @@ describe('AdminCvSection — Skills CRUD', () => {
     await flushPromises()
     await nextTick()
 
-    expect(wrapper.text()).toContain('Cat save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Cat save failed', 'error')
   })
 
   it('deletes category via ✕ button on card header', async () => {
@@ -567,7 +578,7 @@ describe('AdminCvSection — Skills CRUD', () => {
     await flushPromises()
     await nextTick()
 
-    expect(wrapper.text()).toContain('Create failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Create failed', 'error')
   })
 })
 
@@ -619,7 +630,7 @@ describe('AdminCvSection — PDF Tab', () => {
     Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
     await input.trigger('change')
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('Only PDF files are allowed')
+    expect(mockShowToast).toHaveBeenCalledWith('Only PDF files are allowed', 'error')
   })
 
   it('rejects oversized PDF file', async () => {
@@ -630,7 +641,7 @@ describe('AdminCvSection — PDF Tab', () => {
     Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
     await input.trigger('change')
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('PDF must be smaller than 10 MB')
+    expect(mockShowToast).toHaveBeenCalledWith('PDF must be smaller than 10 MB', 'error')
   })
 
   it('uploads PDF successfully', async () => {
@@ -680,7 +691,7 @@ describe('AdminCvSection — PDF Tab', () => {
     await input.trigger('change')
     await flushPromises()
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('Upload error')
+    expect(mockShowToast).toHaveBeenCalledWith('Upload error', 'error')
   })
 
   it('removes PDF when remove button is clicked', async () => {
@@ -739,7 +750,7 @@ describe('AdminCvSection — PDF Tab', () => {
       await removeBtn.trigger('click')
       await flushPromises()
       await nextTick()
-      expect(wrapper.text()).toContain('Remove failed')
+      expect(mockShowToast).toHaveBeenCalledWith('Remove failed', 'error')
     }
   })
 })
@@ -844,7 +855,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await saveBtn!.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Save failed', 'error')
   })
 
   it('shows "Delete failed" when deleteExp rejects with non-Error', async () => {
@@ -860,7 +871,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await deleteBtn.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Delete failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Delete failed', 'error')
   })
 
   it('shows "Save failed" when saveEduModal rejects with non-Error', async () => {
@@ -880,7 +891,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await saveBtn!.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Save failed', 'error')
   })
 
   it('shows "Delete failed" when deleteEdu rejects with non-Error', async () => {
@@ -898,7 +909,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await deleteBtn.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Delete failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Delete failed', 'error')
   })
 
   it('shows "Save failed" when saveCategory rejects with non-Error', async () => {
@@ -916,7 +927,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await saveBtn!.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Save failed', 'error')
   })
 
   it('shows "Delete failed" when deleteCategory rejects with non-Error', async () => {
@@ -934,7 +945,7 @@ describe('AdminCvSection — non-Error rejection fallbacks', () => {
     await deleteCatBtn.trigger('click')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Delete failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Delete failed', 'error')
   })
 })
 
@@ -978,7 +989,7 @@ describe('AdminCvSection — PDF non-Error fallbacks and no-file', () => {
     await input.trigger('change')
     await flushPromises()
     await wrapper.vm.$nextTick()
-    expect(wrapper.text()).toContain('Upload failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Upload failed', 'error')
   })
 
   it('shows "Removal failed" when removePdf rejects with non-Error', async () => {
@@ -996,7 +1007,7 @@ describe('AdminCvSection — PDF non-Error fallbacks and no-file', () => {
       await removeBtn.trigger('click')
       await flushPromises()
       await nextTick()
-      expect(wrapper.text()).toContain('Removal failed')
+      expect(mockShowToast).toHaveBeenCalledWith('Removal failed', 'error')
     }
   })
 
@@ -1122,7 +1133,7 @@ describe('AdminCvSection — Drag-and-drop reordering', () => {
     await items[1].trigger('drop')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Reorder failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Reorder failed', 'error')
   })
 
   it('education reorder calls PUT on experience/[id] endpoint', async () => {
@@ -1197,7 +1208,7 @@ describe('AdminCvSection — Drag-and-drop reordering', () => {
     await items[1].trigger('drop')
     await flushPromises()
     await nextTick()
-    expect(wrapper.text()).toContain('Reorder failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Reorder failed', 'error')
   })
 })
 

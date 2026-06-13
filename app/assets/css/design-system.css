@@ -1394,6 +1394,7 @@ em, .emph {
   border-bottom: 1px dashed var(--hairline);
   align-items: flex-start;
 }
+.cv-section .role-row > div:first-child { max-width: 64ch; }
 .cv-section .role-row:last-child { border-bottom: 0; padding-bottom: 0; }
 .cv-section .role-row:first-child { padding-top: 0; }
 .cv-section .role-row .rt {
@@ -1413,7 +1414,7 @@ em, .emph {
   margin-bottom: 10px;
 }
 .cv-section .role-row .rd {
-  font-size: 14px; color: var(--fg-dim); line-height: 1.55; max-width: 56ch;
+  font-size: 14px; color: var(--fg-dim); line-height: 1.55;
 }
 .cv-section .role-row .ryears {
   font-family: var(--font-mono);
@@ -1423,7 +1424,7 @@ em, .emph {
   text-transform: uppercase;
   white-space: nowrap;
 }
-.cv-section .skill-group { margin-bottom: 22px; }
+.cv-section .skill-group { margin-bottom: 22px; max-width: 64ch; }
 .cv-section .skill-group h4 {
   font-family: var(--font-mono);
   font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
@@ -1918,6 +1919,7 @@ em, .emph {
 
   .hero-grid { grid-template-columns: 1fr; gap: 56px; }
   .t-display { white-space: normal; font-size: clamp(40px, 11vw, 76px); }
+  .display-name { margin-top: 40px; }
   .hero-portrait { max-width: 320px; }
   .home-hero { padding: 56px 0 64px; }
 
@@ -1944,6 +1946,7 @@ em, .emph {
 
   .post-body { grid-template-columns: 1fr; gap: 24px; }
   .post-toc { position: static; display: none; }
+  .post-head { margin-bottom: 0; }
   .post-head h1 { font-size: clamp(40px, 9vw, 64px); }
 
   .blog-row { grid-template-columns: 32px 1fr auto; gap: 12px 16px; padding: 22px 0; align-items: start; }
@@ -1953,7 +1956,7 @@ em, .emph {
   .contact-grid { grid-template-columns: 1fr; gap: 40px; }
   .contact-form { padding: 24px; }
 
-  .cv-head { grid-template-columns: 1fr; gap: 32px; }
+  .cv-head { grid-template-columns: 1fr; gap: 32px; margin-bottom: 0; }
   .cv-head .actions { flex-wrap: nowrap; width: 100%; }
   .cv-head .actions .btn { padding: 10px 14px; font-size: 13px; }
   .cv-photo-wrap { width: 200px; justify-self: start; order: -1; }
@@ -1962,6 +1965,7 @@ em, .emph {
   .page-head { padding: 64px 0 32px; }
   .page-head h1 { font-size: clamp(48px, 11vw, 80px); }
 
+  .kra-footer { margin-top: 64px; }
   .kra-footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
   .kra-footer-grid > div:first-child { grid-column: 1 / -1; }
   .kra-footer-name { font-size: 28px; }
@@ -1987,6 +1991,7 @@ em, .emph {
   .proj-card .title { font-size: 24px; }
   .proj-card .visual { height: 90px; }
 
+  .kra-footer { margin-top: 48px; }
   .kra-footer-grid { grid-template-columns: 1fr; gap: 28px; align-items: start; }
   .kra-footer-grid > div:first-child { grid-column: auto; text-align: center; }
   .kra-footer-nav { justify-content: center; flex-wrap: wrap; }

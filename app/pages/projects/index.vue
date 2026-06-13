@@ -164,7 +164,7 @@ useHead({
       <div class="shell">
         <div class="overline"><span class="bar" /> §02 — Index of work</div>
         <h1>All my <em>projects</em>.</h1>
-        <p class="kicker">A complete archive — from CLI toys to enterprise services. Side projects live here with the same weight as the production ones.</p>
+        <p class="kicker">A complete archive - from CLI toys to enterprise services. Side projects live here with the same weight as the production ones.</p>
 
         <div style="display:flex;gap:8px;margin-top:40px;flex-wrap:wrap;align-items:center;">
           <span class="t-label" style="margin-right:12px;">Filter</span>

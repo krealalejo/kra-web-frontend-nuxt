@@ -12,6 +12,15 @@ const mockCards = ref([
   { type: 'PLAYING', tags: ['tag1', 'tag2'] }
 ])
 let mockStoreError: string | null = null
+const mockShowToast = vi.fn()
+
+mockNuxtImport('useToast', () => {
+  return () => ({
+    toast: { value: null },
+    show: mockShowToast,
+    dismiss: vi.fn(),
+  })
+})
 
 mockNuxtImport('useActivityStore', () => {
   return () => ({
@@ -70,8 +79,9 @@ describe('ActivitySection', () => {
 
     const shipButton = wrapper.findAll('button').find(b => b.text().includes('Save'))
     await shipButton!.trigger('click')
+    await flushPromises()
 
-    expect(wrapper.text()).toContain('Failed to save SHIPPING')
+    expect(mockShowToast).toHaveBeenCalledWith('Failed to save SHIPPING', 'error')
 
     const readingCard = wrapper.findAll('.rounded-2xl')[1]
     expect(readingCard!.text()).not.toContain('Failed to save SHIPPING')
@@ -144,7 +154,7 @@ describe('ActivitySection', () => {
     mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
     const wrapper = mount(ActivitySection)
     await flushPromises()
-    expect(wrapper.text()).toContain('Failed to load activity cards')
+    expect(mockShowToast).toHaveBeenCalledWith('Failed to load activity cards', 'error')
   })
 
   it('updates shipping title and description via input setValue', async () => {
@@ -171,7 +181,7 @@ describe('ActivitySection', () => {
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     await saveButtons[1]!.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Reading save error')
+    expect(mockShowToast).toHaveBeenCalledWith('Reading save error', 'error')
   })
 
   it('shows PLAYING error when PLAYING save fails', async () => {
@@ -180,7 +190,7 @@ describe('ActivitySection', () => {
     const saveButtons = wrapper.findAll('button').filter(b => b.text().includes('Save'))
     await saveButtons[2]!.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Playing save error')
+    expect(mockShowToast).toHaveBeenCalledWith('Playing save error', 'error')
   })
 
   it('shows "Save failed" when rejection is not an Error instance', async () => {
@@ -189,7 +199,7 @@ describe('ActivitySection', () => {
     const saveButton = wrapper.findAll('button').find(b => b.text().includes('Save'))
     await saveButton!.trigger('click')
     await flushPromises()
-    expect(wrapper.text()).toContain('Save failed')
+    expect(mockShowToast).toHaveBeenCalledWith('Save failed', 'error')
   })
 
   it('uses store.error message when fetchCards throws and store.error is set', async () => {
@@ -197,7 +207,7 @@ describe('ActivitySection', () => {
     mockFetchCards.mockRejectedValue(new Error('Fetch failed'))
     const wrapper = mount(ActivitySection)
     await flushPromises()
-    expect(wrapper.text()).toContain('Store reported an error')
+    expect(mockShowToast).toHaveBeenCalledWith('Store reported an error', 'error')
   })
 
   it('has correct layout classes for bottom alignment', async () => {

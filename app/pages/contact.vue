@@ -70,7 +70,7 @@ onMounted(async () => {
         <div class="overline"><span class="bar" /> §04 — Contact</div>
         <h1>Let's <em>talk</em>.</h1>
         <p class="kicker">
-          Questions, collaborations, or just a hello — all welcome.<br>
+          Questions, collaborations, or just a hello - all welcome.<br>
           I read every message personally and reply within a<br>
           working day or two. No auto-responders, no intake<br>
           forms, no nonsense.
