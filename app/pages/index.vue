@@ -71,12 +71,30 @@ useHead(() => {
   }
 })
 
+const PAGE_SIZE = 4
+const visibleCount = ref(PAGE_SIZE)
+
 const featuredProjects = computed(() => {
   if (!projects?.value) return []
   const featured = projects.value.filter(r => r.topics?.includes('featured'))
   const rest = projects.value.filter(r => !r.topics?.includes('featured'))
-  return [...featured, ...rest].slice(0, 4)
+  return [...featured, ...rest]
 })
+
+const visibleProjects = computed(() => featuredProjects.value.slice(0, visibleCount.value))
+const hasMore = computed(() => visibleCount.value < featuredProjects.value.length)
+
+async function loadMore() {
+  const prevCount = visibleCount.value
+  visibleCount.value += PAGE_SIZE
+  await nextTick()
+  const { gsap } = await useGsap()
+  const rows = document.querySelectorAll<HTMLElement>('.proj-row')
+  const newRows = Array.from(rows).slice(prevCount)
+  if (newRows.length > 0) {
+    gsap.fromTo(newRows, { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.9, stagger: 0.12, ease: 'power2.out' })
+  }
+}
 
 const oldestProjectYear = computed(() => {
   if (!projects?.value || projects.value.length === 0) return '2025'
@@ -235,7 +253,7 @@ function projectNum(i: number) {
         <div class="section-head reveal-scroll">
           <span class="num">Work</span>
           <h2>Selected <em>projects</em></h2>
-          <span class="sub">Curated — {{ oldestProjectYear }} → Present</span>
+          <span class="sub">{{ oldestProjectYear }} → Present</span>
         </div>
 
         <div class="proj-list">
@@ -244,7 +262,7 @@ function projectNum(i: number) {
           </template>
           <template v-else>
             <NuxtLink
-              v-for="(repo, i) in featuredProjects"
+              v-for="(repo, i) in visibleProjects"
               :key="repo.fullName"
               :to="`/projects/${repo.owner}/${repo.name}`"
               class="proj-row"
@@ -270,8 +288,17 @@ function projectNum(i: number) {
           <span v-else>Oops! API failed to load.</span>
         </div>
 
-        <div style="margin-top:32px;display:flex;justify-content:space-between;align-items:center;" class="reveal-scroll">
-          <span class="t-label">{{ featuredProjects.length }} shown</span>
+        <div v-if="hasMore && !pending && isMounted" style="margin-top:24px;display:flex;justify-content:center;">
+          <button class="btn btn-ghost load-more-btn" @click="loadMore">
+            Load more
+            <svg class="icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M7 2v10M2 7l5 5 5-5"/>
+            </svg>
+          </button>
+        </div>
+
+        <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;" class="reveal-scroll">
+          <span class="t-label">{{ visibleProjects.length }}{{ featuredProjects.length > visibleProjects.length ? ` / ${featuredProjects.length}` : '' }} shown</span>
           <NuxtLink to="/projects" class="btn btn-ghost">
             All projects
             <svg class="icon" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -286,7 +313,7 @@ function projectNum(i: number) {
       <div class="shell">
         <div class="section-head reveal-scroll">
           <span class="num">Signal</span>
-          <h2>Open source <em>activity</em></h2>
+          <h2>Github <em>activity</em></h2>
           <span class="sub">Live from GitHub API</span>
         </div>
         <div class="activity-layout reveal-scroll">
@@ -342,6 +369,11 @@ function projectNum(i: number) {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.load-more-btn {
+  min-width: 140px;
+  gap: 8px;
 }
 
 .activity-card-link {
