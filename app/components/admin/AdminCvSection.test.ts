@@ -1256,4 +1256,87 @@ describe('AdminCvSection — Education modal interactions', () => {
     expect((wrapper.find('#edu-title').element as HTMLInputElement).value).toBe('BSc Computer Science')
     expect((wrapper.find('#edu-institution').element as HTMLInputElement).value).toBe('MIT')
   })
+
+  function attachFile(wrapper: any, accept: string) {
+    const input = wrapper.findAll('input[type="file"]').find((i: any) =>
+      (i.attributes('accept') ?? '').includes(accept))
+    const file = new File(['logo-bytes'], 'logo.png', { type: 'image/png' })
+    Object.defineProperty(input.element, 'files', { value: [file], configurable: true })
+    return input
+  }
+
+  it('uploads an experience logo and supports removing it', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 'https://s3/put', s3Key: 'logo/exp.png' })
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const input = attachFile(wrapper, 'image')
+    await input!.trigger('change')
+    await flushPromises()
+    await nextTick()
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/upload', expect.objectContaining({ method: 'POST' }))
+    expect(mockFetch).toHaveBeenCalledWith('https://s3/put', expect.objectContaining({ method: 'PUT' }))
+
+    const removeBtn = wrapper.findAll('button').find(b => b.text() === 'Remove')
+    expect(removeBtn).toBeDefined()
+    await removeBtn!.trigger('click')
+    await nextTick()
+    expect(wrapper.findAll('button').find(b => b.text() === 'Remove')).toBeUndefined()
+  })
+
+  it('surfaces an error when experience logo upload fails', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/experience') return Promise.resolve([])
+      if (url === '/api/admin/upload') return Promise.reject(new Error('upload boom'))
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const input = attachFile(wrapper, 'image')
+    await input!.trigger('change')
+    await flushPromises()
+    await nextTick()
+
+    expect(wrapper.text()).toContain('upload boom')
+  })
+
+  it('uploads an education logo', async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url === '/api/admin/cv/education') return Promise.resolve([])
+      if (url === '/api/admin/upload') return Promise.resolve({ uploadUrl: 'https://s3/put', s3Key: 'logo/edu.png' })
+      return Promise.resolve({})
+    })
+    const wrapper = await mountWithData()
+
+    const eduTab = wrapper.findAll('button').find(b => b.text() === 'Education')
+    await eduTab!.trigger('click')
+    await nextTick()
+    const addBtn = wrapper.findAll('button').find(b => b.text().includes('Add Education'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const input = attachFile(wrapper, 'image')
+    await input!.trigger('change')
+    await flushPromises()
+    await nextTick()
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/admin/upload', expect.objectContaining({ method: 'POST' }))
+    expect(mockFetch).toHaveBeenCalledWith('https://s3/put', expect.objectContaining({ method: 'PUT' }))
+    const removeBtn = wrapper.findAll('button').find(b => b.text() === 'Remove')
+    expect(removeBtn).toBeDefined()
+    await removeBtn!.trigger('click')
+    await nextTick()
+  })
 })
