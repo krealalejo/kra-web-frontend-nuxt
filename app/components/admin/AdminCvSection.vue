@@ -87,12 +87,18 @@ async function onDrop(section: 'exp' | 'edu' | 'cat', toIdx: number) {
   dragState.overIdx = null
   if (srcIdx === null || srcIdx === toIdx) return
 
-  const arr = section === 'exp' ? experience : section === 'edu' ? education : skillCategories
-  const endpoint = section === 'exp'
-    ? '/api/admin/cv/experience'
-    : section === 'edu'
-      ? '/api/admin/cv/education'
-      : '/api/admin/cv/skills/categories'
+  let arr: typeof experience | typeof education | typeof skillCategories
+  let endpoint: string
+  if (section === 'exp') {
+    arr = experience
+    endpoint = '/api/admin/cv/experience'
+  } else if (section === 'edu') {
+    arr = education
+    endpoint = '/api/admin/cv/education'
+  } else {
+    arr = skillCategories
+    endpoint = '/api/admin/cv/skills/categories'
+  }
 
   const [moved] = arr.value.splice(srcIdx, 1)
   arr.value.splice(toIdx, 0, moved)
@@ -800,7 +806,7 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Company Logo</label>
+            <span class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Company Logo</span>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <img
                 v-if="getThumbUrl(expModal.data.logoUrl)"
@@ -903,7 +909,7 @@ async function submitAddCategory() {
             />
           </div>
           <div>
-            <label class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution Logo</label>
+            <span class="t-label mb-1 block text-xs" style="color:var(--fg-dim)">Institution Logo</span>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <img
                 v-if="getThumbUrl(eduModal.data.logoUrl)"
