@@ -18,9 +18,11 @@ function sanitizeDiagram(source: string): string {
 
 async function initMermaid() {
   const { default: mermaid } = await import('mermaid')
+  const isDark = document.documentElement.classList.contains('dark')
   mermaid.initialize({
     startOnLoad: false,
-    theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+    theme: isDark ? 'dark' : 'default',
+    ...(isDark ? { themeVariables: { edgeLabelBackground: '#222225' } } : {}),
   })
   return mermaid
 }
@@ -130,6 +132,28 @@ async function renderDiagrams(container: HTMLElement | null | undefined) {
   }
 }
 
+function renderWhenVisible(container: HTMLElement | null | undefined) {
+  if (import.meta.server || !container) return
+  const blocks = container.querySelectorAll('pre code.language-mermaid')
+  if (!blocks.length) return
+  if (typeof IntersectionObserver === 'undefined') {
+    renderDiagrams(container)
+    return
+  }
+  const io = new IntersectionObserver(
+    (entries, obs) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        obs.disconnect()
+        renderDiagrams(container)
+      }
+    },
+    { rootMargin: '600px 0px' }
+  )
+  for (const block of Array.from(blocks)) {
+    if (block.parentElement) io.observe(block.parentElement)
+  }
+}
+
 async function reRender(container: HTMLElement | null | undefined) {
   if (import.meta.server || !container) return
   const wrappers = container.querySelectorAll<HTMLElement>('.mermaid-diagram')
@@ -156,6 +180,6 @@ async function reRender(container: HTMLElement | null | undefined) {
 }
 
 export function useMermaid() {
-  return { renderDiagrams, reRender }
+  return { renderDiagrams, renderWhenVisible, reRender }
 }
 

@@ -348,4 +348,63 @@ describe('useMermaid', () => {
     const svgEl = container.querySelector<SVGElement>('.diagram-viewport svg') as SVGElement
     expect(svgEl.style.width).toBeDefined()
   })
+
+  it('renderWhenVisible does nothing when no mermaid blocks are found', () => {
+    const { renderWhenVisible } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<p>no diagrams</p>'
+    renderWhenVisible(container)
+    expect(mermaidInitializeMock).not.toHaveBeenCalled()
+  })
+
+  it('renderWhenVisible does nothing with null container', () => {
+    const { renderWhenVisible } = useMermaid()
+    renderWhenVisible(null)
+    expect(mermaidInitializeMock).not.toHaveBeenCalled()
+  })
+
+  it('renderWhenVisible observes blocks and renders only once intersecting', async () => {
+    let trigger: ((entries: { isIntersecting: boolean }[], obs: { disconnect: () => void }) => void) | undefined
+    const observe = vi.fn()
+    const disconnect = vi.fn()
+    class FakeIO {
+      constructor(cb: typeof trigger) { trigger = cb }
+      observe = observe
+      disconnect = disconnect
+    }
+    vi.stubGlobal('IntersectionObserver', FakeIO as unknown as typeof IntersectionObserver)
+
+    const { renderWhenVisible } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+
+    renderWhenVisible(container)
+    expect(observe).toHaveBeenCalledTimes(1)
+    expect(mermaidRenderMock).not.toHaveBeenCalled()
+
+    trigger?.([{ isIntersecting: false }], { disconnect })
+    expect(mermaidRenderMock).not.toHaveBeenCalled()
+
+    trigger?.([{ isIntersecting: true }], { disconnect })
+    await new Promise((r) => setTimeout(r, 0))
+    expect(disconnect).toHaveBeenCalled()
+    expect(mermaidRenderMock).toHaveBeenCalled()
+
+    vi.unstubAllGlobals()
+  })
+
+  it('renderWhenVisible falls back to immediate render without IntersectionObserver', async () => {
+    vi.stubGlobal('IntersectionObserver', undefined)
+    const { renderWhenVisible } = useMermaid()
+    const container = document.createElement('div')
+    container.innerHTML = '<pre><code class="language-mermaid">graph TD; A-->B;</code></pre>'
+    document.body.appendChild(container)
+
+    renderWhenVisible(container)
+    await new Promise((r) => setTimeout(r, 0))
+    expect(mermaidRenderMock).toHaveBeenCalled()
+
+    vi.unstubAllGlobals()
+  })
 })
