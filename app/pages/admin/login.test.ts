@@ -101,11 +101,10 @@ describe('pages/admin/login.vue', () => {
 
   it('toggles password visibility when eye button clicked', async () => {
     const wrapper = mount(LoginPage)
-    const passwordInput = wrapper.find('input#password')
-    expect(passwordInput.attributes('type')).toBe('password')
+    expect(wrapper.find('input#password').attributes('type')).toBe('password')
     await wrapper.find('button.login-eye').trigger('click')
-    expect(passwordInput.attributes('type')).toBe('text')
+    expect(wrapper.find('input#password').attributes('type')).toBe('text')
     await wrapper.find('button.login-eye').trigger('click')
-    expect(passwordInput.attributes('type')).toBe('password')
+    expect(wrapper.find('input#password').attributes('type')).toBe('password')
   })
 })
