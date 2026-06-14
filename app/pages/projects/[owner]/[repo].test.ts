@@ -282,17 +282,53 @@ describe("pages/projects/[owner]/[repo].vue", () => {
   });
 
   it("animates in and renders diagrams once data settles", async () => {
+    const gsapModule = await import("gsap");
+    const gsap = (gsapModule as any).default ?? gsapModule;
+    gsap.fromTo.mockClear();
     mockFetch.mockResolvedValue(mockDetail);
     const wrapper = await mountSuspended(RepoPage, {
       route: "/projects/owner/repo",
+      attachTo: document.body,
     });
     await flushPromises();
     await nextTick();
     await flushPromises();
     await nextTick();
+    await flushPromises();
 
     expect(renderWhenVisibleMock).toHaveBeenCalled();
     expect(wrapper.find("div.prose").exists()).toBe(true);
+    // animateIn ran the gsap entrance tweens on .pd-head / .pd-body
+    expect(gsap.fromTo).toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
+  it("renders the project sidebar with metadata and GitHub button", async () => {
+    mockFetch.mockImplementation((url: string) => {
+      if (url.includes("/projects/metadata/")) {
+        return Promise.resolve({
+          role: "Architect",
+          year: "2024",
+          kind: "Personal",
+          mainBranch: "main",
+          stack: ["Nuxt", "Vitest"],
+        });
+      }
+      return Promise.resolve(mockDetail);
+    });
+    const wrapper = await mountSuspended(RepoPage, {
+      route: "/projects/owner/repo",
+    });
+    await flushPromises();
+    await nextTick();
+
+    const sidebar = wrapper.find(".pd-sidebar");
+    expect(sidebar.exists()).toBe(true);
+    expect(sidebar.find(".sidebar-github-btn").attributes("href")).toBe(
+      mockDetail.htmlUrl,
+    );
+    expect(sidebar.text()).toContain("Architect");
+    expect(sidebar.text()).toContain("Nuxt");
   });
 
   it("skips animation when reduced motion is preferred", async () => {
