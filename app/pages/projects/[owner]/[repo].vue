@@ -18,11 +18,19 @@ const repo = computed(() => {
   return String(Array.isArray(p) ? (p[0] ?? "") : (p ?? ""));
 });
 
+const { sanitizeMarkdown, extractHeadings } = useMarkdown();
+
+interface ProjectDetail extends PortfolioRepoDto {
+  sanitizedReadme: string;
+  headings: { title: string; id: string }[];
+  isReadmeTruncated: boolean;
+}
+
 const {
   data: detail,
   pending,
   error,
-} = useAsyncData(
+} = useAsyncData<ProjectDetail>(
   () => `portfolio-detail-${owner.value}-${repo.value}`,
   async () => {
     const o = owner.value;
@@ -35,8 +43,9 @@ const {
     const raw = config.public.apiBase;
     const apiBase = typeof raw === "string" ? raw.replace(/\/$/, "") : "";
     if (!apiBase) throw new Error("MISSING_API_BASE");
+    let repoDto: PortfolioRepoDto;
     try {
-      return await $fetch<PortfolioRepoDto>(
+      repoDto = await $fetch<PortfolioRepoDto>(
         `${apiBase}/portfolio/repos/${encodeURIComponent(o)}/${encodeURIComponent(r)}`,
       );
     } catch (e: unknown) {
@@ -50,8 +59,24 @@ const {
         throw createError({ statusCode: 404, statusMessage: "NOT_FOUND" });
       throw e;
     }
+
+    const branch = repoDto.defaultBranch ?? "main";
+    const imageBaseUrl = `https://raw.githubusercontent.com/${o}/${r}/${branch}`;
+    const excerpt = repoDto.readmeExcerpt;
+    let sanitizedReadme = "";
+    let headings: { title: string; id: string }[] = [];
+    let isReadmeTruncated = false;
+    if (excerpt) {
+      isReadmeTruncated = excerpt.trimEnd().endsWith("…");
+      const clean = isReadmeTruncated
+        ? excerpt.trimEnd().slice(0, -1).trimEnd()
+        : excerpt;
+      sanitizedReadme = await sanitizeMarkdown(clean, imageBaseUrl);
+      headings = extractHeadings(clean);
+    }
+    return { ...repoDto, sanitizedReadme, headings, isReadmeTruncated };
   },
-  { watch: [owner, repo], lazy: true },
+  { watch: [owner, repo] },
 );
 
 interface ProjectMetadataResponse {
@@ -71,7 +96,7 @@ const { data: metadata } = useAsyncData<ProjectMetadataResponse | null>(
       `${apiBase}/projects/metadata/${encodeURIComponent(owner.value)}/${encodeURIComponent(repo.value)}`,
     ).catch(() => null);
   },
-  { watch: [owner, repo], lazy: true },
+  { watch: [owner, repo] },
 );
 
 const { isMissingApiBase } = useApiError(error);
@@ -84,13 +109,15 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === "NOT_FOUND";
 });
 
-const { sanitizeMarkdown, extractHeadings } = useMarkdown();
-const { renderDiagrams, reRender } = useMermaid();
+const { renderWhenVisible, reRender } = useMermaid();
 const { isDark } = useTheme();
 const readmeRef = ref<HTMLElement | null>(null);
-const sanitizedReadme = ref<string>("");
-const headings = ref<{ title: string; id: string }[]>([]);
-const isReadmeTruncated = ref(false);
+
+const sanitizedReadme = computed(() => detail.value?.sanitizedReadme ?? "");
+const headings = computed(() => detail.value?.headings ?? []);
+const isReadmeTruncated = computed(
+  () => detail.value?.isReadmeTruncated ?? false,
+);
 
 watch(isDark, async () => {
   if (readmeRef.value) {
@@ -99,33 +126,10 @@ watch(isDark, async () => {
   }
 });
 
-const imageBaseUrl = computed(() => {
-  const branch = detail.value?.defaultBranch ?? "main";
-  return `https://raw.githubusercontent.com/${owner.value}/${repo.value}/${branch}`;
-});
-
-watch(
-  () => detail.value?.readmeExcerpt,
-  async (val) => {
-    if (!val) {
-      sanitizedReadme.value = "";
-      headings.value = [];
-      isReadmeTruncated.value = false;
-      return;
-    }
-    const truncated = val.trimEnd().endsWith("…");
-    isReadmeTruncated.value = truncated;
-    const clean = truncated ? val.trimEnd().slice(0, -1).trimEnd() : val;
-    sanitizedReadme.value = await sanitizeMarkdown(clean, imageBaseUrl.value);
-    headings.value = extractHeadings(clean);
-  },
-  { immediate: true },
-);
-
 watch(sanitizedReadme, async (val) => {
-  if (val && readmeRef.value) {
+  if (import.meta.client && val && readmeRef.value) {
     await nextTick();
-    renderDiagrams(readmeRef.value);
+    renderWhenVisible(readmeRef.value);
   }
 });
 
@@ -164,22 +168,26 @@ function animateIn() {
   )
     return;
   nextTick(async () => {
-    document
-      .querySelectorAll<HTMLElement>(".pd-head, .pd-body")
-      .forEach((el) => {
-        el.style.opacity = "0";
-      });
+    const els = document.querySelectorAll<HTMLElement>(".pd-head, .pd-body");
+    if (els.length === 0) return;
+    els.forEach((el) => {
+      el.style.opacity = "0";
+    });
     const { gsap } = await useGsapBase();
-    gsap.fromTo(
-      ".pd-head",
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
-    );
-    gsap.fromTo(
-      ".pd-body",
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.7, delay: 0.15 },
-    );
+    const head = document.querySelector(".pd-head");
+    const body = document.querySelector(".pd-body");
+    if (head)
+      gsap.fromTo(
+        head,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+      );
+    if (body)
+      gsap.fromTo(
+        body,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.7, delay: 0.15 },
+      );
   });
 }
 
@@ -190,6 +198,17 @@ watch(pending, async (isPending) => {
   }
 });
 
+const hasSidebar = computed(() =>
+  !!(
+    metadata.value &&
+    (metadata.value.role ||
+      metadata.value.year ||
+      metadata.value.kind ||
+      metadata.value.mainBranch ||
+      metadata.value.stack?.length)
+  ),
+)
+
 const scrollProgress = ref(0);
 function onScroll() {
   const doc = document.documentElement;
@@ -199,12 +218,12 @@ function onScroll() {
 
 onMounted(async () => {
   window.addEventListener("scroll", onScroll, { passive: true });
+
   if (!pending.value && detail.value && !error.value) {
-    animateIn();
     /* v8 ignore next 3 */
     if (readmeRef.value && sanitizedReadme.value) {
       await nextTick();
-      renderDiagrams(readmeRef.value);
+      renderWhenVisible(readmeRef.value);
     }
   }
 });
@@ -301,7 +320,7 @@ onUnmounted(() => {
               ⎇ {{ detail.defaultBranch }}
             </span>
             <a
-              v-if="detail.htmlUrl"
+              v-if="detail.htmlUrl && !hasSidebar"
               :href="detail.htmlUrl"
               target="_blank"
               rel="noopener noreferrer"
@@ -373,21 +392,15 @@ onUnmounted(() => {
           </div>
 
           <ProjectSidebar
-            v-if="
-              metadata &&
-              (metadata.role ||
-                metadata.year ||
-                metadata.kind ||
-                metadata.mainBranch ||
-                metadata.stack?.length)
-            "
-            :role="metadata.role"
-            :year="metadata.year"
-            :kind="metadata.kind"
-            :main-branch="metadata.mainBranch"
-            :stack="metadata.stack"
+            v-if="hasSidebar"
+            :role="metadata!.role"
+            :year="metadata!.year"
+            :kind="metadata!.kind"
+            :main-branch="metadata!.mainBranch"
+            :stack="metadata!.stack"
             :stars="detail.stargazersCount"
             :headings="headings"
+            :html-url="detail.htmlUrl"
           />
         </div>
       </section>

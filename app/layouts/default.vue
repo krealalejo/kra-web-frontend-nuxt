@@ -38,10 +38,12 @@ const navItems = [
 onMounted(async () => {
   const { gsap } = await useGsapBase()
 
-  gsap.fromTo('.kra-nav-logo, .kra-nav-link',
-    { opacity: 0 },
-    { opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power2.out' }
-  )
+  if (document.querySelector('.kra-nav-logo, .kra-nav-link')) {
+    gsap.fromTo('.kra-nav-logo, .kra-nav-link',
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power2.out' }
+    )
+  }
 
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()

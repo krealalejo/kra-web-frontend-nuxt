@@ -57,4 +57,20 @@ describe('components/ProjectSidebar.vue', () => {
     expect(wrapper.find('.stack').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('STACK')
   })
+
+  it('renders the GitHub button when htmlUrl is provided', async () => {
+    const htmlUrl = 'https://github.com/owner/repo'
+    const wrapper = mount(ProjectSidebar, {
+      props: { htmlUrl }
+    })
+    const btn = wrapper.find('.sidebar-github-btn')
+    expect(btn.exists()).toBe(true)
+    expect(btn.attributes('href')).toBe(htmlUrl)
+    expect(btn.text()).toContain('View on GitHub')
+  })
+
+  it('does not render the GitHub button when htmlUrl is absent', async () => {
+    const wrapper = mount(ProjectSidebar)
+    expect(wrapper.find('.sidebar-github-btn').exists()).toBe(false)
+  })
 })
