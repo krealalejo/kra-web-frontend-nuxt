@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+type CvSection = 'exp' | 'edu' | 'cat'
+
 interface ExperienceEntry {
   id: string; title: string; company: string; location: string
   years: string; description: string; sortOrder: number; logoUrl?: string | null
@@ -54,20 +56,20 @@ const newCategoryName = ref('')
 const addCategorySaving = ref(false)
 
 const dragState = reactive({
-  section: null as 'exp' | 'edu' | 'cat' | null,
+  section: null as CvSection | null,
   srcIdx: null as number | null,
   overIdx: null as number | null,
 })
 const reorderSaving = ref(false)
 
-function onDragStart(section: 'exp' | 'edu' | 'cat', idx: number, e: DragEvent) {
+function onDragStart(section: CvSection, idx: number, e: DragEvent) {
   dragState.section = section
   dragState.srcIdx = idx
   dragState.overIdx = idx
   if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'
 }
 
-function onDragOver(section: 'exp' | 'edu' | 'cat', idx: number, e: DragEvent) {
+function onDragOver(section: CvSection, idx: number, e: DragEvent) {
   e.preventDefault()
   if (dragState.section !== section) return
   dragState.overIdx = idx
@@ -80,7 +82,7 @@ function onDragEnd() {
   dragState.overIdx = null
 }
 
-async function onDrop(section: 'exp' | 'edu' | 'cat', toIdx: number) {
+async function onDrop(section: CvSection, toIdx: number) {
   const srcIdx = dragState.srcIdx
   dragState.section = null
   dragState.srcIdx = null
