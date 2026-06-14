@@ -18,7 +18,7 @@ const props = defineProps<Props>()
 <template>
   <aside class="pd-sidebar">
     <template v-if="props.tocItems?.length">
-      <h5>ON THIS PAGE</h5>
+      <h2 class="sidebar-label">ON THIS PAGE</h2>
       <ul class="toc">
         <li
           v-for="item in props.tocItems"
@@ -32,7 +32,7 @@ const props = defineProps<Props>()
       </ul>
     </template>
 
-    <h5>POST INFO</h5>
+    <h2 class="sidebar-label">POST INFO</h2>
     <ul class="facts">
       <li v-if="props.readingTime" class="kv">
         <span class="k">READ TIME</span>
@@ -49,7 +49,7 @@ const props = defineProps<Props>()
     </ul>
 
     <template v-if="props.references?.length">
-      <h5>REFERENCES</h5>
+      <h2 class="sidebar-label">REFERENCES</h2>
       <ul class="toc">
         <li v-for="(ref, i) in props.references" :key="i">
           <a :href="ref.url" target="_blank" rel="noopener noreferrer">{{ ref.label }}</a>

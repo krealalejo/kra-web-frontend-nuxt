@@ -190,6 +190,17 @@ watch(pending, async (isPending) => {
   }
 });
 
+const hasSidebar = computed(() =>
+  !!(
+    metadata.value &&
+    (metadata.value.role ||
+      metadata.value.year ||
+      metadata.value.kind ||
+      metadata.value.mainBranch ||
+      metadata.value.stack?.length)
+  ),
+)
+
 const scrollProgress = ref(0);
 function onScroll() {
   const doc = document.documentElement;
@@ -301,7 +312,7 @@ onUnmounted(() => {
               ⎇ {{ detail.defaultBranch }}
             </span>
             <a
-              v-if="detail.htmlUrl"
+              v-if="detail.htmlUrl && !hasSidebar"
               :href="detail.htmlUrl"
               target="_blank"
               rel="noopener noreferrer"
@@ -373,21 +384,15 @@ onUnmounted(() => {
           </div>
 
           <ProjectSidebar
-            v-if="
-              metadata &&
-              (metadata.role ||
-                metadata.year ||
-                metadata.kind ||
-                metadata.mainBranch ||
-                metadata.stack?.length)
-            "
-            :role="metadata.role"
-            :year="metadata.year"
-            :kind="metadata.kind"
-            :main-branch="metadata.mainBranch"
-            :stack="metadata.stack"
+            v-if="hasSidebar"
+            :role="metadata!.role"
+            :year="metadata!.year"
+            :kind="metadata!.kind"
+            :main-branch="metadata!.mainBranch"
+            :stack="metadata!.stack"
             :stars="detail.stargazersCount"
             :headings="headings"
+            :html-url="detail.htmlUrl"
           />
         </div>
       </section>

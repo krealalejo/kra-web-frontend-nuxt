@@ -1452,7 +1452,7 @@ em, .emph {
   border-radius: 4px;
   background: var(--bg-elev);
 }
-.pd-sidebar h5 {
+.pd-sidebar .sidebar-label {
   font-family: var(--font-mono);
   font-size: 10px;
   letter-spacing: 0.16em;
@@ -1462,7 +1462,7 @@ em, .emph {
   margin-bottom: 24px;
   margin-top: 0;
 }
-.pd-sidebar h5:not(:first-child) { margin-top: 48px; }
+.pd-sidebar .sidebar-label:not(:first-child) { margin-top: 48px; }
 
 .pd-sidebar ul.toc { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 14px; margin-bottom: 0; }
 .pd-sidebar ul.toc li {
