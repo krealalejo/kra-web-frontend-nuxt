@@ -76,7 +76,7 @@ function buildToc() {
   tocItems.value = headings.map(h => ({
     id: h.id,
     text: h.textContent?.trim() ?? '',
-    level: parseInt(h.tagName[1])
+    level: Number.parseInt(h.tagName[1])
   }))
   tocObserver?.disconnect()
   if (!headings.length) return

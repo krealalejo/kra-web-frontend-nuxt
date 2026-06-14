@@ -4,7 +4,7 @@ import { vi } from 'vitest'
 // that calls requestAnimationFrame. happy-dom tears down window between test files, leaving
 // the bare name undefined when that timer fires.
 globalThis.requestAnimationFrame = globalThis.requestAnimationFrame
-  ?? ((cb: FrameRequestCallback) => setTimeout(cb, 16) as unknown as number)
+  ?? ((cb: FrameRequestCallback) => setTimeout(cb, 16))
 globalThis.cancelAnimationFrame = globalThis.cancelAnimationFrame
   ?? ((id: number) => clearTimeout(id))
 

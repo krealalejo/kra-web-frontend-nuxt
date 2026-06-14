@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     .update(email + config.public.cognitoClientId)
     .digest('base64')
 
-  const regionMatch = config.public.cognitoDomain.match(/\.auth\.([^.]+)\.amazoncognito\.com/)
+  const regionMatch = /\.auth\.([^.]+)\.amazoncognito\.com/.exec(config.public.cognitoDomain)
   const region = regionMatch?.[1] ?? 'eu-west-1'
 
   const client = new CognitoIdentityProviderClient({ region })
