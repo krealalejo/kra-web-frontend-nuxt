@@ -168,22 +168,26 @@ function animateIn() {
   )
     return;
   nextTick(async () => {
-    document
-      .querySelectorAll<HTMLElement>(".pd-head, .pd-body")
-      .forEach((el) => {
-        el.style.opacity = "0";
-      });
+    const els = document.querySelectorAll<HTMLElement>(".pd-head, .pd-body");
+    if (els.length === 0) return;
+    els.forEach((el) => {
+      el.style.opacity = "0";
+    });
     const { gsap } = await useGsapBase();
-    gsap.fromTo(
-      ".pd-head",
-      { opacity: 0, y: 24 },
-      { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
-    );
-    gsap.fromTo(
-      ".pd-body",
-      { opacity: 0, y: 16 },
-      { opacity: 1, y: 0, duration: 0.7, delay: 0.15 },
-    );
+    const head = document.querySelector(".pd-head");
+    const body = document.querySelector(".pd-body");
+    if (head)
+      gsap.fromTo(
+        head,
+        { opacity: 0, y: 24 },
+        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" },
+      );
+    if (body)
+      gsap.fromTo(
+        body,
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.7, delay: 0.15 },
+      );
   });
 }
 
