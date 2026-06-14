@@ -55,7 +55,7 @@ async function submit() {
 
       <h1 class="login-heading">Sign <em>In</em></h1>
 
-      <form class="login-card" @submit.prevent="submit">
+      <form class="login-card" autocomplete="on" @submit.prevent="submit">
         <div class="login-card-glow-line" />
 
         <div class="login-card-logo">
@@ -90,9 +90,21 @@ async function submit() {
           <label class="login-label t-overline" for="password">Password</label>
           <div class="login-input-wrap">
             <input
+              v-if="showPassword"
               id="password"
               v-model="password"
-              :type="showPassword ? 'text' : 'password'"
+              type="text"
+              class="login-input"
+              placeholder="••••••••"
+              autocomplete="off"
+              required
+              :disabled="loading"
+            />
+            <input
+              v-else
+              id="password"
+              v-model="password"
+              type="password"
               class="login-input"
               placeholder="••••••••"
               autocomplete="current-password"
