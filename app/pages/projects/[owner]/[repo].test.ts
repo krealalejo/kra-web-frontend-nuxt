@@ -5,7 +5,6 @@ import { ref } from "vue";
 
 mockNuxtImport("useAsyncData", () => {
   return (key: unknown, factory: () => Promise<any>) => {
-    // Exercise the key factory the component passes (covers the key arrow fns).
     if (typeof key === "function") (key as () => string)();
     const data = ref(null);
     const pending = ref(true);
@@ -26,10 +25,12 @@ mockNuxtImport("useAsyncData", () => {
 });
 
 const renderDiagramsMock = vi.fn();
+const renderWhenVisibleMock = vi.fn();
 const reRenderMock = vi.fn();
 vi.mock("~/composables/useMermaid", () => ({
   useMermaid: () => ({
     renderDiagrams: renderDiagramsMock,
+    renderWhenVisible: renderWhenVisibleMock,
     reRender: reRenderMock,
   }),
 }));
@@ -290,7 +291,7 @@ describe("pages/projects/[owner]/[repo].vue", () => {
     await flushPromises();
     await nextTick();
 
-    expect(renderDiagramsMock).toHaveBeenCalled();
+    expect(renderWhenVisibleMock).toHaveBeenCalled();
     expect(wrapper.find("div.prose").exists()).toBe(true);
   });
 

@@ -18,11 +18,19 @@ const repo = computed(() => {
   return String(Array.isArray(p) ? (p[0] ?? "") : (p ?? ""));
 });
 
+const { sanitizeMarkdown, extractHeadings } = useMarkdown();
+
+interface ProjectDetail extends PortfolioRepoDto {
+  sanitizedReadme: string;
+  headings: { title: string; id: string }[];
+  isReadmeTruncated: boolean;
+}
+
 const {
   data: detail,
   pending,
   error,
-} = useAsyncData(
+} = useAsyncData<ProjectDetail>(
   () => `portfolio-detail-${owner.value}-${repo.value}`,
   async () => {
     const o = owner.value;
@@ -35,8 +43,9 @@ const {
     const raw = config.public.apiBase;
     const apiBase = typeof raw === "string" ? raw.replace(/\/$/, "") : "";
     if (!apiBase) throw new Error("MISSING_API_BASE");
+    let repoDto: PortfolioRepoDto;
     try {
-      return await $fetch<PortfolioRepoDto>(
+      repoDto = await $fetch<PortfolioRepoDto>(
         `${apiBase}/portfolio/repos/${encodeURIComponent(o)}/${encodeURIComponent(r)}`,
       );
     } catch (e: unknown) {
@@ -50,8 +59,24 @@ const {
         throw createError({ statusCode: 404, statusMessage: "NOT_FOUND" });
       throw e;
     }
+
+    const branch = repoDto.defaultBranch ?? "main";
+    const imageBaseUrl = `https://raw.githubusercontent.com/${o}/${r}/${branch}`;
+    const excerpt = repoDto.readmeExcerpt;
+    let sanitizedReadme = "";
+    let headings: { title: string; id: string }[] = [];
+    let isReadmeTruncated = false;
+    if (excerpt) {
+      isReadmeTruncated = excerpt.trimEnd().endsWith("…");
+      const clean = isReadmeTruncated
+        ? excerpt.trimEnd().slice(0, -1).trimEnd()
+        : excerpt;
+      sanitizedReadme = await sanitizeMarkdown(clean, imageBaseUrl);
+      headings = extractHeadings(clean);
+    }
+    return { ...repoDto, sanitizedReadme, headings, isReadmeTruncated };
   },
-  { watch: [owner, repo], lazy: true },
+  { watch: [owner, repo] },
 );
 
 interface ProjectMetadataResponse {
@@ -71,7 +96,7 @@ const { data: metadata } = useAsyncData<ProjectMetadataResponse | null>(
       `${apiBase}/projects/metadata/${encodeURIComponent(owner.value)}/${encodeURIComponent(repo.value)}`,
     ).catch(() => null);
   },
-  { watch: [owner, repo], lazy: true },
+  { watch: [owner, repo] },
 );
 
 const { isMissingApiBase } = useApiError(error);
@@ -84,13 +109,15 @@ const isNotFound = computed(() => {
   return e?.statusCode === 404 || e?.statusMessage === "NOT_FOUND";
 });
 
-const { sanitizeMarkdown, extractHeadings } = useMarkdown();
-const { renderDiagrams, reRender } = useMermaid();
+const { renderWhenVisible, reRender } = useMermaid();
 const { isDark } = useTheme();
 const readmeRef = ref<HTMLElement | null>(null);
-const sanitizedReadme = ref<string>("");
-const headings = ref<{ title: string; id: string }[]>([]);
-const isReadmeTruncated = ref(false);
+
+const sanitizedReadme = computed(() => detail.value?.sanitizedReadme ?? "");
+const headings = computed(() => detail.value?.headings ?? []);
+const isReadmeTruncated = computed(
+  () => detail.value?.isReadmeTruncated ?? false,
+);
 
 watch(isDark, async () => {
   if (readmeRef.value) {
@@ -99,33 +126,10 @@ watch(isDark, async () => {
   }
 });
 
-const imageBaseUrl = computed(() => {
-  const branch = detail.value?.defaultBranch ?? "main";
-  return `https://raw.githubusercontent.com/${owner.value}/${repo.value}/${branch}`;
-});
-
-watch(
-  () => detail.value?.readmeExcerpt,
-  async (val) => {
-    if (!val) {
-      sanitizedReadme.value = "";
-      headings.value = [];
-      isReadmeTruncated.value = false;
-      return;
-    }
-    const truncated = val.trimEnd().endsWith("…");
-    isReadmeTruncated.value = truncated;
-    const clean = truncated ? val.trimEnd().slice(0, -1).trimEnd() : val;
-    sanitizedReadme.value = await sanitizeMarkdown(clean, imageBaseUrl.value);
-    headings.value = extractHeadings(clean);
-  },
-  { immediate: true },
-);
-
 watch(sanitizedReadme, async (val) => {
-  if (val && readmeRef.value) {
+  if (import.meta.client && val && readmeRef.value) {
     await nextTick();
-    renderDiagrams(readmeRef.value);
+    renderWhenVisible(readmeRef.value);
   }
 });
 
@@ -210,12 +214,12 @@ function onScroll() {
 
 onMounted(async () => {
   window.addEventListener("scroll", onScroll, { passive: true });
+
   if (!pending.value && detail.value && !error.value) {
-    animateIn();
     /* v8 ignore next 3 */
     if (readmeRef.value && sanitizedReadme.value) {
       await nextTick();
-      renderDiagrams(readmeRef.value);
+      renderWhenVisible(readmeRef.value);
     }
   }
 });
