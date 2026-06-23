@@ -1,0 +1,8 @@
+overrides:
+  tailwindcss: "~3.4.0"
+
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lefthook: true
+  vue-demi: true
