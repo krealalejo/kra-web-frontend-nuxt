@@ -660,10 +660,12 @@ async function submitAddCategory() {
 
           <div class="mb-4">
             <input
+              :id="`skill-input-${cat.id}`"
               v-model="categoryNewSkill[cat.id]"
               class="w-full rounded-lg px-3 py-2 text-sm"
               style="background: var(--bg); border: 1px solid var(--hairline); color: var(--fg); outline: none"
               placeholder="Add skill… (Enter to add)"
+              :aria-label="`Add skill to ${cat.label}`"
               @keydown.enter.prevent="addSkill(cat.id)"
             />
           </div>

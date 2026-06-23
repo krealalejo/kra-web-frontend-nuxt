@@ -314,16 +314,20 @@ const onSubmit = handleSubmit(async (values) => {
                 class="flex gap-3 items-center"
               >
                 <input
+                  :id="`ref-label-${i}`"
                   v-model="ref.value.label"
                   type="text"
                   placeholder="Label (e.g. Source)"
+                  :aria-label="`Reference ${i + 1} label`"
                   class="flex-1 rounded-lg px-3 py-2 text-xs outline-none focus:border-[var(--accent)]"
                   style="background: var(--bg-sunken); border: 1px solid var(--hairline); color: var(--fg)"
                 />
                 <input
+                  :id="`ref-url-${i}`"
                   v-model="ref.value.url"
                   type="url"
                   placeholder="https://..."
+                  :aria-label="`Reference ${i + 1} URL`"
                   class="flex-[2] rounded-lg px-3 py-2 text-xs outline-none focus:border-[var(--accent)]"
                   style="background: var(--bg-sunken); border: 1px solid var(--hairline); color: var(--fg)"
                 />
