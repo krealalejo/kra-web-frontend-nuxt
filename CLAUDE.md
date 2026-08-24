@@ -10,7 +10,7 @@ pnpm dev              # localhost:3000
 pnpm build
 pnpm generate         # SSG
 pnpm typecheck
-pnpm test             # Vitest run (also runs on pre-push via lefthook)
+pnpm test             # Vitest run
 pnpm test:watch       # watch mode
 pnpm test:coverage    # coverage report (80% threshold: lines/statements/functions/branches)
 ```

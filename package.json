@@ -8,7 +8,6 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "prepare": "lefthook install",
     "test": "vitest run",
     "test:coverage": "mkdir -p coverage/.tmp && vitest run --coverage",
     "test:watch": "vitest",
@@ -51,7 +50,6 @@
     "@vue/test-utils": "^2.4.11",
     "eslint-plugin-sonarjs": "^4.0.3",
     "happy-dom": "^20.10.4",
-    "lefthook": "^2.1.9",
     "sonarqube-scanner": "^4.3.6",
     "vitest": "^4.1.9"
   },
