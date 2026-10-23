@@ -1375,6 +1375,11 @@ em, .emph {
   border-radius: 4px;
   color: var(--fg);
 }
+/* @tailwindcss/typography wraps inline code in literal backticks; the chip styling replaces them */
+.prose code::before, .prose code::after,
+.markdown-content code::before, .markdown-content code::after {
+  content: none;
+}
 
 .prose pre, .markdown-content pre {
   background: var(--bg-sunken);
