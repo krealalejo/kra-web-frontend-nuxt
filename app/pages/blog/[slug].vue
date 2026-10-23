@@ -5,6 +5,7 @@ import { useApiError } from '~/composables/useApiError'
 
 const route = useRoute()
 const config = useRuntimeConfig()
+const requestEvent = useRequestEvent()
 
 const slug = computed(() => {
   const p = route.params.slug
@@ -25,7 +26,11 @@ const { data: post, pending, error } = await useAsyncData(
     } catch (e: unknown) {
       const err = e as { statusCode?: number; status?: number; response?: { status?: number } }
       const code = err?.statusCode ?? err?.status ?? err?.response?.status
-      if (code === 404) throw createError({ statusCode: 404, statusMessage: 'NOT_FOUND' })
+      if (code === 404) {
+        // The page renders its own not-found state, so mark the SSR response as 404 for crawlers
+        if (requestEvent) setResponseStatus(requestEvent, 404)
+        throw createError({ statusCode: 404, statusMessage: 'NOT_FOUND' })
+      }
       throw e
     }
   },
@@ -183,7 +188,7 @@ useSeoMeta({
   <div>
     <div v-if="post" class="post-progress" :style="{ width: scrollProgress + '%' }" />
 
-    <div v-if="error" role="alert" class="shell" style="padding:64px 0;">
+    <div v-if="error" role="alert" class="shell" style="padding-top:64px;padding-bottom:64px;">
       <div style="font-family:var(--font-mono);font-size:12px;color:var(--fg-muted);">
         <div v-if="isNotFound">Post not found.</div>
         <div v-else-if="isMissingApiBase">API unavailable — set NUXT_PUBLIC_API_BASE_URL.</div>

@@ -6,6 +6,7 @@ import { useApiError } from "~/composables/useApiError";
 
 const route = useRoute();
 const config = useRuntimeConfig();
+const requestEvent = useRequestEvent();
 
 const owner = computed(() => {
   const p = route.params.owner;
@@ -55,8 +56,11 @@ const {
         response?: { status?: number };
       };
       const code = err?.statusCode ?? err?.status ?? err?.response?.status;
-      if (code === 404)
+      if (code === 404) {
+        // The page renders its own not-found state, so mark the SSR response as 404 for crawlers
+        if (requestEvent) setResponseStatus(requestEvent, 404);
         throw createError({ statusCode: 404, statusMessage: "NOT_FOUND" });
+      }
       throw e;
     }
 
@@ -263,7 +267,7 @@ onUnmounted(() => {
       >
     </output>
 
-    <div v-else-if="error" role="alert" class="shell" style="padding: 64px 0">
+    <div v-else-if="error" role="alert" class="shell" style="padding-top: 64px; padding-bottom: 64px">
       <div
         style="
           font-family: var(--font-mono);
