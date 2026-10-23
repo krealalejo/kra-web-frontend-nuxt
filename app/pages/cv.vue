@@ -148,7 +148,7 @@ onMounted(async () => {
               style="width:100%;height:100%;object-fit:cover;display:block;"
             />
             <div v-else class="ph-center">
-              <svg width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+              <svg aria-hidden="true" width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
                 <circle cx="22" cy="17" r="7" />
                 <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
               </svg>
@@ -221,11 +221,11 @@ onMounted(async () => {
         <div class="title">Elsewhere</div>
         <div>
           <div style="display:flex;flex-direction:column;gap:12px;font-size:15px;color:var(--fg-dim);">
-            <a href="https://github.com/krealalejo" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;transition:color 0.2s" @mouseover="($event.target as HTMLElement).style.color='var(--accent)'" @mouseout="($event.target as HTMLElement).style.color='var(--fg-dim)'">
+            <a href="https://github.com/krealalejo" target="_blank" rel="noopener" class="cv-ext-link">
               <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">GitHub</span>
               github.com/krealalejo ↗
             </a>
-            <a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;transition:color 0.2s" @mouseover="($event.target as HTMLElement).style.color='var(--accent)'" @mouseout="($event.target as HTMLElement).style.color='var(--fg-dim)'">
+            <a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener" class="cv-ext-link">
               <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">LinkedIn</span>
               linkedin.com/in/kevinrealalejo ↗
             </a>
@@ -245,6 +245,19 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.cv-ext-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cv-ext-link:hover,
+.cv-ext-link:focus-visible {
+  color: var(--accent);
+}
+
 .cv-mobile-portrait {
   display: none;
   width: 72px;

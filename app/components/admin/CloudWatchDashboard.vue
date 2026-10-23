@@ -129,7 +129,7 @@ const getStatusColor = (status: string) => {
         <div class="flex items-center justify-center py-4">
           <div class="relative flex items-center justify-center">
             <!-- Simple SVG Gauge -->
-            <svg class="h-32 w-32 transform -rotate-90">
+            <svg aria-hidden="true" class="h-32 w-32 transform -rotate-90">
               <circle cx="64" cy="64" r="58" stroke="var(--bg-sunken)" stroke-width="8" fill="transparent" />
               <circle 
                 cx="64" cy="64" r="58" 

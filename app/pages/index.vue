@@ -223,7 +223,7 @@ function projectNum(i: number) {
                 style="width:100%;height:100%;object-fit:cover;display:block;"
               />
               <div v-else class="ph-center">
-                <svg width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+                <svg aria-hidden="true" width="44" height="44" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
                   <circle cx="22" cy="17" r="7" />
                   <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
                 </svg>
@@ -277,7 +277,7 @@ function projectNum(i: number) {
               </div>
               <span class="cta">
                 View
-                <svg class="arrow-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+                <svg aria-hidden="true" class="arrow-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
                   <path d="M2 10L10 2M10 2H4M10 2v6"/>
                 </svg>
               </span>
@@ -293,7 +293,7 @@ function projectNum(i: number) {
         <div v-if="hasMore && !pending && isMounted" style="margin-top:24px;display:flex;justify-content:center;">
           <button class="btn btn-ghost load-more-btn" @click="loadMore">
             Load more
-            <svg class="icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M7 2v10M2 7l5 5 5-5"/>
             </svg>
           </button>
@@ -303,7 +303,7 @@ function projectNum(i: number) {
           <span class="t-label">{{ visibleProjects.length }}{{ featuredProjects.length > visibleProjects.length ? ` / ${featuredProjects.length}` : '' }} shown</span>
           <NuxtLink to="/projects" class="btn btn-ghost">
             All projects
-            <svg class="icon" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" class="icon" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M2 10L10 2M10 2H4M10 2v6"/>
             </svg>
           </NuxtLink>

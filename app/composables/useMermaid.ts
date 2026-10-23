@@ -137,14 +137,14 @@ function renderWhenVisible(container: HTMLElement | null | undefined) {
   const blocks = container.querySelectorAll('pre code.language-mermaid')
   if (!blocks.length) return
   if (typeof IntersectionObserver === 'undefined') {
-    renderDiagrams(container)
+    void renderDiagrams(container)
     return
   }
   const io = new IntersectionObserver(
     (entries, obs) => {
       if (entries.some((e) => e.isIntersecting)) {
         obs.disconnect()
-        renderDiagrams(container)
+        void renderDiagrams(container)
       }
     },
     { rootMargin: '600px 0px' }

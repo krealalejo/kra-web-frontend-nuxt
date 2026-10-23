@@ -211,21 +211,14 @@ describe('cv.vue — actions row (mobile layout)', () => {
     expect(btns[2].classes()).toContain('btn-ghost')
   })
 
-  it('triggers mouseover/mouseout on social links', async () => {
+  it('styles social links with a CSS hover/focus class instead of mouse handlers', async () => {
     const wrapper = await mountSuspended(CvPage)
 
-    const githubLink = wrapper.find('a[href="https://github.com/krealalejo"]')
-    if (githubLink.exists()) {
-      await githubLink.trigger('mouseover')
-      await githubLink.trigger('mouseout')
-    }
-
-    const linkedinLink = wrapper.find('a[href="https://www.linkedin.com/in/kevinrealalejo/"]')
-    if (linkedinLink.exists()) {
-      await linkedinLink.trigger('mouseover')
-      await linkedinLink.trigger('mouseout')
-    }
-
-    expect(wrapper.text()).toContain('github.com/krealalejo')
+    const links = wrapper.findAll('a.cv-ext-link')
+    expect(links.map(l => l.attributes('href'))).toEqual([
+      'https://github.com/krealalejo',
+      'https://www.linkedin.com/in/kevinrealalejo/',
+    ])
+    expect(links[0].attributes('style')).toBeUndefined()
   })
 })

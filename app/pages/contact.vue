@@ -130,14 +130,14 @@ onMounted(async () => {
                 <span class="note">No spam pls. Your message goes straight to me.</span>
                 <button type="submit" class="btn" :disabled="sending">
                   <template v-if="sending">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
                       <circle cx="12" cy="12" r="10" stroke-opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10"/>
                     </svg>
                     Sending…
                   </template>
                   <template v-else>
                     Send message
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform: rotate(-45deg)">
+                    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="transform: rotate(-45deg)">
                       <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
                     </svg>
                   </template>

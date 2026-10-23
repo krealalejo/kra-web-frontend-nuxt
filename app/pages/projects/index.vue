@@ -229,7 +229,7 @@ useHead({
             </div>
             <span class="cta">
               Case study
-              <svg class="icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg aria-hidden="true" class="icon" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
                 <path d="M2 10L10 2M10 2H4M10 2v6"/>
               </svg>
             </span>

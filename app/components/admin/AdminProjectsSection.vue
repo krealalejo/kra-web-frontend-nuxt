@@ -177,6 +177,7 @@ const KIND_OPTIONS = ['Frontend', 'Backend', 'Serverless', 'AI', 'Other']
       v-if="modal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
       @click.self="modal.open = false"
+      @keydown.esc="modal.open = false"
     >
       <div
         class="rounded-2xl mx-4 p-5 sm:p-8"

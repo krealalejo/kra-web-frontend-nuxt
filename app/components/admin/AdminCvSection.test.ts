@@ -800,6 +800,17 @@ describe('AdminCvSection — Experience modal field inputs', () => {
     expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(false)
   })
 
+  it('closes exp modal when Escape is pressed inside it', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = mount(AdminCvSection)
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add experience'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    await wrapper.find('#exp-location').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Experience'))).toBe(false)
+  })
+
   it('closes edu modal when backdrop is clicked', async () => {
     const { default: AdminCvSection } = await import('./AdminCvSection.vue')
     const wrapper = mount(AdminCvSection)
@@ -816,6 +827,22 @@ describe('AdminCvSection — Experience modal field inputs', () => {
       backdropEl.dispatchEvent(new MouseEvent('click', { bubbles: false, cancelable: true }))
       await nextTick()
     }
+    expect(wrapper.findAll('h3').some(h => h.text().includes('Add Education'))).toBe(false)
+  })
+
+  it('closes edu modal when Escape is pressed inside it', async () => {
+    const { default: AdminCvSection } = await import('./AdminCvSection.vue')
+    const wrapper = mount(AdminCvSection)
+    const eduTab = wrapper.findAll('button').find(b => b.text().includes('Education'))
+    await eduTab!.trigger('click')
+    const addBtn = wrapper.findAll('button').find(b => b.text().toLowerCase().includes('add education'))
+    await addBtn!.trigger('click')
+    await nextTick()
+
+    const modalH3 = wrapper.findAll('h3').find(h => h.text().includes('Add Education'))
+    const field = modalH3!.element.parentElement!.querySelector('input')!
+    field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
     expect(wrapper.findAll('h3').some(h => h.text().includes('Add Education'))).toBe(false)
   })
 })

@@ -753,6 +753,7 @@ async function submitAddCategory() {
       v-if="expModal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
       @click.self="expModal.open = false"
+      @keydown.esc="expModal.open = false"
     >
       <div class="rounded-2xl p-4 sm:p-6 mx-4" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
         <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ expModal.mode === 'add' ? 'Add Experience' : 'Edit Experience' }}</h3>
@@ -856,6 +857,7 @@ async function submitAddCategory() {
       v-if="eduModal.open"
       style="position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6)"
       @click.self="eduModal.open = false"
+      @keydown.esc="eduModal.open = false"
     >
       <div class="rounded-2xl p-4 sm:p-6 mx-4" style="background:var(--bg-elev);border:1px solid var(--hairline);width:100%;max-width:520px;max-height:90vh;overflow-y:auto">
         <h3 class="t-h3 mb-6" style="color:var(--fg)">{{ eduModal.mode === 'add' ? 'Add Education' : 'Edit Education' }}</h3>

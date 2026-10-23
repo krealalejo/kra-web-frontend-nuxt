@@ -62,7 +62,7 @@ const onLeave = async (el: Element, done: () => void) => {
       :css="false"
     >
       <div v-if="isMobileMenuOpen && isAuthenticated" class="fixed inset-0 z-50 flex md:hidden">
-        <div class="mobile-overlay fixed inset-0 backdrop-blur-sm" style="background:color-mix(in srgb, var(--bg) 80%, transparent)" @click="isMobileMenuOpen = false"></div>
+        <div class="mobile-overlay fixed inset-0 backdrop-blur-sm" style="background:color-mix(in srgb, var(--bg) 80%, transparent)" @click="isMobileMenuOpen = false" @keydown.esc="isMobileMenuOpen = false"></div>
         <div class="mobile-sidebar relative flex">
           <AdminSidebar @click="isMobileMenuOpen = false" />
         </div>

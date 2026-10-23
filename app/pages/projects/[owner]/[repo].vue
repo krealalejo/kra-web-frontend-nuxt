@@ -296,7 +296,7 @@ onUnmounted(() => {
       <section class="shell">
         <div class="pd-head">
           <NuxtLink to="/projects" class="pd-breadcrumb">
-            <svg
+            <svg aria-hidden="true"
               width="12"
               height="12"
               viewBox="0 0 12 12"

@@ -165,6 +165,21 @@ describe('components/admin/AdminProjectsSection.vue', () => {
     }
   })
 
+  it('closes modal when Escape is pressed inside it', async () => {
+    mockFetch
+      .mockResolvedValueOnce([mockRepos[1]])
+      .mockRejectedValueOnce(new Error('Not found'))
+
+    const wrapper = mount(AdminProjectsSection)
+    await flushPromises()
+
+    await wrapper.find('button').trigger('click')
+    expect(wrapper.text()).toContain('Add project metadata')
+
+    await wrapper.find('#modal-role').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.text()).not.toContain('Add project metadata')
+  })
+
   it('closes modal when Discard changes is clicked', async () => {
     mockFetch
       .mockResolvedValueOnce([mockRepos[1]])

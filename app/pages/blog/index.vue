@@ -107,7 +107,7 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
             </p>
           </div>
           <div style="display:flex;align-items:center;gap:16px;">
-            <svg width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--fg-muted)">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--fg-muted)">
               <path d="M2 10L10 2M10 2H4M10 2v6"/>
             </svg>
           </div>
