@@ -30,6 +30,10 @@ function onScroll() {
   showBackToTop.value = window.scrollY > 400
 }
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && isMobileMenuOpen.value) isMobileMenuOpen.value = false
+}
+
 const navItems = [
   { path: '/', label: 'Home' },
   { path: '/projects', label: 'Projects' },
@@ -49,6 +53,7 @@ onMounted(async () => {
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('keydown', onKeydown)
   onScroll()
 
   // Hide the floating back-to-top button over the footer so it doesn't cover footer content
@@ -62,6 +67,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('keydown', onKeydown)
   footerObserver?.disconnect()
 })
 
@@ -141,7 +147,15 @@ watch(isMobileMenuOpen, (open) => {
     </header>
     
     
-    <div :class="['nav-sheet', { open: isMobileMenuOpen }]" :aria-hidden="!isMobileMenuOpen" @touchmove.prevent>
+    <div
+      :class="['nav-sheet', { open: isMobileMenuOpen }]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site menu"
+      :aria-hidden="!isMobileMenuOpen"
+      :inert="!isMobileMenuOpen"
+      @touchmove.prevent
+    >
       <div class="shell">
         <div class="nav-sheet-header">
           <div class="nav-sheet-overline t-overline">
