@@ -5,7 +5,10 @@ import { useRoute } from 'vue-router'
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const showBackToTop = ref(false)
+const isFooterVisible = ref(false)
+const footerRef = ref<HTMLElement | null>(null)
 const route = useRoute()
+let footerObserver: IntersectionObserver | null = null
 
 const currentYear = new Date().getFullYear()
 
@@ -47,10 +50,19 @@ onMounted(async () => {
 
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()
+
+  // Hide the floating back-to-top button over the footer so it doesn't cover footer content
+  if (footerRef.value && 'IntersectionObserver' in window) {
+    footerObserver = new IntersectionObserver(([entry]) => {
+      isFooterVisible.value = !!entry?.isIntersecting
+    })
+    footerObserver.observe(footerRef.value)
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  footerObserver?.disconnect()
 })
 
 watch(isMobileMenuOpen, (open) => {
@@ -164,7 +176,7 @@ watch(isMobileMenuOpen, (open) => {
     <ClientOnly>
       <Transition name="back-to-top">
         <button
-          v-if="showBackToTop"
+          v-if="showBackToTop && !isMobileMenuOpen && !isFooterVisible"
           class="kra-back-to-top"
           aria-label="Back to top"
           @click="scrollToTop"
@@ -174,7 +186,7 @@ watch(isMobileMenuOpen, (open) => {
       </Transition>
     </ClientOnly>
 
-    <footer class="kra-footer">
+    <footer ref="footerRef" class="kra-footer">
       <div class="shell">
         <div class="kra-footer-grid">
           <div class="kra-footer-brand">
