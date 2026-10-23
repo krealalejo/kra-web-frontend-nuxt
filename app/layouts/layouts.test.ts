@@ -129,6 +129,21 @@ describe('admin layout', () => {
     expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
   })
 
+  it('closes mobile menu when Escape is pressed on the overlay', async () => {
+    mockCookieValue.value = 'admin@example.com'
+    const wrapper = await mountSuspended(AdminLayout, {
+      slots: { default: '<p>Content</p>' },
+    })
+
+    await wrapper.find('header button').trigger('click')
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(true)
+
+    await wrapper.find('.mobile-overlay').trigger('keydown', { key: 'Escape' })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('.mobile-overlay').exists()).toBe(false)
+  })
+
   it('shows header but hides sidebar when not authenticated', async () => {
     mockCookieValue.value = null
     const wrapper = await mountSuspended(AdminLayout, {
