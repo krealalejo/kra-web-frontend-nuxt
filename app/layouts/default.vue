@@ -152,7 +152,7 @@ watch(isMobileMenuOpen, (open) => {
         </div>
         <div class="nav-sheet-foot t-label">
           <span>Barcelona · ES</span>
-          <span>hi@krealejo.dev</span>
+          <span>hi@krealalejo.dev</span>
         </div>
       </div>
     </div>
@@ -179,7 +179,7 @@ watch(isMobileMenuOpen, (open) => {
         <div class="kra-footer-grid">
           <div class="kra-footer-brand">
             <div class="kra-footer-name serif">Kevin Real <span class="kra-footer-name-accent">Alejo</span></div>
-            <a href="mailto:hi@krealejo.dev" class="kra-footer-email">hi@krealejo.dev</a>
+            <a href="mailto:hi@krealalejo.dev" class="kra-footer-email">hi@krealalejo.dev</a>
           </div>
           <nav class="kra-footer-nav" aria-label="Footer navigation">
             <NuxtLink
