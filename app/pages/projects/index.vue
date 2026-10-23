@@ -173,7 +173,7 @@ useHead({
           <button
             v-for="k in kinds"
             :key="k"
-            class="chip"
+            class="chip filter-chip"
             style="cursor:pointer;text-transform:capitalize;"
             :style="{
               background: filter === k ? 'var(--fg)' : 'transparent',

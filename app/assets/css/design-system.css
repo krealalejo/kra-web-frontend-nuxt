@@ -1760,3 +1760,10 @@ em, .emph {
   .gh-card .cell:hover { transform: none; }
   .proj-card:hover { transform: none; }
 }
+
+/* Touch devices: grow hit areas to ~44px without changing the visual size */
+@media (pointer: coarse) {
+  .kra-theme-btn { min-width: 44px; min-height: 44px; }
+  .kra-footer-nav-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .filter-chip { min-height: 40px; padding-left: 14px; padding-right: 14px; }
+}
