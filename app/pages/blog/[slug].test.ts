@@ -3,6 +3,13 @@ import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import { ref } from 'vue'
 
+const { requestEventMock, setResponseStatusMock } = vi.hoisted(() => ({
+  requestEventMock: vi.fn((): unknown => undefined),
+  setResponseStatusMock: vi.fn(),
+}))
+mockNuxtImport('useRequestEvent', () => requestEventMock)
+mockNuxtImport('setResponseStatus', () => setResponseStatusMock)
+
 mockNuxtImport('useAsyncData', () => {
   return (key: string | (() => string), factory: () => Promise<any>, options?: any) => {
     if (typeof key === 'function') key()
@@ -163,6 +170,17 @@ describe('pages/blog/[slug].vue', () => {
     await flushPromises()
     expect(wrapper.find('[role="alert"]').exists()).toBe(true)
     expect(wrapper.text()).toContain('not found')
+  })
+
+  it('sets a 404 response status during SSR when the post is missing', async () => {
+    const event = { node: {} }
+    requestEventMock.mockReturnValue(event)
+    setResponseStatusMock.mockClear()
+    mockFetch.mockRejectedValue({ statusCode: 404 })
+    await mountSuspended(BlogSlugPage, { route: '/blog/ghost' })
+    await flushPromises()
+    expect(setResponseStatusMock).toHaveBeenCalledWith(event, 404)
+    requestEventMock.mockReturnValue(undefined)
   })
 
   it('shows MISSING_API_BASE hint when api base is missing', async () => {

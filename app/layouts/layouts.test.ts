@@ -514,6 +514,123 @@ describe('default layout — back to top button', () => {
 
     expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
   })
+
+  it('is hidden while the mobile menu is open', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    setScrollY(500)
+    window.dispatchEvent(new Event('scroll'))
+    await nextTick()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+
+    await wrapper.find('header button[aria-expanded]').trigger('click')
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(false)
+  })
+})
+
+describe('default layout — back to top hides over the footer', () => {
+  let observerCallback: IntersectionObserverCallback | null = null
+  const disconnect = vi.fn()
+
+  beforeEach(() => {
+    observerCallback = null
+    disconnect.mockClear()
+    Object.defineProperty(window, 'scrollY', { value: 500, configurable: true, writable: true })
+    vi.stubGlobal('IntersectionObserver', class {
+      constructor(cb: IntersectionObserverCallback) { observerCallback = cb }
+      observe = vi.fn()
+      disconnect = disconnect
+    })
+  })
+
+  function setFooterVisible(isIntersecting: boolean) {
+    observerCallback?.([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver)
+  }
+
+  it('hides the button while the footer is in view and shows it again after', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+
+    setFooterVisible(true)
+    await nextTick()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(false)
+
+    setFooterVisible(false)
+    await nextTick()
+    expect(wrapper.find('button.kra-back-to-top').exists()).toBe(true)
+
+    vi.unstubAllGlobals()
+  })
+
+  it('disconnects the footer observer on unmount', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+    wrapper.unmount()
+
+    expect(disconnect).toHaveBeenCalled()
+    vi.unstubAllGlobals()
+  })
+})
+
+describe('default layout — mobile menu keyboard and a11y', () => {
+  it('closes the mobile menu when Escape is pressed', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    await wrapper.find('header button[aria-expanded]').trigger('click')
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(true)
+
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
+    await nextTick()
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(false)
+  })
+
+  it('ignores other keys while the menu is open', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+
+    await wrapper.find('header button[aria-expanded]').trigger('click')
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
+    await nextTick()
+    expect(wrapper.find('.nav-sheet.open').exists()).toBe(true)
+  })
+
+  it('removes the keydown listener on unmount', async () => {
+    const removeSpy = vi.spyOn(window, 'removeEventListener')
+
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    await flushPromises()
+    wrapper.unmount()
+
+    expect(removeSpy).toHaveBeenCalledWith('keydown', expect.any(Function))
+    removeSpy.mockRestore()
+  })
+
+  it('exposes the menu as a dialog that is inert while closed', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    const sheet = wrapper.find('.nav-sheet')
+    expect(sheet.attributes('role')).toBe('dialog')
+    expect(sheet.attributes('inert')).toBeDefined()
+
+    await wrapper.find('header button[aria-expanded]').trigger('click')
+    expect(sheet.attributes('inert')).toBeUndefined()
+  })
 })
 
 describe('default layout — theme toggle', () => {

@@ -5,7 +5,10 @@ import { useRoute } from 'vue-router'
 const { isDark, toggle } = useTheme()
 const isMobileMenuOpen = ref(false)
 const showBackToTop = ref(false)
+const isFooterVisible = ref(false)
+const footerRef = ref<HTMLElement | null>(null)
 const route = useRoute()
+let footerObserver: IntersectionObserver | null = null
 
 const currentYear = new Date().getFullYear()
 
@@ -27,6 +30,10 @@ function onScroll() {
   showBackToTop.value = window.scrollY > 400
 }
 
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && isMobileMenuOpen.value) isMobileMenuOpen.value = false
+}
+
 const navItems = [
   { path: '/', label: 'Home' },
   { path: '/projects', label: 'Projects' },
@@ -46,11 +53,22 @@ onMounted(async () => {
   }
 
   window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('keydown', onKeydown)
   onScroll()
+
+  // Hide the floating back-to-top button over the footer so it doesn't cover footer content
+  if (footerRef.value && 'IntersectionObserver' in window) {
+    footerObserver = new IntersectionObserver(([entry]) => {
+      isFooterVisible.value = !!entry?.isIntersecting
+    })
+    footerObserver.observe(footerRef.value)
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('keydown', onKeydown)
+  footerObserver?.disconnect()
 })
 
 watch(isMobileMenuOpen, (open) => {
@@ -129,7 +147,15 @@ watch(isMobileMenuOpen, (open) => {
     </header>
     
     
-    <div :class="['nav-sheet', { open: isMobileMenuOpen }]" :aria-hidden="!isMobileMenuOpen" @touchmove.prevent>
+    <div
+      :class="['nav-sheet', { open: isMobileMenuOpen }]"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Site menu"
+      :aria-hidden="!isMobileMenuOpen"
+      :inert="!isMobileMenuOpen"
+      @touchmove.prevent
+    >
       <div class="shell">
         <div class="nav-sheet-header">
           <div class="nav-sheet-overline t-overline">
@@ -152,7 +178,7 @@ watch(isMobileMenuOpen, (open) => {
         </div>
         <div class="nav-sheet-foot t-label">
           <span>Barcelona · ES</span>
-          <span>hi@krealejo.dev</span>
+          <span>hi@krealalejo.dev</span>
         </div>
       </div>
     </div>
@@ -164,7 +190,7 @@ watch(isMobileMenuOpen, (open) => {
     <ClientOnly>
       <Transition name="back-to-top">
         <button
-          v-if="showBackToTop"
+          v-if="showBackToTop && !isMobileMenuOpen && !isFooterVisible"
           class="kra-back-to-top"
           aria-label="Back to top"
           @click="scrollToTop"
@@ -174,12 +200,12 @@ watch(isMobileMenuOpen, (open) => {
       </Transition>
     </ClientOnly>
 
-    <footer class="kra-footer">
+    <footer ref="footerRef" class="kra-footer">
       <div class="shell">
         <div class="kra-footer-grid">
           <div class="kra-footer-brand">
             <div class="kra-footer-name serif">Kevin Real <span class="kra-footer-name-accent">Alejo</span></div>
-            <a href="mailto:hi@krealejo.dev" class="kra-footer-email">hi@krealejo.dev</a>
+            <a href="mailto:hi@krealalejo.dev" class="kra-footer-email">hi@krealalejo.dev</a>
           </div>
           <nav class="kra-footer-nav" aria-label="Footer navigation">
             <NuxtLink

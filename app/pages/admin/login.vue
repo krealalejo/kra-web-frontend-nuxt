@@ -1,6 +1,11 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
+useHead({
+  title: 'Sign in · KRA Admin',
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }],
+})
+
 const email = ref('')
 const password = ref('')
 const showPassword = ref(false)
@@ -132,7 +137,7 @@ async function submit() {
     </main>
 
     <footer class="login-footer">
-      <span class="t-overline">© {{ new Date().getFullYear() }} Kevin Realalejo</span>
+      <span class="t-overline">© {{ new Date().getFullYear() }} Kevin Real Alejo</span>
     </footer>
   </div>
 </template>
@@ -316,7 +321,8 @@ async function submit() {
   width: 100%;
   height: 42px;
   padding: 0 12px;
-  font-size: 14px;
+  /* 16px minimum stops iOS Safari from zooming the page when an input is focused */
+  font-size: 16px;
   font-family: var(--font-sans);
   color: var(--fg);
   background: var(--bg-sunken);
@@ -328,7 +334,7 @@ async function submit() {
 }
 
 .login-input-wrap .login-input {
-  padding-right: 40px;
+  padding-right: 44px;
 }
 
 .login-input:focus {
@@ -347,15 +353,17 @@ async function submit() {
 
 .login-eye {
   position: absolute;
-  right: 10px;
+  right: 3px;
   top: 50%;
   transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
   color: var(--fg-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: 0;
   background: none;
   border: none;
   transition: color 0.2s var(--ease-out);

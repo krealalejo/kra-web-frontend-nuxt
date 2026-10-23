@@ -1375,6 +1375,11 @@ em, .emph {
   border-radius: 4px;
   color: var(--fg);
 }
+/* @tailwindcss/typography wraps inline code in literal backticks; the chip styling replaces them */
+.prose code::before, .prose code::after,
+.markdown-content code::before, .markdown-content code::after {
+  content: none;
+}
 
 .prose pre, .markdown-content pre {
   background: var(--bg-sunken);
@@ -1650,6 +1655,8 @@ em, .emph {
 }
 
 @media (max-width: 900px) {
+  /* Manual line breaks tuned for wide layouts; let text wrap naturally on narrow screens */
+  .br-desktop { display: none; }
   .shell { padding: 0 28px; }
   .kra-nav { padding: 16px 0; }
   .kra-nav-links { display: none; }
@@ -1754,4 +1761,11 @@ em, .emph {
 @media (hover: none) {
   .gh-card .cell:hover { transform: none; }
   .proj-card:hover { transform: none; }
+}
+
+/* Touch devices: grow hit areas to ~44px without changing the visual size */
+@media (pointer: coarse) {
+  .kra-theme-btn { min-width: 44px; min-height: 44px; }
+  .kra-footer-nav-link { display: inline-flex; align-items: center; min-height: 44px; }
+  .filter-chip { min-height: 40px; padding-left: 14px; padding-right: 14px; }
 }
