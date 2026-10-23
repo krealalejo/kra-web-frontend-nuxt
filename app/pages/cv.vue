@@ -148,7 +148,7 @@ onMounted(async () => {
               style="width:100%;height:100%;object-fit:cover;display:block;"
             />
             <div v-else class="ph-center">
-              <svg width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
+              <svg aria-hidden="true" width="36" height="36" viewBox="0 0 44 44" fill="none" stroke="currentColor" stroke-width="1.2">
                 <circle cx="22" cy="17" r="7" />
                 <path d="M8 38c2-7 8-10 14-10s12 3 14 10" />
               </svg>

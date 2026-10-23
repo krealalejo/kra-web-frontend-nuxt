@@ -196,7 +196,7 @@ useSeoMeta({
       <section class="shell">
         <div class="post-head">
           <NuxtLink to="/blog" class="pd-breadcrumb">
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M10 6H2M2 6L6 2M2 6L6 10"/>
             </svg>
             All posts
