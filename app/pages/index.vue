@@ -194,7 +194,7 @@ function projectNum(i: number) {
           <div class="hero-left">
             <h1 class="t-display display-name" style="margin-bottom:28px;opacity:0;">Kevin Real Alejo</h1>
             <div class="hero-role">
-              <span class="emph">Full-stack engineer</span> — shipping calm,<br> reliable software for the cloud.
+              <span class="emph">Full-stack engineer</span> — shipping calm,<br class="br-desktop"> reliable software for the cloud.
             </div>
             <div class="hero-paragraphs">
               <p class="t-body-lg">

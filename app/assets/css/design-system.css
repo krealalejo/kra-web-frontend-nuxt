@@ -1655,6 +1655,8 @@ em, .emph {
 }
 
 @media (max-width: 900px) {
+  /* Manual line breaks tuned for wide layouts; let text wrap naturally on narrow screens */
+  .br-desktop { display: none; }
   .shell { padding: 0 28px; }
   .kra-nav { padding: 16px 0; }
   .kra-nav-links { display: none; }
