@@ -3,6 +3,13 @@ import { mountSuspended, mockNuxtImport } from "@nuxt/test-utils/runtime";
 import { flushPromises } from "@vue/test-utils";
 import { ref } from "vue";
 
+const { requestEventMock, setResponseStatusMock } = vi.hoisted(() => ({
+  requestEventMock: vi.fn((): unknown => undefined),
+  setResponseStatusMock: vi.fn(),
+}));
+mockNuxtImport("useRequestEvent", () => requestEventMock);
+mockNuxtImport("setResponseStatus", () => setResponseStatusMock);
+
 mockNuxtImport("useAsyncData", () => {
   return (key: unknown, factory: () => Promise<any>) => {
     if (typeof key === "function") (key as () => string)();
@@ -148,6 +155,17 @@ describe("pages/projects/[owner]/[repo].vue", () => {
 
     expect(wrapper.find('[role="alert"]').exists()).toBe(true);
     expect(wrapper.text()).toContain("Repository not found");
+  });
+
+  it("sets a 404 response status during SSR when the repository is missing", async () => {
+    const event = { node: {} };
+    requestEventMock.mockReturnValue(event);
+    setResponseStatusMock.mockClear();
+    mockFetch.mockRejectedValue({ statusCode: 404 });
+    await mountSuspended(RepoPage, { route: "/projects/owner/repo" });
+    await flushPromises();
+    expect(setResponseStatusMock).toHaveBeenCalledWith(event, 404);
+    requestEventMock.mockReturnValue(undefined);
   });
 
   it("shows MISSING_API_BASE error", async () => {
