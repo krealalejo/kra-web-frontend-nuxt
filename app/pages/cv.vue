@@ -221,11 +221,11 @@ onMounted(async () => {
         <div class="title">Elsewhere</div>
         <div>
           <div style="display:flex;flex-direction:column;gap:12px;font-size:15px;color:var(--fg-dim);">
-            <a href="https://github.com/krealalejo" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;transition:color 0.2s" @mouseover="($event.target as HTMLElement).style.color='var(--accent)'" @mouseout="($event.target as HTMLElement).style.color='var(--fg-dim)'">
+            <a href="https://github.com/krealalejo" target="_blank" rel="noopener" class="cv-ext-link">
               <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">GitHub</span>
               github.com/krealalejo ↗
             </a>
-            <a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;transition:color 0.2s" @mouseover="($event.target as HTMLElement).style.color='var(--accent)'" @mouseout="($event.target as HTMLElement).style.color='var(--fg-dim)'">
+            <a href="https://www.linkedin.com/in/kevinrealalejo/" target="_blank" rel="noopener" class="cv-ext-link">
               <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">LinkedIn</span>
               linkedin.com/in/kevinrealalejo ↗
             </a>
@@ -245,6 +245,19 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.cv-ext-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cv-ext-link:hover,
+.cv-ext-link:focus-visible {
+  color: var(--accent);
+}
+
 .cv-mobile-portrait {
   display: none;
   width: 72px;
