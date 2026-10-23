@@ -151,7 +151,7 @@ onMounted(async () => {
           <div class="row">
             <span class="k">Location</span>
             <span class="v">Barcelona, Spain</span>
-            <span class="m">CEST · UTC+1</span>
+            <span class="m">CET · UTC+1</span>
           </div>
           <div class="row">
             <span class="k">Response</span>

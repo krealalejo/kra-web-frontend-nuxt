@@ -132,7 +132,7 @@ async function submit() {
     </main>
 
     <footer class="login-footer">
-      <span class="t-overline">© {{ new Date().getFullYear() }} Kevin Realalejo</span>
+      <span class="t-overline">© {{ new Date().getFullYear() }} Kevin Real Alejo</span>
     </footer>
   </div>
 </template>

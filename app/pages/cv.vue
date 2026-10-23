@@ -235,7 +235,7 @@ onMounted(async () => {
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
               <span style="font-family:var(--font-mono);font-size:11px;color:var(--fg-muted);letter-spacing:0.08em;text-transform:uppercase;width:100px;">Location</span>
-              Barcelona, Spain · UTC+1
+              Barcelona, Spain · CET
             </div>
           </div>
         </div>

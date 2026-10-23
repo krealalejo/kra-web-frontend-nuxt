@@ -315,7 +315,7 @@ function projectNum(i: number) {
       <div class="shell">
         <div class="section-head reveal-scroll">
           <span class="num">Signal</span>
-          <h2>Github <em>activity</em></h2>
+          <h2>GitHub <em>activity</em></h2>
           <span class="sub">Live from GitHub API</span>
         </div>
         <div class="activity-layout reveal-scroll">
