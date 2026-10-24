@@ -12,6 +12,15 @@ let footerObserver: IntersectionObserver | null = null
 
 const currentYear = new Date().getFullYear()
 
+const siteConfig = useSiteConfig()
+const canonicalLinks = computed(() => siteConfig.url
+  ? [{ rel: 'canonical', href: `${siteConfig.url.replace(/\/$/, '')}${route.path}` }]
+  : [])
+
+useHead({
+  link: canonicalLinks,
+})
+
 watch(() => route.path, () => {
   isMobileMenuOpen.value = false
 })

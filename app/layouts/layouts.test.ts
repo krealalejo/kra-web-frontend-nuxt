@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, reactive } from 'vue'
 import { flushPromises } from '@vue/test-utils'
 
 vi.mock('~/composables/useGsapAnimations', () => ({
@@ -10,6 +10,11 @@ vi.mock('~/composables/useGsapAnimations', () => ({
 const mockCookieValue = ref<string | null>(null)
 mockNuxtImport('useCookie', () => {
   return vi.fn(() => mockCookieValue)
+})
+
+const mockSiteConfig = reactive<{ url?: string }>({ url: 'https://www.krealalejo.dev/' })
+mockNuxtImport('useSiteConfig', () => {
+  return () => mockSiteConfig
 })
 
 import DefaultLayout from './default.vue'
@@ -662,5 +667,35 @@ describe('default layout — theme toggle', () => {
     }
 
     theme.value = prev
+  })
+})
+
+describe('default layout — canonical link', () => {
+  async function renderedCanonicalHref() {
+    await flushPromises()
+    await new Promise(r => setTimeout(r, 50))
+    return document.head.querySelector('link[rel="canonical"]')?.getAttribute('href') ?? null
+  }
+
+  beforeEach(() => {
+    mockSiteConfig.url = 'https://www.krealalejo.dev/'
+  })
+
+  it('adds a canonical link built from the site URL and the current route path', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    expect(await renderedCanonicalHref()).toBe('https://www.krealalejo.dev/')
+    wrapper.unmount()
+  })
+
+  it('removes the canonical link when the site URL is not configured', async () => {
+    const wrapper = await mountSuspended(DefaultLayout, {
+      slots: { default: '<p>Hello</p>' },
+    })
+    expect(await renderedCanonicalHref()).toBe('https://www.krealalejo.dev/')
+    mockSiteConfig.url = undefined
+    expect(await renderedCanonicalHref()).toBeNull()
+    wrapper.unmount()
   })
 })
