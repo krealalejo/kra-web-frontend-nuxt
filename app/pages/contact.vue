@@ -10,28 +10,39 @@ const submitError = ref<string | null>(null)
 
 const messageLength = computed(() => message.value.length)
 const messageValid = computed(() => messageLength.value >= 10)
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const emailValid = computed(() => emailPattern.test(email.value.trim()))
+const showEmailHint = computed(() => email.value.trim().length > 0 && !emailValid.value)
+
+function isBadRequest(error: unknown) {
+  const { statusCode, status } = (error ?? {}) as { statusCode?: number, status?: number }
+  return (statusCode ?? status) === 400
+}
 
 async function onSubmit() {
+  if (!messageValid.value || !emailValid.value) return
   submitError.value = null
   success.value = false
   sending.value = true
   const raw = config.public.apiBase
   const apiBase = typeof raw === 'string' ? raw.replace(/\/$/, '') : ''
   if (!apiBase) {
-    submitError.value = 'NUXT_PUBLIC_API_BASE_URL is not set.'
+    submitError.value = 'The contact form is unavailable right now. Please try again later.'
     sending.value = false
     return
   }
   try {
     await $fetch(`${apiBase}/contact`, {
       method: 'POST',
-      body: { email: email.value, message: message.value }
+      body: { email: email.value.trim(), message: message.value }
     })
     success.value = true
     email.value = ''
     message.value = ''
-  } catch {
-    submitError.value = 'Could not send your message. Please try again later.'
+  } catch (error) {
+    submitError.value = isBadRequest(error)
+      ? 'Your message was rejected. Please check your email address and message, then try again.'
+      : 'Could not send your message. Please try again later.'
   } finally {
     sending.value = false
   }
@@ -100,7 +111,20 @@ onMounted(async () => {
             <form novalidate @submit.prevent="onSubmit">
               <div class="form-field">
                 <label for="email">Email address</label>
-                <input id="email" v-model="email" type="email" required placeholder="you@example.com" />
+                <input
+                  id="email"
+                  v-model="email"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  :aria-invalid="showEmailHint"
+                  aria-describedby="email-help"
+                />
+                <div id="email-help" class="form-help">
+                  <span :class="{ warn: showEmailHint }">
+                    {{ showEmailHint ? 'Enter a valid email address' : '' }}
+                  </span>
+                </div>
               </div>
 
               <div class="form-field">
@@ -128,7 +152,7 @@ onMounted(async () => {
 
               <div class="form-submit">
                 <span class="note">No spam pls. Your message goes straight to me.</span>
-                <button type="submit" class="btn" :disabled="sending">
+                <button type="submit" class="btn" :disabled="sending || !messageValid || !emailValid">
                   <template v-if="sending">
                     <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
                       <circle cx="12" cy="12" r="10" stroke-opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10"/>

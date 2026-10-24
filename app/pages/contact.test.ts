@@ -93,15 +93,112 @@ describe('pages/contact.vue', () => {
     expect(wrapper.find('#message').exists()).toBe(true)
   })
 
-  it('shows NUXT_PUBLIC_API_BASE_URL error when apiBase is empty', async () => {
+  it('shows a user-facing unavailable message without leaking env var names when apiBase is empty', async () => {
     mockApiBase = ''
     const wrapper = await mountSuspended(ContactPage)
     await wrapper.find('#email').setValue('test@example.com')
     await wrapper.find('#message').setValue('This is a valid test message')
     await wrapper.find('form').trigger('submit')
     await flushPromises()
-    expect(wrapper.text()).toContain('NUXT_PUBLIC_API_BASE_URL')
+    expect(wrapper.find('[role="alert"]').text()).toContain('The contact form is unavailable right now')
+    expect(wrapper.text()).not.toContain('NUXT_PUBLIC_API_BASE_URL')
     expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('shows an invalid email hint and keeps submit disabled for a malformed email', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('not-an-email')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    expect(wrapper.text()).toContain('Enter a valid email address')
+    expect(wrapper.find('#email').attributes('aria-invalid')).toBe('true')
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('does not show the email hint while the email field is empty', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    expect(wrapper.text()).not.toContain('Enter a valid email address')
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeDefined()
+  })
+
+  it('enables submit once both email and message are valid', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    expect(wrapper.text()).not.toContain('Enter a valid email address')
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
+  })
+
+  it('does not call the API when the form is submitted with an invalid email', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('does not call the API when the form is submitted with a short message', async () => {
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('short')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
+  it('sends the trimmed email to the API', async () => {
+    mockFetch.mockResolvedValue(undefined)
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('  test@example.com  ')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(mockFetch).toHaveBeenCalledWith('http://localhost:8080/contact', {
+      method: 'POST',
+      body: { email: 'test@example.com', message: 'This is a valid test message' },
+    })
+  })
+
+  it('shows a specific message when the API responds with 400 via statusCode', async () => {
+    mockFetch.mockRejectedValue(Object.assign(new Error('Bad Request'), { statusCode: 400 }))
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    const alert = wrapper.find('[role="alert"]')
+    expect(alert.text()).toContain('Your message was rejected')
+    expect(alert.text()).not.toContain('Could not send')
+  })
+
+  it('shows a specific message when the API responds with 400 via status', async () => {
+    mockFetch.mockRejectedValue(Object.assign(new Error('Bad Request'), { status: 400 }))
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Your message was rejected')
+  })
+
+  it('keeps the generic message for non-400 API errors', async () => {
+    mockFetch.mockRejectedValue(Object.assign(new Error('Server Error'), { statusCode: 500 }))
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Could not send your message')
+  })
+
+  it('keeps the generic message when the rejection value is not an object', async () => {
+    mockFetch.mockRejectedValue(null)
+    const wrapper = await mountSuspended(ContactPage)
+    await wrapper.find('#email').setValue('test@example.com')
+    await wrapper.find('#message').setValue('This is a valid test message')
+    await wrapper.find('form').trigger('submit')
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Could not send your message')
   })
 
   it('shows singular "character" (not "characters") when 9 chars typed', async () => {
