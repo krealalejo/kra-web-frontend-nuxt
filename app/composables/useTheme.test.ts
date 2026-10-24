@@ -217,6 +217,71 @@ describe('useTheme', () => {
       expect(document.documentElement.classList.contains('dark')).toBe(true)
     })
 
+    it('removes the previous media query listener when init is called again', async () => {
+      const addEventListenerMock = vi.fn()
+      const removeEventListenerMock = vi.fn()
+      vi.stubGlobal('matchMedia', vi.fn(() => ({
+        matches: false,
+        addEventListener: addEventListenerMock,
+        removeEventListener: removeEventListenerMock,
+      })))
+      const { useTheme } = await import('./useTheme')
+      const { init } = useTheme()
+      init()
+      removeEventListenerMock.mockClear()
+      addEventListenerMock.mockClear()
+      init()
+      init()
+      expect(addEventListenerMock).toHaveBeenCalledTimes(2)
+      expect(removeEventListenerMock).toHaveBeenCalledTimes(2)
+      const [firstAdded, secondAdded] = addEventListenerMock.mock.calls.map(call => call[1])
+      const [, secondRemoved] = removeEventListenerMock.mock.calls.map(call => call[1])
+      expect(secondRemoved).toBe(firstAdded)
+      expect(secondAdded).not.toBe(firstAdded)
+    })
+
+    it('keeps exactly one active media query listener after repeated init calls', async () => {
+      const active = new Set<() => void>()
+      vi.stubGlobal('matchMedia', vi.fn(() => ({
+        matches: false,
+        addEventListener: (_event: string, fn: () => void) => { active.add(fn) },
+        removeEventListener: (_event: string, fn: () => void) => { active.delete(fn) },
+      })))
+      const { useTheme } = await import('./useTheme')
+      const { init } = useTheme()
+      init()
+      init()
+      init()
+      expect(active.size).toBe(1)
+    })
+
+    it('removes the previous legacy listener when init is called again', async () => {
+      const addListenerMock = vi.fn()
+      const removeListenerMock = vi.fn()
+      vi.stubGlobal('matchMedia', vi.fn(() => ({
+        matches: false,
+        addEventListener: undefined,
+        addListener: addListenerMock,
+        removeListener: removeListenerMock,
+      })))
+      const { useTheme } = await import('./useTheme')
+      const { init } = useTheme()
+      init()
+      removeListenerMock.mockClear()
+      init()
+      expect(removeListenerMock).toHaveBeenCalledWith(addListenerMock.mock.calls[0][0])
+    })
+
+    it('still restores the stored theme on repeated init calls', async () => {
+      const { useTheme } = await import('./useTheme')
+      const { theme, init } = useTheme()
+      init()
+      localStorage.setItem('theme', 'dark')
+      init()
+      expect(theme.value).toBe('dark')
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
+    })
+
     it('falls back to addListener when addEventListener is not available', async () => {
       const addListenerMock = vi.fn()
       vi.stubGlobal('matchMedia', vi.fn(() => ({

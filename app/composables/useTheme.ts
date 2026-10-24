@@ -1,5 +1,7 @@
 type Theme = 'light' | 'dark' | 'system'
 
+let detachSystemListener: (() => void) | null = null
+
 export function useTheme() {
   const theme = useState<Theme>('theme', () => 'system')
 
@@ -65,6 +67,9 @@ export function useTheme() {
     theme.value = initial
     applyTheme(initial)
 
+    detachSystemListener?.()
+    detachSystemListener = null
+
     const mq = globalThis.matchMedia('(prefers-color-scheme: dark)')
     const listener = () => {
       if (theme.value === 'system') applyTheme('system')
@@ -72,8 +77,10 @@ export function useTheme() {
     
     if (mq.addEventListener) {
       mq.addEventListener('change', listener)
+      detachSystemListener = () => mq.removeEventListener?.('change', listener)
     } else if ((mq as any).addListener) {
       (mq as any).addListener(listener)
+      detachSystemListener = () => (mq as any).removeListener?.(listener)
     }
   }
 
