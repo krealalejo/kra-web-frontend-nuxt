@@ -24,8 +24,7 @@ const { data: profileData } = useAsyncData(
     } catch {
       return null
     }
-  },
-  { server: false }
+  }
 )
 
 
@@ -96,6 +95,12 @@ const { data: skillsData } = useAsyncData(
 const { getThumbUrl } = useS3()
 const cvPortraitThumbUrl = computed(() => getThumbUrl(profileData.value?.cvPortraitUrl))
 
+useHead(() => ({
+  link: cvPortraitThumbUrl.value
+    ? [{ rel: 'preload', as: 'image', href: cvPortraitThumbUrl.value, fetchpriority: 'high' }]
+    : [],
+}))
+
 onMounted(async () => {
   document.querySelectorAll<HTMLElement>('.cv-head h1, .cv-head .role, .cv-head .actions, .cv-section').forEach(el => {
     el.style.opacity = '0'
@@ -145,6 +150,7 @@ onMounted(async () => {
               v-if="cvPortraitThumbUrl"
               :src="cvPortraitThumbUrl"
               alt="Kevin Real Alejo"
+              fetchpriority="high"
               style="width:100%;height:100%;object-fit:cover;display:block;"
             />
             <div v-else class="ph-center">
@@ -177,7 +183,7 @@ onMounted(async () => {
           <div v-for="exp in experienceData" :key="exp.id" class="role-row">
             <div>
               <div class="rt rt-withlogo">
-                <img v-if="getThumbUrl(exp.logoUrl)" :src="getThumbUrl(exp.logoUrl)!" :alt="exp.company" style="width:20px;height:20px;object-fit:contain;flex-shrink:0" />
+                <img v-if="getThumbUrl(exp.logoUrl)" :src="getThumbUrl(exp.logoUrl)!" :alt="exp.company" loading="lazy" decoding="async" width="20" height="20" style="width:20px;height:20px;object-fit:contain;flex-shrink:0" />
                 {{ exp.title }} · {{ exp.company }}
               </div>
               <div class="rc">{{ exp.location }}</div>
@@ -195,7 +201,7 @@ onMounted(async () => {
             <div>
               <div class="rt">{{ edu.title }}</div>
               <div class="rc" style="display:flex;align-items:center;gap:8px">
-                <img v-if="getThumbUrl(edu.logoUrl)" :src="getThumbUrl(edu.logoUrl)!" :alt="edu.institution" style="width:18px;height:18px;object-fit:contain;flex-shrink:0" />
+                <img v-if="getThumbUrl(edu.logoUrl)" :src="getThumbUrl(edu.logoUrl)!" :alt="edu.institution" loading="lazy" decoding="async" width="18" height="18" style="width:18px;height:18px;object-fit:contain;flex-shrink:0" />
                 {{ edu.institution }}
               </div>
               <div class="rd">{{ edu.description }}</div>

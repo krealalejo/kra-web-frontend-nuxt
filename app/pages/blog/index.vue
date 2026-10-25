@@ -98,7 +98,7 @@ useSeoMeta({ title: 'Posts · Kevin Real Alejo', description: 'Field notes and e
           <span class="num">{{ postNum(i) }}</span>
           <span class="date">{{ formatDate(post.createdAt) }}</span>
           <div class="blog-thumb-wrap">
-            <img v-if="post.imageUrl" :src="getThumbUrl(post)!" :alt="post.title" class="blog-thumb" />
+            <img v-if="post.imageUrl" :src="getThumbUrl(post)!" :alt="post.title" class="blog-thumb" loading="lazy" decoding="async" />
           </div>
           <div>
             <h2 class="title">{{ post.title }}</h2>
