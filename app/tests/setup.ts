@@ -20,7 +20,7 @@ if (typeof window !== 'undefined' && !window.localStorage) {
   }
   Object.defineProperty(window, 'localStorage', { value: storage, writable: true, configurable: true })
   ;(globalThis as any).localStorage = storage
-} else if (typeof globalThis.localStorage === 'undefined' && typeof window !== 'undefined') {
+} else if (globalThis.localStorage === undefined && globalThis.window !== undefined) {
   (globalThis as any).localStorage = window.localStorage
 }
 
@@ -91,7 +91,7 @@ vi.mock('#app', async (importOriginal) => {
 import { defineComponent, h } from 'vue'
 const MockIcon = defineComponent({
   name: 'Icon',
-  props: ['name'],
+  props: { name: { type: String, default: undefined } },
   render() {
     return h('span', { class: 'mock-icon', 'data-icon': this.name }, this.name)
   },
