@@ -330,7 +330,6 @@ function projectNum(i: number) {
                     target="_blank"
                     rel="noopener noreferrer"
                     class="activity-card-link"
-                    style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;display:inline-block;color:inherit;text-decoration:none;"
                   >{{ card.title }}</a>
                   <div v-else style="font-family:var(--font-display);font-size:24px;letter-spacing:-0.02em;margin-bottom:8px;font-weight:500;">{{ card.title }}</div>
                   <div style="font-size:13px;color:var(--fg-muted);">{{ card.description }}</div>
@@ -373,11 +372,19 @@ function projectNum(i: number) {
 }
 
 .activity-card-link {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  font-weight: 500;
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .activity-card-link:hover {
-  color: var(--accent) !important;
+  color: var(--accent);
 }
 
 @media (max-width: 1000px) {

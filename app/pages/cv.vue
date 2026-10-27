@@ -286,9 +286,9 @@ onMounted(async () => {
 }
 
 @media (max-width: 700px) {
-  .cv-head { grid-template-columns: 1fr !important; }
-  .cv-photo-wrap { display: none !important; }
-  .cv-section { grid-template-columns: 1fr !important; gap: 16px !important; }
+  .cv-head { grid-template-columns: 1fr; }
+  .cv-photo-wrap { display: none; }
+  .cv-section { grid-template-columns: 1fr; gap: 16px; }
 
   .cv-head-main { position: relative; }
 
