@@ -4,6 +4,11 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    ignore:
+      - dependency-name: "nuxt"
+        versions: [">=4.5.0"]
+      - dependency-name: "@nuxtjs/sitemap"
+        versions: [">=9.0.0"]
     groups:
       npm-all:
         patterns:
