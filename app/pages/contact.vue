@@ -10,7 +10,7 @@ const submitError = ref<string | null>(null)
 
 const messageLength = computed(() => message.value.length)
 const messageValid = computed(() => messageLength.value >= 10)
-const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const emailPattern = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/
 const emailValid = computed(() => emailPattern.test(email.value.trim()))
 const showEmailHint = computed(() => email.value.trim().length > 0 && !emailValid.value)
 
@@ -391,6 +391,10 @@ onMounted(async () => {
 
 .spin-icon {
   animation: spin 1s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin-icon { animation: none; }
 }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
