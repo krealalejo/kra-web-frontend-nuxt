@@ -630,7 +630,7 @@ describe('default layout — mobile menu keyboard and a11y', () => {
       slots: { default: '<p>Hello</p>' },
     })
     const sheet = wrapper.find('.nav-sheet')
-    expect(sheet.attributes('role')).toBe('dialog')
+    expect(sheet.element.tagName).toBe('DIALOG')
     expect(sheet.attributes('inert')).toBeDefined()
 
     await wrapper.find('header button[aria-expanded]').trigger('click')

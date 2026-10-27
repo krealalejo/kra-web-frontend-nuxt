@@ -52,9 +52,12 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 100px; 
+  scroll-padding-top: 100px;
   overflow-x: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
 body {
@@ -1597,6 +1600,11 @@ em, .emph {
 
 .nav-sheet {
   position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  max-width: none; max-height: none;
+  margin: 0; border: 0;
+  padding-left: 0; padding-right: 0; padding-bottom: 0;
+  color: inherit;
   background: var(--bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -1768,4 +1776,9 @@ em, .emph {
   .kra-theme-btn { min-width: 44px; min-height: 44px; }
   .kra-footer-nav-link { display: inline-flex; align-items: center; min-height: 44px; }
   .filter-chip { min-height: 40px; padding-left: 14px; padding-right: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kra-marquee-track,
+  .gh-pulse::after { animation: none; }
 }

@@ -156,9 +156,9 @@ watch(isMobileMenuOpen, (open) => {
     </header>
     
     
-    <div
+    <dialog
+      open
       :class="['nav-sheet', { open: isMobileMenuOpen }]"
-      role="dialog"
       aria-modal="true"
       aria-label="Site menu"
       :aria-hidden="!isMobileMenuOpen"
@@ -190,7 +190,7 @@ watch(isMobileMenuOpen, (open) => {
           <span>hi@krealalejo.dev</span>
         </div>
       </div>
-    </div>
+    </dialog>
 
     <main>
       <slot />
