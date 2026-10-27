@@ -115,13 +115,13 @@ async function renderDiagrams(container: HTMLElement | null | undefined) {
   if (!blocks.length) return
 
   const mermaid = await initMermaid()
-  let counter = 0
+  const renderedAt = Date.now()
 
-  for (const block of Array.from(blocks)) {
+  await Promise.all(Array.from(blocks).map(async (block, index) => {
     const pre = block.parentElement
-    if (!pre) continue
+    if (!pre) return
     const diagram = sanitizeDiagram(block.textContent ?? '')
-    const id = `mermaid-${Date.now()}-${counter++}`
+    const id = `mermaid-${renderedAt}-${index}`
     try {
       const { svg } = await mermaid.render(id, diagram)
       pre.replaceWith(buildWrapper(svg, diagram))
@@ -129,7 +129,7 @@ async function renderDiagrams(container: HTMLElement | null | undefined) {
       console.error('[useMermaid] render error', e)
       document.getElementById(id)?.remove()
     }
-  }
+  }))
 }
 
 function renderWhenVisible(container: HTMLElement | null | undefined) {
@@ -160,14 +160,14 @@ async function reRender(container: HTMLElement | null | undefined) {
   if (!wrappers.length) return
 
   const mermaid = await initMermaid()
-  let counter = 0
+  const renderedAt = Date.now()
 
-  for (const wrapper of Array.from(wrappers)) {
+  await Promise.all(Array.from(wrappers).map(async (wrapper, index) => {
     const diagram = wrapper.dataset.source
-    if (!diagram) continue
+    if (!diagram) return
     const viewport = wrapper.querySelector<HTMLElement>('.diagram-viewport')
-    if (!viewport) continue
-    const id = `mermaid-re-${Date.now()}-${counter++}`
+    if (!viewport) return
+    const id = `mermaid-re-${renderedAt}-${index}`
     try {
       const { svg } = await mermaid.render(id, diagram)
       viewport.innerHTML = svg
@@ -176,7 +176,7 @@ async function reRender(container: HTMLElement | null | undefined) {
       console.error('[useMermaid] re-render error', e)
       document.getElementById(id)?.remove()
     }
-  }
+  }))
 }
 
 export function useMermaid() {
