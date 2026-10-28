@@ -153,3 +153,9 @@ if (globalThis.window !== undefined) {
     })),
   })
 }
+
+vi.mock('#build/fetch', () => ({
+  get $fetch() {
+    return globalThis.$fetch
+  },
+}))

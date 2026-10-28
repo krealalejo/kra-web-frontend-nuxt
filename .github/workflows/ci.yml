@@ -38,6 +38,30 @@ jobs:
       - name: Run tests with coverage
         run: pnpm test:coverage
 
+      - name: Build and smoke-test SSR
+        env:
+          NUXT_PUBLIC_API_BASE_URL: https://api.krealalejo.dev
+        run: |
+          pnpm build
+          PORT=3999 node .output/server/index.mjs > ssr-server.log 2>&1 &
+          server_pid=$!
+          for attempt in $(seq 1 30); do
+            curl -s -o /dev/null http://localhost:3999/ && break
+            sleep 1
+          done
+          failed=0
+          for route in / /cv /blog /contact /projects; do
+            status=$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:3999${route}")
+            echo "${route} -> ${status}"
+            [ "$status" = "200" ] || failed=1
+          done
+          kill "$server_pid"
+          if grep -q 'request error' ssr-server.log; then
+            cat ssr-server.log
+            failed=1
+          fi
+          exit "$failed"
+
       - name: SonarCloud Scan
         if: github.event.pull_request.user.login != 'dependabot[bot]'
         uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
